@@ -1,0 +1,30 @@
+{
+	"id" : "peugeotcars",
+	"name" : "Voitures Peugeot",
+	"licence" : "AGPL",
+	"author" : "Jeedom Legacy",
+	"require" : "4.0",
+	"category" : "devicecommunication",
+	"display" : "panel",
+	"hasDependency" : false,
+	"hasOwnDeamon" : false,
+  "language": [
+      "fr_FR",
+      "en_US",
+      "es_ES",
+      "de_DE",
+      "ru_RU",
+      "ja_JP",
+      "pt_PT",
+      "tr"
+  ],
+  "compatibility": [
+      "miniplus",
+      "smart",
+      "rpi",
+      "docker",
+      "diy",
+      "mobile",
+      "v4"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+    "plugins\/husqvarna\/plugin_info\/configuration.php": {
+        "401 - Accès non autorisé": "401 - Unauthorized access",
+        "Compte husqvarna": "Husqvarna account",
+        "Password husqvarna": "Husqvarna Password"
+    },
+    "plugins\/husqvarna\/desktop\/php\/husqvarna.php": {
+        "401 - Accès non autorisé": "401 - Unauthorized access",
+        "Detecter": "Detect",
+        "Gestion": "Management",
+        "Configuration": "Setup",
+        "Mes equipements": "My equipment",
+        "Ajouter": "Add",
+        "Vous n'avez pas encore de husqvarna, cliquez sur Detecter un équipement pour commencer": "You don't have a husqvarna yet, click Detect equipment to start",
+        "Sauvegarder": "Save",
+        "Supprimer": "Delete",
+        "Configuration avancée": "Advanced configuration",
+        "Equipement": "Device",
+        "Commandes": "Commands",
+        "Général": "Main",
+        "Identifiant de l'équipement": "Equipment identifier",
+        "Nom de l'équipement": "Name of equipment",
+        "Nom de la husqvarna": "Husqvarna name",
+        "Objet parent": "Parent object",
+        "Aucun": "None",
+        "Catégorie": "Category",
+        "Activer": "Activate",
+        "Visible": "Visible",
+        "Nom": "Name",
+        "Sous-Type": "Sub-type",
+        "Paramètres": "Settings"
+    },
+    "plugins\/husqvarna\/desktop\/js\/husqvarna.js": {
+        "Nom": "Name",
+        "Historiser": "Historize",
+        "Afficher": "Pin up",
+        "Inverser": "Invert",
+        "Correction Min\t Auto": "Min Auto Correction",
+        "Correction Max Auto": "Max correction Auto",
+        "Min": "Min",
+        "Max": "Max",
+        "Tester": "Test"
+    },
+    "plugins\/husqvarna\/core\/ajax\/husqvarna.ajax.php": {
+        "401 - Accès non autorisé": "401 - Unauthorized access",
+        "Aucune methode correspondante à : ": "No method corresponding to:"
+    },
+    "plugins\/husqvarna\/core\/class\/husqvarna.class.php": {
+        "Démarrer": "Start",
+        "Arrêter": "Stop",
+        "Ranger": "Tidy",
+        "Inconnue": "Unknown"
+    },
+    "plugins\/husqvarna\/core\/api\/husqvarna.api.php": {
+        "Aucune methode correspondante à : ": "No method corresponding to:"
+    }
+}

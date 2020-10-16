@@ -1,0 +1,15 @@
+WARNING: Detail complet des mises à jour sur https://github.com/guenneguezt/plugin-husqvarna/commits/master[Historique Commit]
+
+Liste des évolutions majeures de la version courante :
+
+- Passage nouvel affichage d'équipement
+- Correction de l'heure de démarrage inconnue
+
+Anciennes évolutions :
+
+- Correction de la perte de conf lors de la sauvegarde de l'équipement.
+- Ajout des informations suivantes :
+* Prochain départ
+* Heure prochain départ
+* Heure dernier rapport
+- Première version bêta.

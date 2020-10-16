@@ -1,0 +1,12 @@
+WARNING: Detail complet des mises à jour sur https://github.com/guenneguezt/plugin-husqvarna/commits/master[Historique Commit]
+
+Liste der wichtigsten Änderungen in der aktuellen Version :
+
+- Ajout des informations suivantes :
+* Prochain départ
+* Heure prochain départ
+* Heure dernier rapport
+
+Anciennes évolutions :
+
+- Erste beta Version

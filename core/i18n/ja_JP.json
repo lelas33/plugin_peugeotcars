@@ -1,0 +1,57 @@
+{
+    "plugins\/husqvarna\/plugin_info\/configuration.php": {
+        "401 - Accès non autorisé": "401-不正アクセス",
+        "Compte husqvarna": "",
+        "Password husqvarna": ""
+    },
+    "plugins\/husqvarna\/desktop\/php\/husqvarna.php": {
+        "401 - Accès non autorisé": "401-不正アクセス",
+        "Detecter": "",
+        "Gestion": "管理",
+        "Configuration": "コンフィギュレーション",
+        "Mes equipements": "",
+        "Ajouter": "加えます",
+        "Vous n'avez pas encore de husqvarna, cliquez sur Detecter un équipement pour commencer": "",
+        "Sauvegarder": "セーブ",
+        "Supprimer": "取り除きます",
+        "Configuration avancée": "高度な構成",
+        "Equipement": "設備",
+        "Commandes": "コマンド",
+        "Général": "コモン",
+        "Identifiant de l'équipement": "",
+        "Nom de l'équipement": "機器の名前",
+        "Nom de la husqvarna": "",
+        "Objet parent": "親オブジェクト",
+        "Aucun": "何でもありません",
+        "Catégorie": "カテゴリ",
+        "Activer": "アクティブ",
+        "Visible": "目に見えます",
+        "Nom": "表題",
+        "Sous-Type": "サブタイプ",
+        "Paramètres": "設定"
+    },
+    "plugins\/husqvarna\/desktop\/js\/husqvarna.js": {
+        "Nom": "表題",
+        "Historiser": "Historicize",
+        "Afficher": "ディスプレイ",
+        "Inverser": "逆",
+        "Correction Min\t Auto": "",
+        "Correction Max Auto": "",
+        "Min": "低いです",
+        "Max": "マックス",
+        "Tester": "テスト"
+    },
+    "plugins\/husqvarna\/core\/ajax\/husqvarna.ajax.php": {
+        "401 - Accès non autorisé": "401-不正アクセス",
+        "Aucune methode correspondante à : ": "以下に対応するメソッドはありません："
+    },
+    "plugins\/husqvarna\/core\/class\/husqvarna.class.php": {
+        "Démarrer": "スタート",
+        "Arrêter": "ストップ",
+        "Ranger": "",
+        "Inconnue": "不明"
+    },
+    "plugins\/husqvarna\/core\/api\/husqvarna.api.php": {
+        "Aucune methode correspondante à : ": "以下に対応するメソッドはありません："
+    }
+}

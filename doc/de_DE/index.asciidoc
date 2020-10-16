@@ -1,0 +1,37 @@
+== husqvarna
+
+=== Présentation
+Ce plugin permet de connaitre l'état de votre ou vos tondeuses husqvarna.
+Il permet aussi de modifier le mode de celle ci.
+
+image::../images/husqvarna_screenshot1.jpg[align="center"]
+
+==== Installation/Konfiguration
+
+include::configurationplugin.asciidoc[]
+
+==== Funktionsweise :
+Le plugin créera automatiquement les équipements une fois que vous aurez configuré votre compte et mot de passe husqvarna.
+
+image::../images/husqvarna_screenshot4.jpg[align="center"]
+
+==== Informations visibles :
+[horizontal]
+- *Connecté* : Etat de communication Automover connect husqvarna.
+- *Batterie* : Niveau de charge de la batterie.
+- *Etat robot* : Etat du robot.
+- *Mode de fonctionnement* : Mode de fonctionnement actuellement selectionné.
+- *Dernier code d\'erreur* : Dernier code d'erreur rencontré.
+
+==== Actions visibles :
+[horizontal]
+- *Commande* : Changement de mode.
+
+=== Configuration
+include::configuration.asciidoc[]
+
+=== FAQ
+include::faq.asciidoc[]
+
+=== Änderungsprotokoll
+include::changelog.asciidoc[]

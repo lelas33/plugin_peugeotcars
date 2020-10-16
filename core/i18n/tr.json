@@ -1,0 +1,57 @@
+{
+    "plugins\/husqvarna\/plugin_info\/configuration.php": {
+        "401 - Accès non autorisé": "401 - Yetkisiz erişim",
+        "Compte husqvarna": "",
+        "Password husqvarna": ""
+    },
+    "plugins\/husqvarna\/desktop\/php\/husqvarna.php": {
+        "401 - Accès non autorisé": "401 - Yetkisiz erişim",
+        "Detecter": "",
+        "Gestion": "Idare",
+        "Configuration": "Ayar",
+        "Mes equipements": "",
+        "Ajouter": "Ekle",
+        "Vous n'avez pas encore de husqvarna, cliquez sur Detecter un équipement pour commencer": "",
+        "Sauvegarder": "Kaydet",
+        "Supprimer": "Sil",
+        "Configuration avancée": "Gelişmiş ayarlar",
+        "Equipement": "Cihaz",
+        "Commandes": "Komutalar",
+        "Général": "Genel",
+        "Identifiant de l'équipement": "",
+        "Nom de l'équipement": "Ekipman ismi",
+        "Nom de la husqvarna": "",
+        "Objet parent": "Üst nesne",
+        "Aucun": "Hiçbir",
+        "Catégorie": "Kategori",
+        "Activer": "Etkinleştir",
+        "Visible": "Görülebilir",
+        "Nom": "İsim",
+        "Sous-Type": "Alt türü(tipi)",
+        "Paramètres": "Ayarlar ( Séçenekler )"
+    },
+    "plugins\/husqvarna\/desktop\/js\/husqvarna.js": {
+        "Nom": "İsim",
+        "Historiser": "Tarihe göre sırala",
+        "Afficher": "Göster",
+        "Inverser": "Ters çevir",
+        "Correction Min\t Auto": "",
+        "Correction Max Auto": "Düzeltme Max Oto",
+        "Min": "Minimum",
+        "Max": "Maximum",
+        "Tester": "Test et"
+    },
+    "plugins\/husqvarna\/core\/ajax\/husqvarna.ajax.php": {
+        "401 - Accès non autorisé": "401 - Yetkisiz erişim",
+        "Aucune methode correspondante à : ": "Aşağıdakilere karşılık gelen bir yöntem yok:"
+    },
+    "plugins\/husqvarna\/core\/class\/husqvarna.class.php": {
+        "Démarrer": "Başlangıç",
+        "Arrêter": "Durdur",
+        "Ranger": "",
+        "Inconnue": "Bilinmeyen"
+    },
+    "plugins\/husqvarna\/core\/api\/husqvarna.api.php": {
+        "Aucune methode correspondante à : ": "Aşağıdakilere karşılık gelen bir yöntem yok:"
+    }
+}

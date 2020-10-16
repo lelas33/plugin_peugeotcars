@@ -1,0 +1,57 @@
+{
+    "plugins\/husqvarna\/plugin_info\/configuration.php": {
+        "401 - Accès non autorisé": "401 - Nicht autorisierter Zugriff",
+        "Compte husqvarna": "Husqvarna Konto",
+        "Password husqvarna": "Husqvarna Password"
+    },
+    "plugins\/husqvarna\/desktop\/php\/husqvarna.php": {
+        "401 - Accès non autorisé": "401 - Nicht autorisierter Zugriff",
+        "Detecter": "Entdecken",
+        "Gestion": "Verwaltung",
+        "Configuration": "Konfiguration",
+        "Mes equipements": "Mein Gerät",
+        "Ajouter": "Hinzufügen",
+        "Vous n'avez pas encore de husqvarna, cliquez sur Detecter un équipement pour commencer": "Sie haben noch keinen Husqvarna. Klicken Sie zum Starten auf Geräte erkennen",
+        "Sauvegarder": "Speichern",
+        "Supprimer": "Löschen",
+        "Configuration avancée": "Erweiterte Konfiguration",
+        "Equipement": "Gerät",
+        "Commandes": "Befehle",
+        "Général": "Allgemein",
+        "Identifiant de l'équipement": "Geräte ID",
+        "Nom de l'équipement": "Name der Ausrüstung",
+        "Nom de la husqvarna": "Husqvarna Name",
+        "Objet parent": "Übergeordnetes Objekt",
+        "Aucun": "Ohne",
+        "Catégorie": "Kategorie",
+        "Activer": "Aktivieren",
+        "Visible": "Sichtbar",
+        "Nom": "Name",
+        "Sous-Type": "Untertyp",
+        "Paramètres": "Einstellungen"
+    },
+    "plugins\/husqvarna\/desktop\/js\/husqvarna.js": {
+        "Nom": "Name",
+        "Historiser": "Chronik",
+        "Afficher": "Anzeige",
+        "Inverser": "Umgekehrt",
+        "Correction Min\t Auto": "Min. Automatische Korrektur",
+        "Correction Max Auto": "Korrektur Auto Max",
+        "Min": "Niedrig",
+        "Max": "Max",
+        "Tester": "Test"
+    },
+    "plugins\/husqvarna\/core\/ajax\/husqvarna.ajax.php": {
+        "401 - Accès non autorisé": "401 - Nicht autorisierter Zugriff",
+        "Aucune methode correspondante à : ": "Keine Methode entsprechend:"
+    },
+    "plugins\/husqvarna\/core\/class\/husqvarna.class.php": {
+        "Démarrer": "Start",
+        "Arrêter": "Beenden",
+        "Ranger": "Weglegen",
+        "Inconnue": "Unbekannt"
+    },
+    "plugins\/husqvarna\/core\/api\/husqvarna.api.php": {
+        "Aucune methode correspondante à : ": "Keine Methode entsprechend:"
+    }
+}

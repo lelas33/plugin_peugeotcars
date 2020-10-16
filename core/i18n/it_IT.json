@@ -1,0 +1,57 @@
+{
+    "plugins\/husqvarna\/plugin_info\/configuration.php": {
+        "401 - Accès non autorisé": "401 - Accesso non autorizzato",
+        "Compte husqvarna": "",
+        "Password husqvarna": ""
+    },
+    "plugins\/husqvarna\/desktop\/php\/husqvarna.php": {
+        "401 - Accès non autorisé": "401 - Accesso non autorizzato",
+        "Detecter": "",
+        "Gestion": "Gestione",
+        "Configuration": "Configurazione",
+        "Mes equipements": "",
+        "Ajouter": "Aggiungi",
+        "Vous n'avez pas encore de husqvarna, cliquez sur Detecter un équipement pour commencer": "",
+        "Sauvegarder": "Salva",
+        "Supprimer": "Rimuovere",
+        "Configuration avancée": "Configurazione avanzata",
+        "Equipement": "Dispositivo",
+        "Commandes": "Comandi",
+        "Général": "Principale",
+        "Identifiant de l'équipement": "",
+        "Nom de l'équipement": "Nome dispositivo",
+        "Nom de la husqvarna": "",
+        "Objet parent": "Oggetto padre",
+        "Aucun": "Nessuno",
+        "Catégorie": "Categoria",
+        "Activer": "Attivare",
+        "Visible": "Visibile",
+        "Nom": "Nome",
+        "Sous-Type": "Sotto-tipo",
+        "Paramètres": "Impostazioni"
+    },
+    "plugins\/husqvarna\/desktop\/js\/husqvarna.js": {
+        "Nom": "Nome",
+        "Historiser": "Storicizza",
+        "Afficher": "Mostra",
+        "Inverser": "Inverti",
+        "Correction Min\t Auto": "",
+        "Correction Max Auto": "Correzione automatica massima",
+        "Min": "",
+        "Max": "",
+        "Tester": "Prova"
+    },
+    "plugins\/husqvarna\/core\/ajax\/husqvarna.ajax.php": {
+        "401 - Accès non autorisé": "401 - Accesso non autorizzato",
+        "Aucune methode correspondante à : ": "Nessun metodo corrispondente a:"
+    },
+    "plugins\/husqvarna\/core\/class\/husqvarna.class.php": {
+        "Démarrer": "Avvio",
+        "Arrêter": "Ferma",
+        "Ranger": "",
+        "Inconnue": "Sconosciuto"
+    },
+    "plugins\/husqvarna\/core\/api\/husqvarna.api.php": {
+        "Aucune methode correspondante à : ": "Nessun metodo corrispondente a:"
+    }
+}

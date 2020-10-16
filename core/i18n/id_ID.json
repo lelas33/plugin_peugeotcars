@@ -1,0 +1,57 @@
+{
+    "plugins\/husqvarna\/plugin_info\/configuration.php": {
+        "401 - Accès non autorisé": "401 - Akses tidak sah",
+        "Compte husqvarna": "",
+        "Password husqvarna": ""
+    },
+    "plugins\/husqvarna\/desktop\/php\/husqvarna.php": {
+        "401 - Accès non autorisé": "401 - Akses tidak sah",
+        "Detecter": "",
+        "Gestion": "Manajemen",
+        "Configuration": "Konfigurasi",
+        "Mes equipements": "",
+        "Ajouter": "Tambahan",
+        "Vous n'avez pas encore de husqvarna, cliquez sur Detecter un équipement pour commencer": "",
+        "Sauvegarder": "Menyimpan",
+        "Supprimer": "Menghapus",
+        "Configuration avancée": "Konfigurasi lanjutan",
+        "Equipement": "Peralatan",
+        "Commandes": "Perintah",
+        "Général": "Umum",
+        "Identifiant de l'équipement": "",
+        "Nom de l'équipement": "Nama peralatan",
+        "Nom de la husqvarna": "",
+        "Objet parent": "Objek induk",
+        "Aucun": "Tak ada",
+        "Catégorie": "Kategori",
+        "Activer": "Mengaktifkan",
+        "Visible": "Terlihat",
+        "Nom": "Nama",
+        "Sous-Type": "Subtipe",
+        "Paramètres": "Parameter²"
+    },
+    "plugins\/husqvarna\/desktop\/js\/husqvarna.js": {
+        "Nom": "Nama",
+        "Historiser": "Historicize",
+        "Afficher": "Memenitikan",
+        "Inverser": "Membalikkan",
+        "Correction Min\t Auto": "",
+        "Correction Max Auto": "",
+        "Min": "",
+        "Max": "",
+        "Tester": "Coba"
+    },
+    "plugins\/husqvarna\/core\/ajax\/husqvarna.ajax.php": {
+        "401 - Accès non autorisé": "401 - Akses tidak sah",
+        "Aucune methode correspondante à : ": "Aucune methode correspondante à :"
+    },
+    "plugins\/husqvarna\/core\/class\/husqvarna.class.php": {
+        "Démarrer": "Awal",
+        "Arrêter": "Berhenti",
+        "Ranger": "",
+        "Inconnue": "Tidak dikenal"
+    },
+    "plugins\/husqvarna\/core\/api\/husqvarna.api.php": {
+        "Aucune methode correspondante à : ": "Aucune methode correspondante à :"
+    }
+}

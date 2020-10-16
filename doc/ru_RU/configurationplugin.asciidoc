@@ -1,0 +1,11 @@
+Nous allons configurer le plugin. Pour se faire, cliquer sur *Plugin / Gestion des plugins*. Puis trouver *husqvarna*.
+
+image::../images/husqvarna_screenshot1.jpg[align="center"]
+
+Il faut définir certains paramètres global au plugin :
+
+- Compte : Compte husqvarna.
+
+- Password : Mot de passe de ce compte.
+
+Et pour finir, cliquer sur Sauvegarder.
