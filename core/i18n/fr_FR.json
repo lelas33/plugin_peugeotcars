@@ -1,17 +1,17 @@
 {
-    "plugins\/husqvarna\/plugin_info\/configuration.php": {
+    "plugins\/peugeotcars\/plugin_info\/configuration.php": {
         "401 - Accès non autorisé": "401 - Accès non autorisé",
-        "Compte husqvarna": "Compte husqvarna",
-        "Password husqvarna": "Password husqvarna"
+        "Compte peugeotcars": "Compte peugeotcars",
+        "Password peugeotcars": "Password peugeotcars"
     },
-    "plugins\/husqvarna\/desktop\/php\/husqvarna.php": {
+    "plugins\/peugeotcars\/desktop\/php\/peugeotcars.php": {
         "401 - Accès non autorisé": "401 - Accès non autorisé",
         "Detecter": "Detecter",
         "Gestion": "Gestion",
         "Configuration": "Configuration",
         "Mes equipements": "Mes equipements",
         "Ajouter": "Ajouter",
-        "Vous n'avez pas encore de husqvarna, cliquez sur Detecter un équipement pour commencer": "Vous n'avez pas encore de husqvarna, cliquez sur Detecter un équipement pour commencer",
+        "Vous n'avez pas encore de peugeotcars, cliquez sur Detecter un équipement pour commencer": "Vous n'avez pas encore de peugeotcars, cliquez sur Detecter un équipement pour commencer",
         "Sauvegarder": "Sauvegarder",
         "Supprimer": "Supprimer",
         "Configuration avancée": "Configuration avancée",
@@ -20,7 +20,7 @@
         "Général": "Général",
         "Identifiant de l'équipement": "Identifiant de l'équipement",
         "Nom de l'équipement": "Nom de l'équipement",
-        "Nom de la husqvarna": "Nom de la husqvarna",
+        "Nom de la peugeotcars": "Nom de la peugeotcars",
         "Objet parent": "Objet parent",
         "Aucun": "Aucun",
         "Catégorie": "Catégorie",
@@ -30,7 +30,7 @@
         "Sous-Type": "Sous-Type",
         "Paramètres": "Paramètres"
     },
-    "plugins\/husqvarna\/desktop\/js\/husqvarna.js": {
+    "plugins\/peugeotcars\/desktop\/js\/peugeotcars.js": {
         "Nom": "Nom",
         "Historiser": "Historiser",
         "Afficher": "Afficher",
@@ -41,17 +41,17 @@
         "Max": "Max",
         "Tester": "Tester"
     },
-    "plugins\/husqvarna\/core\/ajax\/husqvarna.ajax.php": {
+    "plugins\/peugeotcars\/core\/ajax\/peugeotcars.ajax.php": {
         "401 - Accès non autorisé": "401 - Accès non autorisé",
         "Aucune methode correspondante à : ": "Aucune methode correspondante à : "
     },
-    "plugins\/husqvarna\/core\/class\/husqvarna.class.php": {
+    "plugins\/peugeotcars\/core\/class\/peugeotcars.class.php": {
         "Démarrer": "Démarrer",
         "Arrêter": "Arrêter",
         "Ranger": "Ranger",
         "Inconnue": "Inconnue"
     },
-    "plugins\/husqvarna\/core\/api\/husqvarna.api.php": {
+    "plugins\/peugeotcars\/core\/api\/peugeotcars.api.php": {
         "Aucune methode correspondante à : ": "Aucune methode correspondante à : "
     }
 }
