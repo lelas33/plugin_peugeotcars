@@ -42,29 +42,6 @@ class peugeotcars extends eqLogic {
 
     private function getListeDefaultCommandes()
     {
-/*      
-        return array( "batteryPercent"     => array('Batterie',               'h', 'info',  'numeric', "%", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "connected"          => array('Connecté',               'h', 'info',  'binary',   "", 0, "GENERIC_INFO",   'core::alert', 'core::alert', ''),
-                      "lastErrorCode"      => array('Code erreur',            'h', 'info',  'numeric',  "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "commande"           => array('Commande',               'h', 'action','select',   "", 0, "GENERIC_ACTION", '',      '',      'START|'.__('Démarrer',__FILE__).';STOP|'.__('Arrêter',__FILE__).';PARK|'.__('Ranger',__FILE__)),
-                      "mowerStatus"        => array('Etat robot',             'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "operatingMode"      => array('Mode de fonctionnement', 'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "nextStartSource"    => array('Prochain départ',        'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "nextStartTimestamp" => array('Heure prochain départ',  'h', 'info',  'string',  "ut2", 0, "GENERIC_INFO", 'core::badge', 'core::badge', ''),
-                      "storedTimestamp"    => array('Heure dernier rapport',  'h', 'info',  'string',  "ut1", 0, "GENERIC_INFO", 'core::badge', 'core::badge', ''),
-                      "errorStatus"        => array('Statut erreur',          'p', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "planning_en"        => array('Planification cmd',      'p', 'action','other',    "", 0, "GENERIC_ACTION", 'custom::IconActionNt', 'custom::IconActionNt',      ''),
-                      "planning_activ"     => array('Planification',          'p', 'info',  'binary',   "", 0, "GENERIC_INFO",   'core::alert', 'core::alert', ''),
-                      "planning_state"     => array('Etat planification',     'p', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "planning_nbcy_tot"  => array('Nombre de cycles total', 'p', 'info',  'numeric',  "", 0, "GENERIC_INFO",   'core::line', 'core::line', ''),
-                      "planning_nbcy_z1"   => array('Nombre de cycles zone1', 'p', 'info',  'numeric',  "", 0, "GENERIC_INFO",   'core::line', 'core::line', ''),
-                      "meteo_en"           => array('Météo cmd',              'p', 'action','other',    "", 0, "GENERIC_ACTION", 'custom::IconActionNt', 'custom::IconActionNt',      ''),
-                      "meteo_activ"        => array('Météo',                  'p', 'info',  'binary',   "", 0, "GENERIC_INFO",   'core::alert', 'core::alert', ''),
-                      "lastLocations"      => array('Position GPS',           'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'husqvarna::maps_husqvarna', 'husqvarna::maps_husqvarna', ''),
-                      "gps_posx"           => array('GPS position X',         'p', 'info',  'numeric',  "", 0, "GENERIC_INFO",   'core::line', 'core::line', ''),
-                      "gps_posy"           => array('GPS position Y',         'p', 'info',  'numeric',  "", 0, "GENERIC_INFO",   'core::line', 'core::line', '')
-        );
-*/
         return array( "vin"                => array('Vin',              'info',  'string',    "", 0, "GENERIC_INFO",   'peugeotcars::car_img', 'peugeotcars::car_img', ''),
                       "kilometrage"        => array('Kilometrage',      'info',  'numeric',"kms", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
                       "entretien_dist"     => array('Dist.Entretien',   'info',  'numeric',"kms", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
@@ -147,21 +124,11 @@ class peugeotcars extends eqLogic {
     public static function pull() {
         if ( config::byKey('account', 'peugeotcars') != "" || config::byKey('password', 'peugeotcars') != "" )
         {
-            log::add('peugeotcars','debug','scan movers info');
-            foreach (self::byType('peugeotcars') as $eqLogic) {
-                $eqLogic->scan();
-            }
+            log::add('peugeotcars','debug','scan info');
         }
     }
 
 
-
-    public function scan() {
-        //$session_peugeotcars = new husqvarna_api();
-        //$session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'));
-
-        //$session_peugeotcars->logOut();
-    }
 }
 
 class peugeotcarsCmd extends cmd 

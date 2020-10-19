@@ -31,7 +31,7 @@ function peugeotcars_install() {
 	}
 }
 
-function husqvarna_update() {
+function peugeotcars_update() {
 	foreach (eqLogic::byType('peugeotcars') as $eqLogic) {
 		$eqLogic->save();
 	}
@@ -47,7 +47,7 @@ function husqvarna_update() {
 	}
 }
 
-function husqvarna_remove() {
+function peugeotcars_remove() {
     $cron = cron::byClassAndFunction('peugeotcars', 'pull');
     if (is_object($cron)) {
 		$cron->stop();
