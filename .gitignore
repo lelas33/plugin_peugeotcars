@@ -1,4 +1,4 @@
 # Ignoring directories (Both the directory itself and its contents will be ignored.)
 *.db
-/ressources/VF3*.png
-/ressources/VR3*.png
+/ressources/VF30*.png
+/ressources/VR3U*.png
