@@ -278,7 +278,13 @@ function UpdateDataBase(){
 function Graphs() {
   var trips_number = car_dtlog.length;
   if (trips_number <1) {
-    return;
+     $("#div_graphDistance").empty();
+     $("#div_graphTempsTrajets").empty();
+     $("#div_graphVitesseMoyenne").empty();
+     $("#div_graphDistance").append("Pas de données");
+     $("#div_graphTempsTrajets").append("Pas de données");
+     $("#div_graphVitesseMoyenne").append("Pas de données");
+   return;
   }
 
   // préparation des données
