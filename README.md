@@ -26,10 +26,10 @@ Par source Github:
 * Sélectionner le symbole + (Ajouter un plugin)
 * Sélectionner le type de source Github (Il faut l'avoir autorisé au préalable dans le menu Réglages / Système / Configuration => Mise à jour/Market)
 * Remplir les champs:
-**  ID logique du plugin : peugeotcars
-**  Utilisateur ou organisation du dépôt : lelas33
-**  Nom du dépôt : plugin_peugeotcars
-**  Branche : master
+* - ID logique du plugin : peugeotcars
+* - Utilisateur ou organisation du dépôt : lelas33
+* - Nom du dépôt : plugin_peugeotcars
+* - Branche : master
 * Aller dans le menu "plugins/objets connectés/Voitures Peugeot" de jeedom pour installer le nouveau plugin.
 Sur la page configuration du plugin, pas besoin des identifiant pour le moment, et cochez la case :"Afficher le panneau desktop". Cela donne accès à la page du "panel" de l'équipement.
 
