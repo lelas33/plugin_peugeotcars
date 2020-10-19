@@ -17,13 +17,20 @@ L'importation des fichiers "*.myp" permet:
 </p>
 
 ## Versions
-* Tag pgc_v0.1: Version draft originale du 20/10/2020
-
+* Tag pgc_v0.1: Version draft originale du 19/10/2020
+* Tag pgc_v0.2: Version draft avec correction plantage Jeedom (20/10/2020)
 
 ## Installation
-* Télécharger le plugin depuis Github. Je vous suggère de télécharger les versions avec tags ("pgc_vx.y")
-* Dézipper le plugin dans le dossier plugin de jeedom
-* Aller dans le menu "plugins/objets connectés/PVoitures Peugeot" de jeedom pour installer le nouveau plugin.
+Par source Github:
+* Aller dans Jeedom menu Plugins / Gestion des plugins
+* Sélectionner le symbole + (Ajouter un plugin)
+* Sélectionner le type de source Github (Il faut l'avoir autorisé au préalable dans le menu Réglages / Système / Configuration => Mise à jour/Market)
+* Remplir les champs:
+  * ID logique du plugin : peugeotcars
+  * Utilisateur ou organisation du dépôt : lelas33
+  * Nom du dépôt : plugin_peugeotcars
+  * Branche : master
+* Aller dans le menu "plugins/objets connectés/Voitures Peugeot" de jeedom pour installer le nouveau plugin.
 Sur la page configuration du plugin, pas besoin des identifiant pour le moment, et cochez la case :"Afficher le panneau desktop". Cela donne accès à la page du "panel" de l'équipement.
 
 ## Configuration
