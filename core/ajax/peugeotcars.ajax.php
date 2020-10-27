@@ -120,7 +120,8 @@ function get_trip_files()
       // Ajout des voyages dans le fichier
       for ($trip=0; $trip<$nb_trip; $trip++) {
         // verifie si le nouveau trajet est deja dans la base
-        if (trip_is_in_base($car_vin, $myp[$car]["trips"][$trip]["id"], $myp[$car]["trips"][$trip]["startDateTime"]) === 0) {
+        if ((trip_is_in_base($car_vin, $myp[$car]["trips"][$trip]["id"], $myp[$car]["trips"][$trip]["startDateTime"]) === 0) && 
+            (intval($myp[$car]["trips"][$trip]["endDateTime"]) > intval($myp[$car]["trips"][$trip]["startDateTime"]))) {  // Supprime les trajet erronés
           $data = str_pad($myp[$car]["trips"][$trip]["id"], 6, "0", STR_PAD_LEFT).",".
                   $myp[$car]["trips"][$trip]["startDateTime"].",".
                   $myp[$car]["trips"][$trip]["endDateTime"].",".
@@ -133,8 +134,9 @@ function get_trip_files()
           $param_car[$car_vin]["added_nb_trip"] = $param_car[$car_vin]["added_nb_trip"] + 1;
           // identifie s'il s'agit du dernier trajet en date
           if (intval($myp[$car]["trips"][$trip]["startDateTime"]) > $param_car[$car_vin]["last_trip"]) {
-            $param_car[$car_vin]["last_trip"] = intval($myp[$car]["trips"][$trip]["startDateTime"]);
-            $param_car[$car_vin]["endMileage"] = intval($myp[$car]["trips"][$trip]["endMileage"]);
+            $param_car[$car_vin]["last_trip"]   = intval($myp[$car]["trips"][$trip]["startDateTime"]);
+            $param_car[$car_vin]["endMileage"]  = round(floatval($myp[$car]["trips"][$trip]["endMileage"]),1);
+            $param_car[$car_vin]["endDateTime"] = intval($myp[$car]["trips"][$trip]["endDateTime"]);
             $param_car[$car_vin]["maintenanceDays"] = intval($myp[$car]["trips"][$trip]["maintenanceDays"]);
             $param_car[$car_vin]["maintenanceDistance"] = intval($myp[$car]["trips"][$trip]["maintenanceDistance"]);
           }
@@ -165,11 +167,14 @@ function get_trip_files()
     $eq = eqLogic::byLogicalId($vin, "peugeotcars");
     if (($eq->getIsEnable()) && ($param_car[$vin]["last_trip"] !== 0)) {
       $cmd = $eq->getCmd(null, "kilometrage");
-      $cmd->event($param_car[$vin]["endMileage"]);
+      $dt_km = $param_car[$vin]["endDateTime"];
+      $dt_kma = date('Y-m-d H:i:s', $dt_km);  // 2020-10-27 11:34:35
+      log::add('peugeotcars', 'info', 'date:'.$dt_km.'/'.$dt_kma);
+      $cmd->event($param_car[$vin]["endMileage"], $dt_kma);
       $cmd = $eq->getCmd(null, "entretien_jours");
-      $cmd->event($param_car[$vin]["maintenanceDays"]);
+      $cmd->event($param_car[$vin]["maintenanceDays"], $dt_kma);
       $cmd = $eq->getCmd(null, "entretien_dist");
-      $cmd->event($param_car[$vin]["maintenanceDistance"]);
+      $cmd->event($param_car[$vin]["maintenanceDistance"], $dt_kma);
       $report["log"][$rpt_li] = "Mise à jour du kilomètrage: ".$param_car[$vin]["endMileage"]; $rpt_li += 1;
       $report["log"][$rpt_li] = "Mise à jour du délai jusqu'à l'entretien: ".$param_car[$vin]["maintenanceDays"]; $rpt_li += 1;
       $report["log"][$rpt_li] = "Mise à jour du nombre de kilomètre jusqu'à l'entretien :".$param_car[$vin]["maintenanceDistance"]; $rpt_li += 1;

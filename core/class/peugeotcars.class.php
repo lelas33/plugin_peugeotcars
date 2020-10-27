@@ -37,7 +37,7 @@ class peugeotcars extends eqLogic {
     private function getListeDefaultCommandes()
     {
         return array( "vin"                => array('Vin',              'info',  'string',    "", 0, "GENERIC_INFO",   'peugeotcars::car_img', 'peugeotcars::car_img', ''),
-                      "kilometrage"        => array('Kilometrage',      'info',  'numeric',"kms", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "kilometrage"        => array('Kilometrage',      'info',  'numeric',"kms", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
                       "entretien_dist"     => array('Dist.Entretien',   'info',  'numeric',"kms", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
                       "entretien_jours"    => array('Jours.Entretien',  'info',  'numeric',  "j", 0, "GENERIC_INFO",   'core::badge', 'core::badge', '')
         );
@@ -50,7 +50,7 @@ class peugeotcars extends eqLogic {
     {
         foreach( $this->getListeDefaultCommandes() as $id => $data)
         {
-            list($name, $type, $subtype, $unit, $invertBinary, $generic_type, $template_dashboard, $template_mobile, $listValue) = $data;
+            list($name, $type, $subtype, $unit, $hist, $generic_type, $template_dashboard, $template_mobile, $listValue) = $data;
             $cmd = $this->getCmd(null, $id);
             if ( ! is_object($cmd) ) {
                 $cmd = new peugeotcarsCmd();
@@ -69,19 +69,18 @@ class peugeotcars extends eqLogic {
                 if ( $listValue != "" ) {
                     $cmd->setConfiguration('listValue', $listValue);
                 }
-                $cmd->setDisplay('invertBinary',$invertBinary);
+                $cmd->setIsHistorized($hist);
                 $cmd->setDisplay('generic_type', $generic_type);
                 $cmd->setTemplate('dashboard', $template_dashboard);
                 $cmd->setTemplate('mobile', $template_mobile);
 
                 $cmd->save();
             }
-            else
-            {
+            else {
                 $cmd->setType($type);
                 $cmd->setSubType($subtype);
                 $cmd->setUnite($unit);
-                $cmd->setDisplay('invertBinary',$invertBinary);
+                $cmd->setIsHistorized($hist);
                 $cmd->setDisplay('generic_type', $generic_type);
                 if ( $id == "vin" ) {
                   // Mise à jour du champ VIN a partir du logicalId
