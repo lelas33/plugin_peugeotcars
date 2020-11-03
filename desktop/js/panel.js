@@ -25,6 +25,12 @@ var car_dtlog = [];
 // et afficher les infos correspondantes
 // ============================================================================================
 loadData();
+veh_get_infos();
+veh_get_maint();
+
+// =======================================================================
+//                         Gestion des trajets du véhicule
+// =======================================================================
 
 // capturer les donnees depuis le serveur
 // ======================================
@@ -232,9 +238,15 @@ $('#bt_per_all').on('click',function(){
 // ===========================
 function ChangeCarImage() {
   var vin = $("#eqlogic_select option:selected").val();
+  globalEqLogic = vin;
   img = "plugins/peugeotcars/ressources/"+vin+".png";
   //alert(img);
   $('#voiture_img').attr('src', img);
+  // Mise à jour infos vehicule
+  veh_get_infos();
+  // Mise à jour infos maintenance vehicule
+  veh_get_maint();
+
 }
 
 // Mise a jour de la base de donnees des trajets
@@ -472,6 +484,156 @@ function Graphs() {
 
       }]
   });
+
+
+}
+
+
+// =======================================================================
+//                         Gestion des informations du véhicule
+// =======================================================================
+// Interroger le serveur pour obtenir les informations du véhicule
+// ===============================================================
+function veh_get_infos(){
+    var param = [];
+    globalEqLogic = $("#eqlogic_select option:selected").val();
+    $.ajax({
+        type: 'POST',
+        url: 'plugins/peugeotcars/core/ajax/peugeotcars.ajax.php',
+        data: {
+            action: 'getVehInfos',
+            eqLogic_id: globalEqLogic,  // VIN du vehicule
+            param: param
+        },
+        dataType: 'json',
+        error: function (request, status, error) {
+            alert("loadData:Error"+status+"/"+error);
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            console.log("[loadData] Objet peugeotcars récupéré : " + globalEqLogic);
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+            info_cars = JSON.parse(data.result);
+            //alert("retour:="+data.result);
+
+            veh_disp_infos(info_cars);
+        }
+    });
+}
+
+
+// Affichage des informations sur le vehicule
+// ==========================================
+function veh_disp_infos(info_cars){
+  
+  $("#infos_vehicule").empty();
+
+  // Section charactéristiques
+  $("#infos_vehicule").append("<p style='font-size: 1.5em;'>Charactéristiques du véhicule</p>");
+  $("#infos_vehicule").append("<b>Numero VIN:</b>"+info_cars.vin+"<br>");
+  $("#infos_vehicule").append("<b>Numero LCDV:</b>"+info_cars.lcdv+"<br>");
+  $("#infos_vehicule").append("<b>Nom du véhicule:</b> "+info_cars.short_label+"<br>");
+  $("#infos_vehicule").append("<b>Date de début de garantie:</b> "+info_cars.warranty_start_date+"<br>");
+  $("#infos_vehicule").append("<b>Fonctions intégrées:</b> "+info_cars.eligibility+"<br>");
+  $("#infos_vehicule").append("<b>Type:</b> "+info_cars.types+"<br><br>");
+ 
+  // Section valeurs courantes
+  $("#infos_vehicule").append("<p style='font-size: 1.5em;'>Valeurs courantes du véhicule</p>");
+  $("#infos_vehicule").append("<b>Kilométrage courant:</b> "+info_cars.mileage_km+" kms, ");
+  $("#infos_vehicule").append("<b>A la date du :</b> "+info_cars.mileage_ts+"<br><br>");
+
+  // Section version logicielle
+  $("#infos_vehicule").append("<p style='font-size: 1.5em;'>Version logicielles disponibles</p>");
+  $("#infos_vehicule").append("<b>LOGICIEL:</b> "+info_cars.rcc_type+"<br>");
+  $("#infos_vehicule").append("<b>Version courante connue:</b> "+info_cars.rcc_current_ver+"<br>");
+  $("#infos_vehicule").append("<b>Version disponible:</b> "+info_cars.rcc_available_ver+" (datée du "+info_cars.rcc_available_date+")<br>");
+  $("#infos_vehicule").append("<b>Taille du fichier:</b> "+Math.round(parseInt(info_cars.rcc_available_size,10)/(1024*1024))+" MB.<br>");
+  $("#infos_vehicule").append("<b>Liens de téléchargement:</b><br>");
+  $("#infos_vehicule").append("<b> . Fichier:</b><br>"+info_cars.rcc_available_UpURL+"<br>");
+  $("#infos_vehicule").append("<b> . Licence:</b><br>"+info_cars.rcc_available_LiURL+"<br>");
+}
+
+// =============================================================================================
+//                       Gestion des informations de maintenance du véhicule
+// =============================================================================================
+// Interroger le serveur pour obtenir les informations de maintenance du véhicule
+// ==============================================================================
+function veh_get_maint(){
+    var param = [];
+    globalEqLogic = $("#eqlogic_select option:selected").val();
+    $.ajax({
+        type: 'POST',
+        url: 'plugins/peugeotcars/core/ajax/peugeotcars.ajax.php',
+        data: {
+            action: 'getVehMaint',
+            eqLogic_id: globalEqLogic,  // VIN du vehicule
+            param: param
+        },
+        dataType: 'json',
+        error: function (request, status, error) {
+            alert("loadData:Error"+status+"/"+error);
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            console.log("[loadData] Objet peugeotcars récupéré : " + globalEqLogic);
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+            maint_cars = JSON.parse(data.result);
+            //alert("retour:="+data.result);
+
+            veh_disp_maint(maint_cars);
+        }
+    });
+}
+
+
+// Affichage des informations sur le vehicule
+// ==========================================
+function veh_disp_maint(maint_cars){
+  
+  $("#infos_maintenance").empty();
+
+  // Section générale maintenance
+  $("#infos_maintenance").append("<p style='font-size: 1.5em;'>Maintenance du véhicule</p>");
+  $("#infos_maintenance").append("<b>Kilométrage courant:</b>"+maint_cars.mileage_km+" kms.<br>");
+
+  // Section première visite
+  $("#infos_maintenance").append("<p style='font-size:1.5em;color:red;'><br>Prochaine visite d'entretien du véhicule. Date recommandée: "+maint_cars.visite1_date+"</p>");
+  $("#infos_maintenance").append("<b>Conditions de cette visite: </b>"+maint_cars.visite1_conditions+"<br>");
+  $("#infos_maintenance").append("<b>Objectifs de cette visite: </b><br>");
+  for (i=0; i<maint_cars.visite1_lb_title.length; i++) {
+    $("#infos_maintenance").append("-"+maint_cars.visite1_lb_title[i]+"<br>");
+    for (j=0; j<maint_cars.visite1_lb_body[i].length; j++) {
+      $("#infos_maintenance").append("&nbsp&nbsp&nbsp&nbsp."+maint_cars.visite1_lb_body[i][j]+"<br>");
+    }
+  }
+
+  // Section seconde visite
+  $("#infos_maintenance").append("<p style='font-size: 1.5em;color:red;'><br>Visite d'entretien suivante du véhicule. Date recommandée: "+maint_cars.visite2_date+"</p>");
+  $("#infos_maintenance").append("<b>Conditions de cette visite: </b>"+maint_cars.visite2_conditions+"<br>");
+  $("#infos_maintenance").append("<b>Objectifs de cette visite: </b><br>");
+  for (i=0; i<maint_cars.visite2_lb_title.length; i++) {
+    $("#infos_maintenance").append("-"+maint_cars.visite2_lb_title[i]+"<br>");
+    for (j=0; j<maint_cars.visite2_lb_body[i].length; j++) {
+      $("#infos_maintenance").append("&nbsp&nbsp&nbsp&nbsp."+maint_cars.visite2_lb_body[i][j]+"<br>");
+    }
+  }
+
+  // Section troisieme visite
+  $("#infos_maintenance").append("<p style='font-size: 1.5em;color:red;'><br>Visite d'entretien suivante du véhicule. Date recommandée: "+maint_cars.visite3_date+"</p>");
+  $("#infos_maintenance").append("<b>Conditions de cette visite: </b>"+maint_cars.visite3_conditions+"<br>");
+  $("#infos_maintenance").append("<b>Objectifs de cette visite: </b><br>");
+  for (i=0; i<maint_cars.visite3_lb_title.length; i++) {
+    $("#infos_maintenance").append("-"+maint_cars.visite3_lb_title[i]+"<br>");
+    for (j=0; j<maint_cars.visite3_lb_body[i].length; j++) {
+      $("#infos_maintenance").append("&nbsp&nbsp&nbsp&nbsp."+maint_cars.visite3_lb_body[i][j]+"<br>");
+    }
+  }
 
 
 }

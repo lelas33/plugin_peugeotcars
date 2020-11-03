@@ -16,11 +16,14 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api.class.php';
+
 define("MYP_FILES_DIR",  "/../../data/MyPeugeot/");
 define("CARS_FILES_DIR", "/../../data/");
 
 global $cars_dt;
 global $report;
+global $car_infos;
 
 // =====================================================
 // Fonction de lecture de tous les trajets d'une voiture
@@ -184,6 +187,76 @@ function get_trip_files()
   
 }
 
+
+// ===========================================================
+// Fourniture des informations sur le véhicule (selon son VIN)
+// ===========================================================
+function get_car_infos($vin)
+{
+  $session_peugeotcars = new peugeotcars_api_v1();
+  $session_peugeotcars->login(config::byKey('token', 'peugeotcars'));
+  // Section caractéristiques véhicule
+  $ret = $session_peugeotcars->pg_api_car_vehicule($vin);
+  //log::add('peugeotcars','debug','get_car_infos:Visual='.$ret["visual"]);
+  $info["vin"] = $vin;
+  $info["short_label"] = $ret["short_label"];
+  $info["lcdv"] = $ret["lcdv"];
+  $info["warranty_start_date"] = date("j-n-Y", intval($ret["warranty_start_date"]));
+  $info["eligibility"] = $ret["eligibility"];
+  $info["types"] = $ret["types"];
+  $liste_logiciel = $ret["eligibility"][0];
+
+  // Section valeurs courantes
+  $ret = $session_peugeotcars->pg_api_me_vehicules($vin);
+  //log::add('peugeotcars','debug','get_car_infos:mileage='.$ret["mileage_km"]);
+  $info["mileage_km"] = $ret["mileage_km"];
+  $info["mileage_ts"] = date("j-n-Y \à G\hi", intval($ret["mileage_ts"]));
+  
+  // Section version logiciels
+  //log::add('peugeotcars','debug','get_car_infos:liste_logiciel='.$liste_logiciel);
+  if (strpos($liste_logiciel, "RCC") !== FALSE) {
+    // recherche la version SW du log RCC
+    $ret = $session_peugeotcars->pg_api_sw_updates($vin, "rcc-firmware");
+    $info["rcc_type"]            = $ret["sw_type"];
+    $info["rcc_current_ver"]     = $ret["sw_current_ver"];
+    $info["rcc_available_ver"]   = $ret["sw_available_ver"];
+    $info["rcc_available_date"]  = $ret["sw_available_date"];
+    $info["rcc_available_size"]  = $ret["sw_available_size"];
+    $info["rcc_available_UpURL"] = $ret["sw_available_UpURL"];
+    $info["rcc_available_LiURL"] = $ret["sw_available_LiURL"];
+  }
+  return $info;
+}
+
+// ======================================================================
+// Fourniture des informations de maintenance du véhicule (selon son VIN)
+// ======================================================================
+function get_car_maint($vin)
+{
+  $session_peugeotcars = new peugeotcars_api_v1();
+  $session_peugeotcars->login(config::byKey('token', 'peugeotcars'));
+  // Section caractéristiques véhicule
+  $ret = $session_peugeotcars->pg_api_me_vehicules_maintenance($vin);
+  $maint["mileage_km"]         = $ret["mileage_km"];
+  $maint["visite1_date"]       = date("j-n-Y", intval($ret["visite1_ts"]));
+  $maint["visite1_conditions"] = $ret["visite1_age"]." an(s) ou ".$ret["visite1_mileage"]." kms";
+  $maint["visite1_lb_title"]   = $ret["visite1_lb_title"];
+  $maint["visite1_lb_body"]    = $ret["visite1_lb_body"];
+
+  $maint["visite2_date"]       = date("j-n-Y", intval($ret["visite2_ts"]));
+  $maint["visite2_conditions"] = $ret["visite2_age"]." an(s) ou ".$ret["visite2_mileage"]." kms";
+  $maint["visite2_lb_title"]   = $ret["visite2_lb_title"];
+  $maint["visite2_lb_body"]    = $ret["visite2_lb_body"];
+
+  $maint["visite3_date"]       = date("j-n-Y", intval($ret["visite3_ts"]));
+  $maint["visite3_conditions"] = $ret["visite3_age"]." an(s) ou ".$ret["visite3_mileage"]." kms";
+  $maint["visite3_lb_title"]   = $ret["visite3_lb_title"];
+  $maint["visite3_lb_body"]    = $ret["visite3_lb_body"];
+
+  return $maint;
+}
+
+
 // =====================================
 // Gestion des commandes recues par AJAX
 // =====================================
@@ -218,6 +291,21 @@ try {
     ajax::success($ret_json);
     }
 
+  else if (init('action') == 'getVehInfos') {
+    log::add('peugeotcars', 'info', 'Ajax:getVehInfos');
+    $vin = init('eqLogic_id');
+    $car_infos = get_car_infos($vin);
+    $ret_json = json_encode ($car_infos);
+    ajax::success($ret_json);
+    }
+
+  else if (init('action') == 'getVehMaint') {
+    log::add('peugeotcars', 'info', 'Ajax:getVehMaint');
+    $vin = init('eqLogic_id');
+    $car_maint = get_car_maint($vin);
+    $ret_json = json_encode ($car_maint);
+    ajax::success($ret_json);
+    }
 
     throw new Exception(__('Aucune methode correspondante à : ', __FILE__) . init('action'));
     /*     * *********Catch exeption*************** */

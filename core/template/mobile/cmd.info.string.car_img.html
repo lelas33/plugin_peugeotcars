@@ -3,7 +3,7 @@
 	</div>
 	<script>
     jeedom.cmd.update['#id#'] = function(_options) { 
-      img_path = '<img src="plugins/peugeotcars/ressources/' + _options.display_value + '.png" width="250" height="115"/>';
+      img_path = '<img src="plugins/peugeotcars/ressources/' + _options.display_value + '.png" width="250"/>';
 		  $('.cmd[data-cmd_id=#id#] .state').empty().append(img_path);
 		}
 		jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});

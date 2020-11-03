@@ -26,7 +26,7 @@ function peugeotcars_install() {
         $cron->setFunction('pull');
         $cron->setEnable(1);
         $cron->setDeamon(0);
-        $cron->setSchedule('* * * * *');
+        $cron->setSchedule('15 * * * *');
         $cron->save();
 	}
 }
@@ -42,7 +42,7 @@ function peugeotcars_update() {
         $cron->setFunction('pull');
         $cron->setEnable(1);
         $cron->setDeamon(0);
-        $cron->setSchedule('* * * * *');
+        $cron->setSchedule('15 * * * *');
         $cron->save();
 	}
 }
