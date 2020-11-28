@@ -16,12 +16,13 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api.class.php';
+require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api2.class.php';
 
 define("MYP_FILES_DIR",  "/../../data/MyPeugeot/");
 define("CARS_FILES_DIR", "/../../data/");
 
 global $cars_dt;
+global $cars_dt_gps;
 global $report;
 global $car_infos;
 
@@ -183,8 +184,40 @@ function get_trip_files()
       $report["log"][$rpt_li] = "Mise à jour du nombre de kilomètre jusqu'à l'entretien :".$param_car[$vin]["maintenanceDistance"]; $rpt_li += 1;
     }
   }
+}
 
+// =====================================================
+// Fonction de lecture des positions GPS d'une voiture
+// =====================================================
+function get_car_gps($vin, $ts_start, $ts_end)
+{
+  global $cars_dt_gps;
   
+  // ouverture du fichier de log
+  $fn_car = dirname(__FILE__).CARS_FILES_DIR.$vin.'.gpslog';
+  $fcar = fopen($fn_car, "r");
+
+  // lecture des donnees
+  $line = 0;
+  $cars_dt_gps["log"] = [];
+  if ($fcar) {
+    while (($buffer = fgets($fcar, 4096)) !== false) {
+      // extrait les timestamps debut et fin du trajet
+      list($gps_ts, $gps_lat, $gps_lon, $gps_head) = explode(",", $buffer);
+      $gps_tsi = intval($gps_ts);
+      if (($gps_tsi>=$ts_start) && ($gps_tsi<=$ts_end) && ($gps_lat != 0) && ($gps_lon != 0)) {
+        $cars_dt_gps["log"][$line] = $buffer;
+        $line = $line + 1;
+      }
+    }
+  }
+  fclose($fcar);
+  // Ajoute les coordonnées du domicile pour utilisation par javascript
+  $latitute=config::byKey("info::latitude");
+  $longitude=config::byKey("info::longitude");
+  $cars_dt_gps["home"] = $latitute.",".$longitude;
+  log::add('peugeotcars', 'debug', 'Ajax:get_car_gps:nb_lines='.$line);
+  return;
 }
 
 
@@ -193,28 +226,25 @@ function get_trip_files()
 // ===========================================================
 function get_car_infos($vin)
 {
-  $session_peugeotcars = new peugeotcars_api_v1();
-  $session_peugeotcars->login(config::byKey('token', 'peugeotcars'));
+  $session_peugeotcars = new peugeotcars_api_v2();
+  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'));
+  $session_peugeotcars->pg_api_login1_2();   // Authentification
   // Section caractéristiques véhicule
-  $ret = $session_peugeotcars->pg_api_car_vehicule($vin);
-  //log::add('peugeotcars','debug','get_car_infos:Visual='.$ret["visual"]);
+  $ret = $session_peugeotcars->pg_ap_mym_user();
+  log::add('peugeotcars','debug','get_car_infos:sucess='.$ret["sucess"]);
   $info["vin"] = $vin;
   $info["short_label"] = $ret["short_label"];
   $info["lcdv"] = $ret["lcdv"];
   $info["warranty_start_date"] = date("j-n-Y", intval($ret["warranty_start_date"]));
   $info["eligibility"] = $ret["eligibility"];
-  $info["types"] = $ret["types"];
-  $liste_logiciel = $ret["eligibility"][0];
-
-  // Section valeurs courantes
-  $ret = $session_peugeotcars->pg_api_me_vehicules($vin);
-  //log::add('peugeotcars','debug','get_car_infos:mileage='.$ret["mileage_km"]);
-  $info["mileage_km"] = $ret["mileage_km"];
+  $info["types"] = $ret["eligibility"][0];
+  $liste_logiciel = $ret["eligibility"][1];
+  $info["mileage_km"] = $ret["mileage_val"];
   $info["mileage_ts"] = date("j-n-Y \à G\hi", intval($ret["mileage_ts"]));
   
   // Section version logiciels
   //log::add('peugeotcars','debug','get_car_infos:liste_logiciel='.$liste_logiciel);
-  if (strpos($liste_logiciel, "RCC") !== FALSE) {
+  if (strpos($liste_logiciel, "rcc") !== FALSE) {
     // recherche la version SW du log RCC
     $ret = $session_peugeotcars->pg_api_sw_updates($vin, "rcc-firmware");
     $info["rcc_type"]            = $ret["sw_type"];
@@ -233,10 +263,11 @@ function get_car_infos($vin)
 // ======================================================================
 function get_car_maint($vin)
 {
-  $session_peugeotcars = new peugeotcars_api_v1();
-  $session_peugeotcars->login(config::byKey('token', 'peugeotcars'));
+  $session_peugeotcars = new peugeotcars_api_v2();
+  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'));
+  $session_peugeotcars->pg_api_login1_2();   // Authentification
   // Section caractéristiques véhicule
-  $ret = $session_peugeotcars->pg_api_me_vehicules_maintenance($vin);
+  $ret = $session_peugeotcars->pg_ap_mym_maintenance($vin);
   $maint["mileage_km"]         = $ret["mileage_km"];
   $maint["visite1_date"]       = date("j-n-Y", intval($ret["visite1_ts"]));
   $maint["visite1_conditions"] = $ret["visite1_age"]." an(s) ou ".$ret["visite1_mileage"]." kms";
@@ -288,6 +319,20 @@ try {
     // Param 0 et 1 sont les timestamp de debut et fin de la periode de log demandée
     get_car_trips($vin, intval ($ts_start), intval ($ts_end));
     $ret_json = json_encode ($cars_dt);
+    ajax::success($ret_json);
+    }
+
+  else if (init('action') == 'getGpsData') {
+    log::add('peugeotcars', 'info', 'Ajax:getGpsData');
+    $vin = init('eqLogic_id');
+    $ts_start = init('param')[0];
+    $ts_end   = init('param')[1];
+    log::add('peugeotcars', 'debug', 'vin   :'.$vin);
+    log::add('peugeotcars', 'debug', 'param0:'.$ts_start);
+    log::add('peugeotcars', 'debug', 'param1:'.$ts_end);
+    // Param 0 et 1 sont les timestamp de debut et fin de la periode de log demandée
+    get_car_gps($vin, intval ($ts_start), intval ($ts_end));
+    $ret_json = json_encode ($cars_dt_gps);
     ajax::success($ret_json);
     }
 

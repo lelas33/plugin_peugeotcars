@@ -26,10 +26,9 @@ class peugeotcars_api_v1 {
   protected $url_api_me                = 'https://api-me.mym.awsmpsa.com/v1/';
   protected $url_api_car               = 'https://api-car.mym.awsmpsa.com/v1/';
   protected $url_api_sw                = 'https://api.groupe-psa.com/applications/majesticf/v1/';
-  protected $api_me_token              = '434db87610250ce0453276ae6b1353b24f3b5e6c0477d2f3d96d3ff67794ef45';
 	protected $username;
 	protected $password;
-	protected $token;
+	protected $api_me_token;
 
 
 
@@ -38,7 +37,7 @@ class peugeotcars_api_v1 {
   // ==============================
   function login($token)
 	{
-    $this->token = $token;
+    $this->api_me_token = $token;
 	}
 
   // ==============================

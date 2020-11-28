@@ -21,6 +21,8 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
 
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
 <div class="row" id="div_peugeotcars">
     <div class="row">
         <div class="col-lg-8 col-lg-offset-2" style="height: 250px;padding-top:10px">
@@ -48,6 +50,7 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
       <div class="col-lg-8 col-lg-offset-2" style="padding-top:10px">
         <ul class="nav nav-tabs" role="tablist">
           <li role="presentation"><a href="#trips_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Trajets}}</a></li>
+          <li role="presentation"><a href="#car_gps_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Historique position GPS}}</a></li>
           <li role="presentation" class="active"><a href="#car_info_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Informations véhicule}}</a></li>
           <li role="presentation"><a href="#car_maint_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Maintenance véhicule}}</a></li>
         </ul>
@@ -158,6 +161,51 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
               </div>
           </div>
         </div>
+        <div role="tabpanel" class="tab-pane" id="car_gps_tab">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2" style="height: 170px;padding-top:10px;">
+              <form class="form-horizontal">
+                <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 0px 5px;background-color:#f8f8f8">
+                  <div class="form-horizontal" style="min-height: 10px;">
+                  </div>
+                  <div class="pull-left" style="min-height:130px;font-size: 1.5em;">
+                    <i style="font-size: initial;"></i> {{Période analysée}}
+                    <br>
+                    Début : <input id="gps_startDate" class="pull-right form-control input-sm in_datepicker" style="display : inline-block; width: 87px;" value="<?php echo $date['start']?>"/>
+                    <br>
+                    Fin : <input id="gps_endDate" class="pull-right form-control input-sm in_datepicker" style="display : inline-block; width: 87px;" value="<?php echo $date['end']?>"/>
+                  </div>
+                  <div class="pull-left" style="padding-top:30px;padding-left:20px;min-height:130px;font-size: 1.5em;">
+                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_validChangeDate' title="{{Mise à jour des données sur la période}}">{{Mise à jour période}}</a><br>
+                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_today'>{{Aujourd'hui}}</a>
+                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_yesterday'>{{Hier}}</a>
+                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_last_week'>{{Les 7 derniers jours}}</a>
+                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_all'>{{Tout}}</a>
+                  </div>
+                </fieldset>
+              </form>
+            </div>
+            <div class="col-lg-2">
+            </div>
+          </div>
+          <div class="row">
+              <div class="col-lg-8 col-lg-offset-2">
+                  <form class="form-horizontal">
+                       <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
+                           <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
+                               <i style="font-size: initial;"></i> {{Historique des positions GPS du véhicule sur cette période}}
+                           </div>
+                           <div id='gps_info' style="font-size: 1.2em;"></div>
+                           <div style="v"></div>
+                       </br>
+                       </fieldset>
+                       <div style="min-height: 10px;"></div>
+                   </form>
+              </div>
+              <div class="col-lg-8 col-lg-offset-2" id="gps_map">
+              </div>
+          </div>
+        </div>
         <div role="tabpanel" class="tab-pane" id="car_info_tab">
           <div class="row">
               <div class="col-lg-8 col-lg-offset-2"  id="infos_vehicule" style="padding-top:10px">
@@ -175,6 +223,6 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
       </div>
     </div>
     </div>
-
 </div>
 <?php include_file('desktop', 'panel', 'js', 'peugeotcars');?>
+

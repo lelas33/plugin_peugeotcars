@@ -1,0 +1,23 @@
+<div style="width:90px;min-height:80px;" class="cmd #history# tooltips cmd-widget" data-type="info" data-subtype="numeric" data-cmd_id="#id#" data-cmd_uid="#uid#" title="Valeur du #valueDate#, collectée le #collectDate#">
+    <center>
+        <span class='cmdName' style="font-weight: bold;font-size : 12px;">#name_display#</span>
+        <span style="font-size: 3.5em;" class="iconCmd#uid#"></span>
+    </center>
+    <script>
+        $('.iconCmd#uid#').empty();
+        tmp = parseFloat('#state#');
+        if (('#state#' === 'undefined') || (tmp == 0)) {
+            $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal0"></i>');
+        } else if  (tmp <= 2){
+            $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal1"></i>');
+        } else if  (tmp <= 4){
+            $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal2"></i>');
+        } else if  (tmp <= 6){
+            $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal3"></i>');
+        } else if  (tmp <= 8){
+            $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal4"></i>');
+        } else {
+            $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal5"></i>');
+        }
+    </script>
+</div>

@@ -20,13 +20,68 @@ $(".in_datepicker").datepicker();
 
 // Variables partagées
 var car_dtlog = [];
+var car_dtgpslog = [];
+var trip_polyline = [];
+var gps_macarte = null;
+var gps_pts_nb = 0;
+
+const TRIPS_COLOR_NAMES = [
+  "Aquamarine",
+  "Blue",
+  "BlueViolet",
+  "Brown",
+  "Chocolate",
+  "Coral",
+  "Cyan",
+  "DarkBlue",
+  "DarkCyan",
+  "Aqua",
+  "DarkGrey",
+  "DarkRed",
+  "DarkSalmon",
+  "DimGrey",
+  "Fuchsia",
+  "Gold",
+  "Green",
+  "GreenYellow",
+  "Indigo",
+  "LightGreen",
+  "LightPink",
+  "LightSalmon",
+  "LightYellow",
+  "Lime",
+  "Magenta",
+  "MidnightBlue",
+  "Orange",
+  "OrangeRed",
+  "Orchid",
+  "PaleGoldenRod",
+  "Pink",
+  "Purple",
+  "Red",
+  "RoyalBlue",
+  "Salmon",
+  "SkyBlue",
+  "Tomato",
+  "Turquoise",
+  "Violet",
+  "White",
+  "Yellow"
+];
+
+const NB_TRIPS_COLORS = TRIPS_COLOR_NAMES.length;
 
 // Fonctions realisées au chargement de la page: charger les données sur la période par défaut,
 // et afficher les infos correspondantes
 // ============================================================================================
-loadData();
-veh_get_infos();
-veh_get_maint();
+$(document).ready(function() {
+  loadData();
+  veh_get_infos();
+  veh_get_maint();
+  loadDataGps();
+});
+
+
 
 // =======================================================================
 //                         Gestion des trajets du véhicule
@@ -203,8 +258,8 @@ function trip_list () {
   } );    
 }
 
-// gestion du bouton de definition et de mise à jour de la période 
-// ===============================================================
+// gestion du bouton de definition et de mise à jour de la période pour les trajets
+// ================================================================================
 $('#bt_validChangeDate').on('click',function(){
   loadData();
 });
@@ -484,9 +539,187 @@ function Graphs() {
 
       }]
   });
-
-
 }
+
+
+// =======================================================================
+//                     Gestion de l'historique GPS du véhicule
+// =======================================================================
+// Fonction d'initialisation de la carte
+// =====================================
+// On initialise la latitude et la longitude de Paris (centre de la carte)
+function initMap(home_lat, home_lon) {
+    // met à jour le paramètre CSS associé au DIV
+    $('#gps_map').css({height:'700px'});
+    // Créer l'objet "gps_macarte" et l'insèrer dans l'élément HTML qui a l'ID "gps_map"
+    gps_macarte = L.map('gps_map').setView([home_lat, home_lon], 11);
+    // Leaflet ne récupère pas les cartes (tiles) sur un serveur par défaut. Nous devons lui préciser où nous souhaitons les récupérer. Ici, openstreetmap.fr
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+        // Il est toujours bien de laisser le lien vers la source des données
+        attribution: 'données © <a href="//osm.org/copyright">OpenStreetMap</a>/ODbL - rendu <a href="//openstreetmap.fr">OSM France</a>',
+        minZoom: 1,
+        maxZoom: 20
+    }).addTo(gps_macarte);
+}
+
+// capturer les donnees GPS depuis le serveur
+// ==========================================
+function loadDataGps(){
+    var param = [];
+    param[0]= (Date.parse($('#gps_startDate').value())/1000);  // Time stamp en seconde
+    param[1]= (Date.parse($('#gps_endDate').value())/1000);
+    globalEqLogic = $("#eqlogic_select option:selected").val();
+    $.ajax({
+        type: 'POST',
+        url: 'plugins/peugeotcars/core/ajax/peugeotcars.ajax.php',
+        data: {
+            action: 'getGpsData',
+            eqLogic_id: globalEqLogic,  // VIN du vehicule
+            param: param
+        },
+        dataType: 'json',
+        error: function (request, status, error) {
+            alert("loadDataGps:Error"+status+"/"+error);
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            console.log("[loadDataGps] Objet peugeotcars récupéré : " + globalEqLogic);
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+            dt_log = JSON.parse(data.result);
+            nb_dt = dt_log.log.length;
+            //alert("getLogGPSData:data nb="+nb_dt);
+            // Capture les donnees de position
+            car_dtgpslog = [];
+            for (p=0; p<nb_dt; p++) {
+              car_dtgpslog[p] = dt_log.log[p];
+            }
+            // coordonnees domicile
+            tmp = dt_log.home.split(',');
+            home_lat = parseFloat(tmp[0]);
+            home_lon = parseFloat(tmp[1]);
+            if (gps_macarte == null)
+              initMap(home_lat, home_lon);
+            gps_display_points();
+        }
+    });
+}
+
+// Ajout de marqueurs sur la carte
+// ===============================
+function gps_display_points() {
+  var trip_ts_first = Date.now()/1000;
+  var trip_ts_last  = 0;
+
+  // Suppression des marqueurs existants s'il y en a
+  if (trip_polyline.length > 0) {
+    for (i=0;i<trip_polyline.length;i++) {
+      gps_macarte.removeLayer(trip_polyline[i]);
+    }
+    trip_polyline = [];
+  }
+  
+  gps_pts_nb = car_dtgpslog.length;
+  if (gps_pts_nb == 0) {
+    $("#gps_info").empty();
+    return;
+  }
+  // alert("gps_pts_nb="+gps_pts_nb);
+  // centre la carte sur le point "Home" de Jeedom
+  //alert("Home GPS:"+home_lat+"/"+home_lon);
+  gps_macarte.setView([home_lat, home_lon], 11);
+  // analyse des données pour la création d'une liste de trajets
+  // (un trajet est identifié par une interruption supérieure à 5 mn entre 2 points GPS sucessifs)
+  trip_polyline = [];
+  var trip_table = [];
+  var trip = [];
+  var last_pts = [];
+  var gps_pt_ts_prev = 0;
+  var nb_trip = 0;
+  for (i=0; i<gps_pts_nb; i++) {
+    tmp = car_dtgpslog[i].split(',');
+    gps_pt_ts   = parseInt  (tmp[0],10);  // Timestamp
+    gps_pt_lat  = parseFloat(tmp[1]);     // Lat
+    gps_pt_lon  = parseFloat(tmp[2]);     // Lon
+    gps_pt_head = parseFloat(tmp[3]);     // Heading
+    batt_level  = parseFloat(tmp[4]);     // Battery level
+
+    // Identification date/heure du premier et dernier trajet
+    if (gps_pt_ts < trip_ts_first)
+      trip_ts_first = gps_pt_ts;
+    if (gps_pt_ts > trip_ts_last)
+      trip_ts_last = gps_pt_ts;
+    // séparation des trajets
+    if (i==0) {
+      trip = [];
+      trip.push([gps_pt_lat, gps_pt_lon]);
+    }
+    else if (gps_pt_ts - gps_pt_ts_prev>(5*60)) {
+      // fin d'un trajet
+      trip_table.push(trip);
+      nb_trip +=1;
+      // début d'un nouveau trajet
+      trip = [];
+      trip.push(last_pts);
+      trip.push([gps_pt_lat, gps_pt_lon]);
+    }
+    else {
+      trip.push([gps_pt_lat, gps_pt_lon]);
+    }
+    gps_pt_ts_prev = gps_pt_ts;
+    last_pts = [gps_pt_lat, gps_pt_lon];
+  }
+  // Ajout du dernier trajet s'il n'est pas monopoint
+  if (trip.length > 1) {
+    trip_table.push(trip);
+    nb_trip +=1;
+  } 
+  // Affiche les infos sur les trajets de la période
+  var ts_first = new Date(trip_ts_first * 1000);
+  var ts_last  = new Date(trip_ts_last * 1000);
+  $("#gps_info").empty();
+  $("#gps_info").append("Nombre de points GPS: "+gps_pts_nb+"<br>");
+  $("#gps_info").append("Nombre de trajets: "+nb_trip+"  (du "+ts_first.toLocaleString()+" au "+ts_last.toLocaleString()+")<br>");
+
+  // affichage des trajets
+  for (trip_id=0; trip_id<nb_trip; trip_id++) {
+    trip_polyline[trip_id] = L.polyline(trip_table[trip_id], {color: TRIPS_COLOR_NAMES[trip_id%NB_TRIPS_COLORS], weight: 5, smoothFactor: 1}).addTo(gps_macarte);
+  }
+}
+
+
+// gestion des boutons de definition et de mise à jour de la période pour les logs GPS
+// ===================================================================================
+$('#btgps_validChangeDate').on('click',function(){
+  loadDataGps();
+});
+
+// Aujourd'hui
+$('#btgps_per_today').on('click',function(){
+  $('#gps_startDate').datepicker( "setDate", "+0" );
+  $('#gps_endDate').datepicker( "setDate", "+1" );
+  loadDataGps();
+});
+// Hier
+$('#btgps_per_yesterday').on('click',function(){
+  $('#gps_startDate').datepicker( "setDate", "-1" );
+  $('#gps_endDate').datepicker( "setDate", "+0" );
+  loadDataGps();
+});
+// Les 7 derniers jours
+$('#btgps_per_last_week').on('click',function(){
+  $('#gps_startDate').datepicker( "setDate", "-6" );
+  $('#gps_endDate').datepicker( "setDate", "+1" );
+  loadDataGps();
+});
+// Tout
+$('#btgps_per_all').on('click',function(){
+  $('#gps_startDate').datepicker( "setDate", "-730" );  // - 2 ans
+  $('#gps_endDate').datepicker( "setDate", "+1" );
+  loadDataGps();
+});
 
 
 // =======================================================================
@@ -532,7 +765,7 @@ function veh_disp_infos(info_cars){
   $("#infos_vehicule").empty();
 
   // Section charactéristiques
-  $("#infos_vehicule").append("<p style='font-size: 1.5em;'>Charactéristiques du véhicule</p>");
+  $("#infos_vehicule").append("<p style='font-size: 1.5em;color:Cyan;'>Charactéristiques du véhicule</p>");
   $("#infos_vehicule").append("<b>Numero VIN:</b>"+info_cars.vin+"<br>");
   $("#infos_vehicule").append("<b>Numero LCDV:</b>"+info_cars.lcdv+"<br>");
   $("#infos_vehicule").append("<b>Nom du véhicule:</b> "+info_cars.short_label+"<br>");
@@ -541,12 +774,12 @@ function veh_disp_infos(info_cars){
   $("#infos_vehicule").append("<b>Type:</b> "+info_cars.types+"<br><br>");
  
   // Section valeurs courantes
-  $("#infos_vehicule").append("<p style='font-size: 1.5em;'>Valeurs courantes du véhicule</p>");
+  $("#infos_vehicule").append("<p style='font-size: 1.5em;color:Cyan;'>Valeurs courantes du véhicule</p>");
   $("#infos_vehicule").append("<b>Kilométrage courant:</b> "+info_cars.mileage_km+" kms, ");
   $("#infos_vehicule").append("<b>A la date du :</b> "+info_cars.mileage_ts+"<br><br>");
 
   // Section version logicielle
-  $("#infos_vehicule").append("<p style='font-size: 1.5em;'>Version logicielles disponibles</p>");
+  $("#infos_vehicule").append("<p style='font-size: 1.5em;color:Cyan;'>Version logicielles disponibles</p>");
   $("#infos_vehicule").append("<b>LOGICIEL:</b> "+info_cars.rcc_type+"<br>");
   $("#infos_vehicule").append("<b>Version courante connue:</b> "+info_cars.rcc_current_ver+"<br>");
   $("#infos_vehicule").append("<b>Version disponible:</b> "+info_cars.rcc_available_ver+" (datée du "+info_cars.rcc_available_date+")<br>");
@@ -599,7 +832,7 @@ function veh_disp_maint(maint_cars){
   $("#infos_maintenance").empty();
 
   // Section générale maintenance
-  $("#infos_maintenance").append("<p style='font-size: 1.5em;'>Maintenance du véhicule</p>");
+  $("#infos_maintenance").append("<p style='font-size: 1.5em;color:Cyan;'>Maintenance du véhicule</p>");
   $("#infos_maintenance").append("<b>Kilométrage courant:</b>"+maint_cars.mileage_km+" kms.<br>");
 
   // Section première visite
