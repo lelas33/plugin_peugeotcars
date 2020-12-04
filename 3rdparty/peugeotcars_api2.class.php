@@ -30,12 +30,6 @@ class peugeotcars_api_v2 {
 	protected $username;
 	protected $password;
   protected $access_token = [];
-	// protected $access_token1;
-	// protected $access_token1_ts;
-	// protected $access_token1_dur;
-	// protected $access_token2;
-	// protected $access_token2_ts;
-	// protected $access_token2_dur;
   protected $vehicle_id;
 	protected $user_id;
 	protected $apv_site_geo;
@@ -397,13 +391,25 @@ class peugeotcars_api_v2 {
   // ===================================================
   // Connection aux API: api.groupe-psa.com/connectedcar
   // ===================================================
-  function pg_api_vehicles()
+  function pg_api_vehicles($vin)
   {
 		$param = "vehicles?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
-    $this->vehicle_id = $ret["result"]->_embedded->vehicles[0]->id;
+    $retf["sucess"] = "KO";
+    $nb_veh = $ret["result"]->total;
+    // recherche du vin dans la liste des vehicules associés à ce compte
+    if ($ret["result"]->total >= 1) {
+      for ($veh=0; $veh<$nb_veh; $veh++) {
+        if ($vin == $ret["result"]->_embedded->vehicles[$veh]->vin) {
+          $this->vehicle_id = $ret["result"]->_embedded->vehicles[$veh]->id;
+          $retf["pictures"] = $ret["result"]->_embedded->vehicles[$veh]->pictures;
+          $retf["sucess"] = "OK";
+        }
+      }
+    }
+    return($retf);
   }
 
   function pg_api_vehicles_status()
@@ -412,6 +418,14 @@ class peugeotcars_api_v2 {
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
+    // For trace analysis
+    // $fn_log_sts = "/var/www/html/plugins/peugeotcars/data/car_log.txt";
+    // $date = date("Y-m-d H:i:s");
+    // $log_dt = $date." => ";
+    // file_put_contents($fn_log_sts, $log_dt, FILE_APPEND | LOCK_EX);
+    // $log_dt = json_encode ($ret["result"])."\n";
+    // file_put_contents($fn_log_sts, $log_dt, FILE_APPEND | LOCK_EX);
+    // end trace analysis
     $retf["gps_lon"]  = $ret["result"]->lastPosition->geometry->coordinates[0];
     $retf["gps_lat"]  = $ret["result"]->lastPosition->geometry->coordinates[1];
     $retf["gps_head"] = $ret["result"]->lastPosition->geometry->coordinates[2];

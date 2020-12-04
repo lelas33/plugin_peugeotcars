@@ -18,11 +18,25 @@
 
 /* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
-require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api.class.php';
 require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api2.class.php';
 
-//define("GPS_LOG_FILE",   "/../../data/gps_log.txt");
 define("CARS_FILES_DIR", "/../../data/");
+
+// 2 fichiers pour enregistrer les trajets en détails
+// car_trips.log: liste des trajets
+//  * TRIP_STS: Start Timestamp 
+//  * TRIP_ETS: End Timestamp
+//  * TRIP_DTS: Distance parcourue pendant le trajet
+//  * TRIP_DTS: Energie consommée pendant le trajet (en % batterie)
+
+// car_gps.log : liste des positions de la voiture
+//  * PTS_TS: Timestamp
+//  * PTS_LAT: Lattitude GPS
+//  * PTS_LON: Longitude GPS
+//  * PTS_HDN: Cap
+//  * PTS_BATT: Niveau de la batterie en %
+//  * PTS_MLG: Kilométrage courant
+//  * PTS_KIN: Voiture en mouvement
 
 
 // Classe principale du plugin
@@ -42,24 +56,24 @@ class peugeotcars extends eqLogic {
 
     private function getListeDefaultCommandes()
     {
-        return array( "vin"                  => array('Vin',                 'info',  'string',     "", 0, "GENERIC_INFO",   'peugeotcars::car_img', 'peugeotcars::car_img', ''),
-                      "kilometrage"          => array('Kilometrage',         'info',  'numeric', "kms", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "entretien_dist"       => array('Dist.Entretien',      'info',  'numeric', "kms", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "entretien_jours"      => array('Jours.Entretien',     'info',  'numeric',   "j", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "vehicule_connecte"    => array('Vehic.Connecté',      'info',  'binary',     "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "battery_level"        => array('Niveau batterie',     'info',  'numeric',   "%", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "battery_autonomy"     => array('Autonomie',           'info',  'numeric', "kms", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "battery_voltage"      => array('Tension batterie',    'info',  'numeric',   "V", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "battery_current"      => array('Courant batterie',    'info',  'numeric',   "A", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "gps_position"         => array('Position GPS',        'info',  'string',     "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "conn_level"           => array('Niveau connection',   'info',  'numeric',    "", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "kinetic_moving"       => array('Voiture en mouvement','info',  'binary',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "record_period"        => array('Période enregistrement','info','numeric',    "", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "charging_plugged"     => array('Prise connectée',     'info',  'binary',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "charging_status"      => array('Statut charge',       'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "charging_remain_time" => array('Temps restant',       'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "charging_rate"        => array('Vitesse chargement',  'info',  'numeric',"km/h", 1, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "charging_mode"        => array('Mode chargement',     'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge', '') 
+        return array( "kilometrage"          => array('Kilometrage',         'info',  'numeric', "kms", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "entretien_dist"       => array('Dist.Entretien',      'info',  'numeric', "kms", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "entretien_jours"      => array('Jours.Entretien',     'info',  'numeric',   "j", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "battery_level"        => array('Niveau batterie',     'info',  'numeric',   "%", 1, "GENERIC_INFO",   'peugeotcars::battery_status_mmi', 'peugeotcars::battery_status_mmi'),
+                      "battery_autonomy"     => array('Autonomie',           'info',  'numeric', "kms", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "battery_voltage"      => array('Tension batterie',    'info',  'numeric',   "V", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "battery_current"      => array('Courant batterie',    'info',  'numeric',   "A", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_position"         => array('Position GPS',        'info',  'string',     "", 0, "GENERIC_INFO",   'peugeotcars::opensmap',   'peugeotcars::opensmap'),
+                      "conn_level"           => array('Niveau connection',   'info',  'numeric',    "", 1, "GENERIC_INFO",   'peugeotcars::con_level',  'peugeotcars::con_level'),
+                      "kinetic_moving"       => array('Voiture en mouvement','info',  'binary',     "", 1, "GENERIC_INFO",   'peugeotcars::veh_moving', 'peugeotcars::veh_moving'),
+                      "record_period"        => array('Période enregistrement','info','numeric',    "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_plugged"     => array('Prise connectée',     'info',  'binary',     "", 1, "GENERIC_INFO",   'peugeotcars::plugged', 'peugeotcars::plugged'),
+                      "charging_status"      => array('Statut charge',       'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_remain_time" => array('Temps restant',       'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_rate"        => array('Vitesse chargement',  'info',  'numeric',"km/h", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_mode"        => array('Mode chargement',     'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "num_photo_sld"        => array('Change photo',        'action','slider',     "", 0, "GENERIC_ACTION", 'peugeotcars::img', 'peugeotcars::img'),
+                      "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, "GENERIC_INFO",   'core::badge', 'core::badge') 
         );
     }
 
@@ -68,77 +82,97 @@ class peugeotcars extends eqLogic {
     public function postSave()
     {
       // Login API
-      $session_peugeotcars = new peugeotcars_api_v1();
-      $session_peugeotcars->login(config::byKey('token', 'peugeotcars'));
+      $session_peugeotcars = new peugeotcars_api_v2();
+      $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
+      $login_token = $session_peugeotcars->pg_api_login1_2();   // Authentification
+      $vin = $this->getlogicalId();
+      $ret = $session_peugeotcars->pg_api_vehicles($vin);
+      log::add('peugeotcars','info',"postSave: sucess=".$ret["sucess"]);
+      if ($ret["sucess"] == "KO") {
+        log::add('peugeotcars','info',"Ce vehicule n'est pas connecté: vin=".$vin);
+        return;  // Ce vehicule n'est pas connecte
+      }
+      $nb_images = count($ret["pictures"]);
+
+      // creation de la liste des commandes / infos
       foreach( $this->getListeDefaultCommandes() as $id => $data) {
-        list($name, $type, $subtype, $unit, $hist, $generic_type, $template_dashboard, $template_mobile, $listValue) = $data;
+        list($name, $type, $subtype, $unit, $hist, $generic_type, $template_dashboard, $template_mobile) = $data;
         $cmd = $this->getCmd(null, $id);
-        if ( ! is_object($cmd) ) {
+        if (! is_object($cmd)) {
           $cmd = new peugeotcarsCmd();
           $cmd->setName($name);
           $cmd->setEqLogic_id($this->getId());
           $cmd->setType($type);
+          if ($type == "info") {
+            $cmd->setDisplay ("showStatsOndashboard",0);
+            $cmd->setDisplay ("showStatsOnmobile",0);
+          }
           $cmd->setSubType($subtype);
           $cmd->setUnite($unit);
           $cmd->setLogicalId($id);
-          if ($id == "vin") {
-            // Mise à jour du champ VIN a partir du logicalId
-            $vin = $this->getlogicalId();
-            log::add('peugeotcars','debug','postSave:add vin:'.$vin);
-            $cmd->event($vin);
-          }
-          if ($listValue != "") {
-            $cmd->setConfiguration('listValue', $listValue);
-          }
           $cmd->setIsHistorized($hist);
           $cmd->setDisplay('generic_type', $generic_type);
           $cmd->setTemplate('dashboard', $template_dashboard);
           $cmd->setTemplate('mobile', $template_mobile);
-          $cmd->save();
-          // vérification de la capacité véhicule connecté
-          if ($id == "vehicule_connecte") {
-            $ret = $session_peugeotcars->pg_api_me_vehicules($vin);
-            if ($ret["sucess"] == "OK") {
-              $cmd->event(TRUE);
-            }
-            else {
-              $cmd->event(FALSE);
-              // Ne pas tenir compte des commandes & infos suivantes qui sont liees aux vehicule connectes
-              break;
-            }
+          if ($id == "num_photo_sld") {
+            $cmd->setConfiguration('minValue', 0);
+            $cmd->setConfiguration('maxValue', $nb_images-1);
+            $cmd->setConfiguration('listValue', 'VIN|'.$vin);
           }
+          else if ($id == "num_photo") {
+            $cmd->setIsVisible(0);
+            $cmd->event(0);
+          }
+          else if ($id == "record_period") {
+            $cmd->setIsVisible(0);
+          }
+          else if ($id == "gps_position") {
+            // Création des parametres de suivi des trajets
+            $cmd->setConfiguration('trip_start_ts', 0);
+            $cmd->setConfiguration('trip_start_mileage',  0);
+            $cmd->setConfiguration('trip_start_battlevel', 0);
+            $cmd->setConfiguration('trip_in_progress', 0);
+          }
+          $cmd->save();
         }
         else {
           $cmd->setType($type);
+          if ($type == "info") {
+            $cmd->setDisplay ("showStatsOndashboard",0);
+            $cmd->setDisplay ("showStatsOnmobile",0);
+          }
           $cmd->setSubType($subtype);
           $cmd->setUnite($unit);
           $cmd->setIsHistorized($hist);
           $cmd->setDisplay('generic_type', $generic_type);
-          if ($id == "vin") {
-            // Mise à jour du champ VIN a partir du logicalId
-            $vin = $this->getlogicalId();
-            log::add('peugeotcars','debug','postSave:update vin:'.$vin);
-            $cmd->event($vin);
+          if ($id == "num_photo_sld") {
+            $cmd->setConfiguration('minValue', 0);
+            $cmd->setConfiguration('maxValue', $nb_images-1);
+            $cmd->setConfiguration('listValue', 'VIN|'.$vin);
+            $cmd->setValue(0);  // init à image 0
           }
-          if ($listValue != "") {
-              $cmd->setConfiguration('listValue', $listValue);
+          else if ($id == "num_photo") {
+            $cmd->event(0);
+          }
+          else if ($id == "gps_position") {
+            // Création des parametres de suivi des trajets
+            $cmd->setConfiguration('trip_start_ts', 0);
+            $cmd->setConfiguration('trip_start_mileage',  0);
+            $cmd->setConfiguration('trip_start_battlevel', 0);
+            $cmd->setConfiguration('trip_in_progress', 0);
           }
           $cmd->save();
-          // vérification de la capacité véhicule connecté
-          if ($id == "vehicule_connecte") {
-            $ret = $session_peugeotcars->pg_api_me_vehicules($vin);
-            if ($ret["sucess"] == "OK") {
-              $cmd->event(TRUE);
-            }
-            else {
-              $cmd->event(FALSE);
-              // Ne pas tenir compte des commandes & infos suivantes qui sont liees aux vehicule connectes
-              break;
-            }
-          }
         }
       }
-    
+
+      // Couplage des commandes et info "num_photo_sld" et "num_photo"
+      $cmd_act = $this->getCmd(null, 'num_photo_sld');
+      $cmd_inf = $this->getCmd(null, 'num_photo');
+      if ((is_object($cmd_act)) and (is_object($cmd_inf))) {
+        $cmd_act->setValue($cmd_inf->getid());
+        $cmd_act->save();
+      }
+
       // ajout de la commande refresh data
       $refresh = $this->getCmd(null, 'refresh');
       if (!is_object($refresh)) {
@@ -150,20 +184,27 @@ class peugeotcars extends eqLogic {
       $refresh->setType('action');
       $refresh->setSubType('other');
       $refresh->save();
+      log::add('peugeotcars','debug','postSave:Ajout ou Mise à jour véhicule:'.$vin);
       
-      // Ajout de la photo de la voiture dans le dossier "ressources" du plugin (recuperation du lien par l'API Peugeot)
-      $ret = $session_peugeotcars->pg_api_car_vehicule($vin);
-      log::add('peugeotcars','debug','postSave:Visual='.$ret["visual"]);
-      $visual_url = $ret["visual"];
-      $visual_fn = dirname(__FILE__).'/../../ressources/'.$vin.'.png';
-      // et téléchargement du fichier
-      if (file_put_contents($visual_fn, file_get_contents($visual_url))) { 
-        log::add('peugeotcars','debug','postSave:Visual='.$visual_fn.": Correctement téléchargé");
+      // Ajout des photos de la voiture dans le dossier "data/vin/" du plugin (recuperation du lien par l'API Peugeot)
+      log::add('peugeotcars','info','postSave:Sauvegarde de '.$nb_images. " photos");
+      // création du dossier des donnees du vehicule dans le repertoire data
+      $vin_dir = dirname(__FILE__).CARS_FILES_DIR.$vin;
+      if (!file_exists($vin_dir)) {
+        mkdir($vin_dir, 0777);
       }
-      else { 
-        log::add('peugeotcars','debug','postSave:Visual='.$visual_fn.": Erreur téléchargement");
+      // et téléchargement des fichiers
+      for ($img=0; $img<$nb_images; $img++) {
+        $visual_fn = $vin_dir.'/img'.$img.".png";
+        $visual_url = $ret["pictures"][$img];
+        if (file_put_contents($visual_fn, file_get_contents($visual_url))) { 
+          log::add('peugeotcars','info','postSave:Visual='.$visual_fn.": Correctement téléchargé");
+        }
+        else { 
+          log::add('peugeotcars','info','postSave:Visual='.$visual_fn.": Erreur téléchargement");
+        }
+        
       }
-      
     }
 
     public function preRemove() {
@@ -176,28 +217,27 @@ class peugeotcars extends eqLogic {
       if (config::byKey('account', 'peugeotcars') != "" || config::byKey('password', 'peugeotcars') != "" ) {
         log::add('peugeotcars','debug','Mise à jour périodique');
         foreach (self::byType('peugeotcars') as $eqLogic) {
-          $eqLogic->periodic_state();
+          $eqLogic->periodic_state(0);
         }
       }
     }
     // Lecture des statut du vehicule connecté
-    public function periodic_state() {
+    public function periodic_state($rfh) {
       // V1 : API Connected car V3
       $minute = intval(date("i"));
       // Appel API pour le statut courant du vehicule
       $vin = $this->getlogicalId();
-      $veh_con_cmd = $this->getCmd(null, "vehicule_connecte");
-      $veh_con = $veh_con_cmd->execCmd();
-      $fn_car = dirname(__FILE__).CARS_FILES_DIR.$vin.'.gpslog';
+      $fn_car_gps   = dirname(__FILE__).CARS_FILES_DIR.$vin.'/gps.log';
+      $fn_car_trips = dirname(__FILE__).CARS_FILES_DIR.$vin.'/trips.log';
 
-      if (($veh_con == TRUE) && ($this->getIsEnable())) {
+      if ($this->getIsEnable()) {
         $cmd_record_period = $this->getCmd(null, "record_period");
         $record_period = $cmd_record_period->execCmd();
         if ($record_period == NULL)
           $record_period = 0;
         //log::add('peugeotcars','debug',"record_period:".$record_period);
 
-        if ((($record_period == 0) && ($minute%5 == 0)) || ($record_period > 0)) {
+        if ((($record_period == 0) && ($minute%5 == 0)) || ($record_period > 0) || ($rfh==1)) {
           // Login a l'API PSA
           $last_login_token = $cmd_record_period->getConfiguration('save_auth');
           $session_peugeotcars = new peugeotcars_api_v2();
@@ -215,14 +255,17 @@ class peugeotcars extends eqLogic {
             log::add('peugeotcars','debug',"Session expirée => New login");
           }
           // Capture du statut du vehicule
-          $session_peugeotcars->pg_api_vehicles();
+          $session_peugeotcars->pg_api_vehicles($vin);
           $ret = $session_peugeotcars->pg_api_vehicles_status();
           log::add('peugeotcars','debug',"MAJ statut du véhicule:".$vin);
-          $cmd = $this->getCmd(null, "kilometrage");
-          $kms    = $ret["gen_mileage"];
-          $cmd->event($kms);
+          $cmd_mlg = $this->getCmd(null, "kilometrage");
+          $mileage = $ret["gen_mileage"];
+          $previous_mileage = $cmd_mlg->execCmd();
+          $previous_ts = $cmd_mlg->getConfiguration('prev_ctime');
+          $cmd_mlg->event($mileage);
           $cmd = $this->getCmd(null, "battery_level");
           $batt_level = $ret["batt_level"];
+          $previous_batt_level = $cmd->execCmd();
           $cmd->event($batt_level);
           $cmd = $this->getCmd(null, "battery_autonomy");
           $batt_auto = $ret["batt_autonomy"];
@@ -233,22 +276,71 @@ class peugeotcars extends eqLogic {
           $cmd = $this->getCmd(null, "battery_current");
           $batt_current = $ret["batt_current"];
           $cmd->event($batt_current);
-          $cmd = $this->getCmd(null, "gps_position");
+          $cmd_gps = $this->getCmd(null, "gps_position");
+          // Etat courant du trajet
+          $trip_start_ts       = $cmd_gps->getConfiguration('trip_start_ts');
+          $trip_start_mileage  = $cmd_gps->getConfiguration('trip_start_mileage');
+          $trip_start_battlevel= $cmd_gps->getConfiguration('trip_start_battlevel');
+          $trip_in_progress    = $cmd_gps->getConfiguration('trip_in_progress');
           $gps_position = $ret["gps_lat"].",".$ret["gps_lon"].",".$ret["gps_head"];
-          $current_gps_position = $cmd->execCmd();
-          //log::add('peugeotcars','debug',"Refresh log current_gps_position=".$current_gps_position);
-          $cmd->event($gps_position);
-          if ($gps_position !== $current_gps_position) {
-            $gps_log_dt = time().",".$gps_position.",".$batt_level.",".$kms."\n";
-            log::add('peugeotcars','debug',"Refresh log recording Gps_dt=".$gps_log_dt);
-            file_put_contents($fn_car, $gps_log_dt, FILE_APPEND | LOCK_EX);
-          }
+          $previous_gps_position = $cmd_gps->execCmd();
+          //log::add('peugeotcars','debug',"Refresh log previous_gps_position=".$previous_gps_position);
+          $cmd_gps->event($gps_position);
+
           $cmd = $this->getCmd(null, "conn_level");
           $conn_level = $ret["conn_level"];
           $cmd->event($conn_level);            
           $cmd = $this->getCmd(null, "kinetic_moving");
-          $kinetic_moving = $ret["kinetic_moving"];
+          $kinetic_moving = intval($ret["kinetic_moving"],10);
           $cmd->event($kinetic_moving);
+          // Analyse debut et fin de trajet
+          $ctime = time();
+          $trip_event = 0;
+          if ($trip_in_progress == 0) {
+            // Pas de trajet en cours
+            if ($kinetic_moving == 1) {
+              // debut de trajet
+              $trip_start_ts       = $previous_ts;
+              $trip_start_mileage  = $previous_mileage;
+              $trip_start_battlevel= $previous_batt_level;
+              $trip_in_progress    = 1;
+              $trip_event = 1;
+              $cmd_gps->setConfiguration('trip_start_ts', $trip_start_ts);
+              $cmd_gps->setConfiguration('trip_start_mileage', $trip_start_mileage);
+              $cmd_gps->setConfiguration('trip_start_battlevel', $trip_start_battlevel);
+              $cmd_gps->setConfiguration('trip_in_progress', $trip_in_progress);
+              $cmd_gps->save();
+            }
+          }
+          else {
+            // Un trajet est en cours
+            if (($kinetic_moving == 0) && ($record_period == 1)) {
+              // fin de trajet
+              $trip_end_ts       = $ctime;
+              $trip_end_mileage  = $mileage;
+              $trip_end_battlevel= $batt_level;
+              $trip_in_progress  = 0;
+              $trip_event = 1;
+              // enregistrement d'un trajet
+              $trip_distance = $trip_end_mileage - $trip_start_mileage;
+              $trip_batt_diff = $trip_start_battlevel - $trip_end_battlevel;
+              $trip_log_dt = $trip_start_ts.",".$trip_end_ts.",".$trip_distance.",".$trip_batt_diff."\n";
+              log::add('peugeotcars','debug',"Refresh->recording Trip_dt=".$trip_log_dt);
+              file_put_contents($fn_car_trips, $trip_log_dt, FILE_APPEND | LOCK_EX);
+              $cmd_gps->setConfiguration('trip_in_progress', $trip_in_progress);
+              $cmd_gps->save();
+            }
+          }
+          // Log position courante vers GPS log file
+//          if (($gps_position !== $previous_gps_position) || ($trip_event == 1)) {
+            $gps_log_dt = $ctime.",".$gps_position.",".$batt_level.",".$mileage.",".$kinetic_moving."\n";
+            log::add('peugeotcars','debug',"Refresh->recording Gps_dt=".$gps_log_dt);
+            file_put_contents($fn_car_gps, $gps_log_dt, FILE_APPEND | LOCK_EX);
+            // enregistre le ts du point courant
+            $cmd_mlg->setConfiguration('prev_ctime', $ctime);
+            $cmd_mlg->save();
+//          }
+          
           // Si le vehicule est en mouvement, passage en record toute les minutes, et au moins pour 5 mn
           if ($kinetic_moving == 1) {
             $record_period = 5;                  
@@ -286,9 +378,22 @@ class peugeotcarsCmd extends cmd
 {
     /*     * *************************Attributs****************************** */
     public function execute($_options = null) {
-        if ( $this->getLogicalId() == 'refresh') {
+        if ($this->getLogicalId() == 'refresh') {
           log::add('peugeotcars','info',"Refresh data");
-          peugeotcars::pull();
+          if (config::byKey('account', 'peugeotcars') != "" || config::byKey('password', 'peugeotcars') != "" ) {
+            foreach (eqLogic::byType('peugeotcars') as $eqLogic) {
+              $eqLogic->periodic_state(1);
+            }
+          }
+        }
+        else if ($this->getLogicalId() == 'num_photo_sld') {
+          $eqLogic = $this->getEqLogic();
+          $cmd_ass = $eqLogic->getCmd(null, 'num_photo');
+          if (is_object($cmd_ass)) {
+            log::add('peugeotcars','info',"num_photo_sld:".$_options['slider']);
+            $cmd_ass->event($_options['slider']);
+          }
+
         }
 
         

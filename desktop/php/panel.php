@@ -50,14 +50,14 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
       <div class="col-lg-8 col-lg-offset-2" style="padding-top:10px">
         <ul class="nav nav-tabs" role="tablist">
           <li role="presentation"><a href="#trips_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Trajets}}</a></li>
-          <li role="presentation"><a href="#car_gps_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Historique position GPS}}</a></li>
-          <li role="presentation" class="active"><a href="#car_info_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Informations véhicule}}</a></li>
+          <li role="presentation" class="active"><a href="#car_gps_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Historique position GPS}}</a></li>
+          <li role="presentation"><a href="#car_info_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Informations véhicule}}</a></li>
           <li role="presentation"><a href="#car_maint_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Maintenance véhicule}}</a></li>
         </ul>
       </div>
       </div>
       <div class="row">
-      <div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
+      <div class="tab-content" style="height:1000px;">
         <div role="tabpanel" class="tab-pane" id="trips_tab">
           <div class="row">
               <div class="col-lg-8 col-lg-offset-2" style="padding-top:10px">
@@ -195,28 +195,33 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
                            <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
                                <i style="font-size: initial;"></i> {{Historique des positions GPS du véhicule sur cette période}}
                            </div>
-                           <div id='gps_info' style="font-size: 1.2em;"></div>
+                           <div id='trips_info' style="font-size: 1.2em;"></div>
                            <div style="v"></div>
                        </br>
                        </fieldset>
                        <div style="min-height: 10px;"></div>
                    </form>
               </div>
-              <div class="col-lg-8 col-lg-offset-2" id="gps_map">
+              <div class="col-lg-8 col-lg-offset-2">
+                <div id="trips_list" style="position:relative;width:50%">
+                  Ceci est du texte
+                </div>
+                <div id="trips_map" style="position:relative;left:50%;width:50%">
+                </div>
               </div>
           </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="car_info_tab">
           <div class="row">
               <div class="col-lg-8 col-lg-offset-2"  id="infos_vehicule" style="padding-top:10px">
-                xxyy
+                Chargement en cours
               </div>
           </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="car_maint_tab">
           <div class="row">
               <div class="col-lg-8 col-lg-offset-2"  id="infos_maintenance" style="padding-top:10px">
-                zz00
+                Chargement en cours
               </div>
           </div>
         </div>

@@ -29,30 +29,64 @@ global $car_infos;
 // =====================================================
 // Fonction de lecture de tous les trajets d'une voiture
 // =====================================================
-function get_car_trips($vin, $ts_start, $ts_end)
+function get_car_trips_gps($vin, $ts_start, $ts_end)
 {
   global $cars_dt;
   
-  // ouverture du fichier de log
-  $fn_car = dirname(__FILE__).CARS_FILES_DIR.$vin.'.db';
+  // Lecture des trajets
+  // -------------------
+  // ouverture du fichier de log: trajets
+  $fn_car = dirname(__FILE__).CARS_FILES_DIR.$vin.'/trips.log';
   $fcar = fopen($fn_car, "r");
 
   // lecture des donnees
   $line = 0;
-  $cars_dt["log"] = [];
+  $cars_dt["trips"] = [];
+  $first_ts = time();
+  $last_ts  = 0;
   if ($fcar) {
     while (($buffer = fgets($fcar, 4096)) !== false) {
       // extrait les timestamps debut et fin du trajet
-      list($tr_id, $tr_st, $tr_et, $tr_sm, $tr_em, $tr_ds, $tr_mdy, $tr_mds) = explode(",", $buffer);
-      $tsi_s = intval($tr_st);
-      $tsi_e = intval($tr_et);
-      if (($tsi_s>=$ts_start) && ($tsi_e<=$ts_end)) {
-        $cars_dt["log"][$line] = $buffer;
+      list($tr_tss, $tr_tse, $tr_ds, $tr_batt) = explode(",", $buffer);
+      $tsi_s = intval($tr_tss);
+      $tsi_e = intval($tr_tse);
+      // selectionne les trajets selon leur date depart&arrive
+      if (($tsi_s>=$ts_start) && ($tsi_s<=$ts_end)) {
+        $cars_dt["trips"][$line] = $buffer;
+        $line = $line + 1;
+        // Recherche des ts mini et maxi pour les trajets retenus
+        if ($tsi_s<$first_ts)
+          $first_ts = $tsi_s;
+        if ($tsi_e>$last_ts)
+          $last_ts = $tsi_e;
+      }
+    }
+  }
+  fclose($fcar);
+
+  // Lecture des points GPS pour ces trajets
+  // ---------------------------------------
+  // ouverture du fichier de log: points GPS
+  $fn_car = dirname(__FILE__).CARS_FILES_DIR.$vin.'/gps.log';
+  $fcar = fopen($fn_car, "r");
+
+  // lecture des donnees
+  $line = 0;
+  $cars_dt["gps"] = [];
+  if ($fcar) {
+    while (($buffer = fgets($fcar, 4096)) !== false) {
+      // extrait les timestamps debut et fin du trajet
+      list($pts_ts, $pts_lat, $pts_lon, $pts_head, $pts_batt, $pts_mlg, $pts_moving) = explode(",", $buffer);
+      $pts_tsi = intval($pts_ts);
+      // selectionne les trajets selon leur date depart&arrive
+      if (($pts_tsi>=$first_ts) && ($pts_tsi<=$last_ts)) {
+        $cars_dt["gps"][$line] = $buffer;
         $line = $line + 1;
       }
     }
   }
   fclose($fcar);
+
   //log::add('peugeotcars', 'debug', 'Ajax:get_car_trips:nb_lines'.$line);
   return;
 }
@@ -317,7 +351,7 @@ try {
     log::add('peugeotcars', 'debug', 'param0:'.$ts_start);
     log::add('peugeotcars', 'debug', 'param1:'.$ts_end);
     // Param 0 et 1 sont les timestamp de debut et fin de la periode de log demandée
-    get_car_trips($vin, intval ($ts_start), intval ($ts_end));
+    get_car_trips_gps($vin, intval ($ts_start), intval ($ts_end));
     $ret_json = json_encode ($cars_dt);
     ajax::success($ret_json);
     }

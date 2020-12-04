@@ -35,11 +35,5 @@ if (!isConnect('admin')) {
             <input class="configKey form-control" data-l1key="password" type="password"/>
         </div>
     </div>
-    <div class="form-group">
-        <label class="col-lg-4 control-label">{{token Peugeot}}</label>
-        <div class="col-lg-3">
-            <input class="configKey form-control" data-l1key="token" type="password"/>
-        </div>
-    </div>
 </form>
 <?php include_file('desktop', 'peugeotcars', 'js', 'peugeotcars'); ?>

@@ -19,8 +19,8 @@
 $(".in_datepicker").datepicker();
 
 // Variables partagées
-var car_dtlog = [];
-var car_dtgpslog = [];
+var car_trips = [];
+var car_gps   = [];
 var trip_polyline = [];
 var gps_macarte = null;
 var gps_pts_nb = 0;
@@ -70,16 +70,50 @@ const TRIPS_COLOR_NAMES = [
 ];
 
 const NB_TRIPS_COLORS = TRIPS_COLOR_NAMES.length;
+var veh_trip_loaded = 0;
+var veh_info_loaded = 0;
+var veh_maint_loaded = 0;
 
 // Fonctions realisées au chargement de la page: charger les données sur la période par défaut,
 // et afficher les infos correspondantes
 // ============================================================================================
 $(document).ready(function() {
   loadData();
-  veh_get_infos();
-  veh_get_maint();
-  loadDataGps();
+  //loadDataGps();
+  // Show trips on page load
+  $(".tab_content").hide(); //Hide all content
+  $("#car_gps_tab").addClass("active").show(); //Activate first tab
+
 });
+
+// Sélection des différents onglets
+// ================================
+$('.nav li a').click(function(){
+
+	var selected_tab = $(this).attr("href");
+  
+  if (selected_tab == "#car_gps_tab") {
+    if (veh_trip_loaded == 0) {
+      loadData();
+      veh_trip_loaded = 1;
+    }
+  }
+  else if (selected_tab == "#car_info_tab") {
+    if (veh_info_loaded == 0) {
+      veh_get_infos();
+      veh_info_loaded = 1;
+    }
+  }
+  else if (selected_tab == "#car_maint_tab") {
+    if (veh_maint_loaded == 0) {
+      veh_get_maint();
+      veh_maint_loaded = 1;
+    }
+  }
+//	alert("Onglet:"+selected_tab);
+
+});
+
 
 
 
@@ -113,24 +147,28 @@ function loadData(){
                 $('#div_alert').showAlert({message: data.result, level: 'danger'});
                 return;
             }
-            dt_log = JSON.parse(data.result);
-            nb_dt = dt_log.log.length;
+            car_dt = JSON.parse(data.result);
             //alert("getLogData:data nb="+nb_dt);
-            // Capture les donnees de position
-            car_dtlog = [];
-            for (p=0; p<nb_dt; p++) {
-              car_dtlog[p] = dt_log.log[p];
+            // reopie les donnees recues (trajets et points GPS)
+            car_trips = [];
+            for (p=0; p<car_dt.trips.length; p++) {
+              car_trips[p] = car_dt.trips[p];
             }
+            car_gps = [];
+            for (p=0; p<car_dt.gps.length; p++) {
+              car_gps[p] = car_dt.gps[p];
+            }
+            alert("Nb trajet:"+car_trips.length+" / nb points GPS:"+car_gps.length);
             stat_usage ();
-            trip_list ();
-            Graphs();
+            // trip_list ();
+            // Graphs();
         }
     });
 }
 
 
 // Calcul des statistiques d'utilisation du vehicule sur la période
-// et affichage dans le div #div_hist_usage
+// et affichage dans le div #trips_info
 // ================================================================
 function stat_usage () {
   var trips_number = 0;
@@ -139,30 +177,30 @@ function stat_usage () {
   var trip_ts_first = Date.now()/1000;
   var trip_ts_last  = 0;
 
-  var trips_number = car_dtlog.length;
+  var trips_number = car_trips.length;
   if (trips_number <1) {
-    $("#div_hist_usage").empty();
-    $("#div_hist_usage").append("Pas de données");
+    $("#trips_info").empty();
+    $("#trips_info").append("Pas de données");
     return;
   }
+        list($tr_tss, $tr_tse, $tr_ds, $tr_batt) = explode(",", $buffer);
+
+  
   // analyse des données
   for (i=0; i<trips_number; i++) {
-    tmp = car_dtlog[i].split(',');
-    trip_id     = parseInt  (tmp[0],10);  // trip ID
-    trip_ts_sta = parseInt  (tmp[1],10);  // trip Timestamp start
-    trip_ts_end = parseInt  (tmp[2],10);  // trip Timestamp end
-    trip_ds_sta = parseFloat(tmp[3]);     // trip Mileage start
-    trip_ds_end = parseFloat(tmp[4]);     // trip Mileage end
-    trip_ds_val = parseFloat(tmp[5]);     // trip distance (Not available when .myp file from Iphone)
-    trip_mt_day = parseInt  (tmp[6],10);  // Car days to maintenance
-    trip_mt_dis = parseFloat(tmp[7]);     // Car distance to maintenance
+    tmp = car_trips[i].split(',');
+    trip_ts_sta = parseInt  (tmp[0],10);  // trip Timestamp start
+    trip_ts_end = parseInt  (tmp[1],10);  // trip Timestamp end
+    trip_dist   = parseFloat(tmp[2]);     // trip distance
+    trip_batt   = parseFloat(tmp[3]);     // trip battery level usage
+
     // gestion date premier et dernier trajet
     if (trip_ts_sta < trip_ts_first)
       trip_ts_first = trip_ts_sta;
     if (trip_ts_sta > trip_ts_last)
       trip_ts_last = trip_ts_sta;
     trip_dur = trip_ts_end - trip_ts_sta;
-    trips_total_distance += trip_ds_end-trip_ds_sta;
+    trips_total_distance += trip_dist;
     trips_total_duration += trip_dur;
   }
   // Autres calculs
@@ -173,12 +211,12 @@ function stat_usage () {
   var ts_first = new Date(trip_ts_first * 1000);
   var ts_last  = new Date(trip_ts_last * 1000);
   
-  // Affichage des résultats dans le DIV:"div_hist_usage"
-  $("#div_hist_usage").empty();
-  $("#div_hist_usage").append("Nombre de trajets: "+trips_number+"  (du "+ts_first.toLocaleDateString()+" au "+ts_last.toLocaleDateString()+")<br>");
-  $("#div_hist_usage").append("Distance totale: "+total_distance+" kms<br>");
-  $("#div_hist_usage").append("Temps de trajet global: "+dur_h+" h "+dur_m+" mn<br>");
-  $("#div_hist_usage").append("Vitesse moyenne sur ces trajets: "+vit_moyenne+" km/h<br>");
+  // Affichage des résultats dans le DIV:"trips_info"
+  $("#trips_info").empty();
+  $("#trips_info").append("Nombre de trajets: "+trips_number+"  (du "+ts_first.toLocaleDateString()+" au "+ts_last.toLocaleDateString()+")<br>");
+  $("#trips_info").append("Distance totale: "+total_distance+" kms<br>");
+  $("#trips_info").append("Temps de trajet global: "+dur_h+" h "+dur_m+" mn<br>");
+  $("#trips_info").append("Vitesse moyenne sur ces trajets: "+vit_moyenne+" km/h<br>");
   
 }
 
@@ -550,9 +588,9 @@ function Graphs() {
 // On initialise la latitude et la longitude de Paris (centre de la carte)
 function initMap(home_lat, home_lon) {
     // met à jour le paramètre CSS associé au DIV
-    $('#gps_map').css({height:'700px'});
-    // Créer l'objet "gps_macarte" et l'insèrer dans l'élément HTML qui a l'ID "gps_map"
-    gps_macarte = L.map('gps_map').setView([home_lat, home_lon], 11);
+    $('#trips_map').css({height:'700px'});
+    // Créer l'objet "gps_macarte" et l'insèrer dans l'élément HTML qui a l'ID "trips_map"
+    gps_macarte = L.map('trips_map').setView([home_lat, home_lon], 11);
     // Leaflet ne récupère pas les cartes (tiles) sur un serveur par défaut. Nous devons lui préciser où nous souhaitons les récupérer. Ici, openstreetmap.fr
     L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
         // Il est toujours bien de laisser le lien vers la source des données
@@ -693,32 +731,32 @@ function gps_display_points() {
 // gestion des boutons de definition et de mise à jour de la période pour les logs GPS
 // ===================================================================================
 $('#btgps_validChangeDate').on('click',function(){
-  loadDataGps();
+  loadData();
 });
 
 // Aujourd'hui
 $('#btgps_per_today').on('click',function(){
   $('#gps_startDate').datepicker( "setDate", "+0" );
   $('#gps_endDate').datepicker( "setDate", "+1" );
-  loadDataGps();
+  loadData();
 });
 // Hier
 $('#btgps_per_yesterday').on('click',function(){
   $('#gps_startDate').datepicker( "setDate", "-1" );
   $('#gps_endDate').datepicker( "setDate", "+0" );
-  loadDataGps();
+  loadData();
 });
 // Les 7 derniers jours
 $('#btgps_per_last_week').on('click',function(){
   $('#gps_startDate').datepicker( "setDate", "-6" );
   $('#gps_endDate').datepicker( "setDate", "+1" );
-  loadDataGps();
+  loadData();
 });
 // Tout
 $('#btgps_per_all').on('click',function(){
   $('#gps_startDate').datepicker( "setDate", "-730" );  // - 2 ans
   $('#gps_endDate').datepicker( "setDate", "+1" );
-  loadDataGps();
+  loadData();
 });
 
 
@@ -833,7 +871,7 @@ function veh_disp_maint(maint_cars){
 
   // Section générale maintenance
   $("#infos_maintenance").append("<p style='font-size: 1.5em;color:Cyan;'>Maintenance du véhicule</p>");
-  $("#infos_maintenance").append("<b>Kilométrage courant:</b>"+maint_cars.mileage_km+" kms.<br>");
+  $("#infos_maintenance").append("<b>Kilométrage courant: </b>"+maint_cars.mileage_km+" kms.<br>");
 
   // Section première visite
   $("#infos_maintenance").append("<p style='font-size:1.5em;color:red;'><br>Prochaine visite d'entretien du véhicule. Date recommandée: "+maint_cars.visite1_date+"</p>");
