@@ -2,12 +2,6 @@
 
 // Fonctions de connexion aux API PSA
 // ==================================
-// Il faut 3 informations pour se connecter à cette API
-// VIN      : Numero d'identification unique du vehicule (donne sur la carte grise)
-// client_id: Client id de l'application créée sur le site PSA
-// contract :  Client Secret de l'application créée sur le site PSA
-
-
 class peugeotcars_api_v2 {
 
   // Constantes pour la classe
@@ -24,11 +18,13 @@ class peugeotcars_api_v2 {
   protected $url_api_psa_conn_car      = 'https://api.groupe-psa.com/connectedcar/v3/user/';
   protected $url_api_psa_mym_sgp       = 'https://ap-mym.servicesgp.mpsa.com/api/v1/';
 
-	protected $client_id     = "1eebc2d5-5df3-459b-a624-20abfcf82530";
-	protected $client_secret = "T5tP7iS0cO8sC0lA2iE2aR7gK6uE5rF3lJ8pC3nO1pR7tL8vU1";
+	protected $client_id_b64     = "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw";
+	protected $client_secret_b64 = "VDV0UDdpUzBjTzhzQzBsQTJpRTJhUjdnSzZ1RTVyRjNsSjhwQzNuTzFwUjd0TDh2VTE=";
 
 	protected $username;
 	protected $password;
+	protected $client_id;
+	protected $client_secret;
   protected $access_token = [];
   protected $vehicle_id;
 	protected $user_id;
@@ -44,6 +40,8 @@ class peugeotcars_api_v2 {
     $this->username = $username;
     $this->password = $password;
     $this->access_token = $token;  // Etat des token des appels précédents
+    $this->client_id     = base64_decode ($this->client_id_b64);
+    $this->client_secret = base64_decode ($this->client_secret_b64);
 	}
 
   // ====================================
@@ -348,7 +346,7 @@ class peugeotcars_api_v2 {
     $this->access_token["access_token1"] = $ret["result"]->accessToken;
     $this->access_token["access_token1_ts"]  = time();  // token consented on
     $this->access_token["access_token1_dur"] = 3600;    // For the duration (fixed 1h)
-    // printf("access_token1=".$this->access_token["access_token1"]."\n");
+    //printf("access_token1=".$this->access_token["access_token1"]."\n");
 
     // Login step 2
     $form = "client_id=".$this->client_id."&grant_type=password&client_secret=".$this->client_secret."&username=".urlencode("AP#".$this->username)."&password=".urlencode($this->password)."&scope=public";
@@ -357,7 +355,7 @@ class peugeotcars_api_v2 {
     $this->access_token["access_token2"]     = $ret["result"]->access_token;
     $this->access_token["access_token2_ts"]  = $ret["result"]->consented_on;  // token consented on
     $this->access_token["access_token2_dur"] = $ret["result"]->expires_in;    // For the duration (fixed 1h)
-    // printf("access_token2=".$this->access_token["access_token2"]."\n");
+    //printf("access_token2=".$this->access_token["access_token2"]."\n");
     return($this->access_token);  // new login performed
   }
   
@@ -434,6 +432,7 @@ class peugeotcars_api_v2 {
     $retf["batt_autonomy"]= $ret["result"]->energy[0]->autonomy;
     $retf["batt_voltage"] = $ret["result"]->battery->voltage;
     $retf["batt_current"] = $ret["result"]->battery->current;
+    $retf["precond_status"] = $ret["result"]->preconditionning->airConditioning->status;
     $retf["charging_plugged"] = $ret["result"]->energy[0]->charging->plugged;
     $retf["charging_status"] = $ret["result"]->energy[0]->charging->status;
     $tmp = $ret["result"]->energy[0]->charging->remainingTime;

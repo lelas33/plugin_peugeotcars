@@ -19,15 +19,15 @@
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 function peugeotcars_install() {
-    $cron = cron::byClassAndFunction('peugeotcars', 'pull');
+  $cron = cron::byClassAndFunction('peugeotcars', 'pull');
 	if ( ! is_object($cron)) {
-        $cron = new cron();
-        $cron->setClass('peugeotcars');
-        $cron->setFunction('pull');
-        $cron->setEnable(1);
-        $cron->setDeamon(0);
-        $cron->setSchedule('* * * * *');
-        $cron->save();
+    $cron = new cron();
+    $cron->setClass('peugeotcars');
+    $cron->setFunction('pull');
+    $cron->setEnable(1);
+    $cron->setDeamon(0);
+    $cron->setSchedule('* * * * *');
+    $cron->save();
 	}
 }
 
@@ -35,23 +35,23 @@ function peugeotcars_update() {
 	foreach (eqLogic::byType('peugeotcars') as $eqLogic) {
 		$eqLogic->save();
 	}
-    $cron = cron::byClassAndFunction('peugeotcars', 'pull');
+  $cron = cron::byClassAndFunction('peugeotcars', 'pull');
 	if ( ! is_object($cron)) {
-        $cron = new cron();
-        $cron->setClass('peugeotcars');
-        $cron->setFunction('pull');
-        $cron->setEnable(1);
-        $cron->setDeamon(0);
-        $cron->setSchedule('* * * * *');
-        $cron->save();
+    $cron = new cron();
+    $cron->setClass('peugeotcars');
+    $cron->setFunction('pull');
+    $cron->setEnable(1);
+    $cron->setDeamon(0);
+    $cron->setSchedule('* * * * *');
+    $cron->save();
 	}
 }
 
 function peugeotcars_remove() {
-    $cron = cron::byClassAndFunction('peugeotcars', 'pull');
-    if (is_object($cron)) {
-		$cron->stop();
-        $cron->remove();
-    }
+  $cron = cron::byClassAndFunction('peugeotcars', 'pull');
+  if (is_object($cron)) {
+  $cron->stop();
+    $cron->remove();
+  }
 }
 ?>
