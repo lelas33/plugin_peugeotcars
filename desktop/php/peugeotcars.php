@@ -87,6 +87,12 @@ sendVarToJS('eqType', 'peugeotcars');
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-lg-2 control-label">{{Capacité de la batterie (kWh)}}</label>
+                            <div class="col-lg-3">
+                                <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="batt_capacity" placeholder="{{50 par exemple}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-lg-2 control-label" >{{Objet parent}}</label>
                             <div class="col-lg-3">
                                 <select class="form-control eqLogicAttr" data-l1key="object_id">

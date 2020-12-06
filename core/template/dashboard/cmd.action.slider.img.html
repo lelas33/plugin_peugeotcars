@@ -1,0 +1,83 @@
+<div class="cmd cmd-widget" data-type="action" data-subtype="slider" data-template="button" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
+  <div class="title #hide_name#">
+    <div class="cmdName">#name_display#</div>
+  </div>
+  <div class="content-sm ">
+    <div class="input-group buttons ">
+      <span class="input-group-btn bt_minus " style="position: relative;text-align: center;">
+        <img src="plugins/peugeotcars/core/template/dashboard/fleche_ga.png" style="height:30px;" />
+      </span>
+      <input type="hidden" class="input-sm in_value form-control" value="#state#" disabled/>
+      <span class="input-group-btn bt_plus" style="position: relative;text-align: center;">
+        <img src="plugins/peugeotcars/core/template/dashboard/fleche_dr.png" style="height:30px;" />
+      </span>
+    </div>
+    <div class="picture">
+    </div>
+  </div>
+  <script>
+    $('.cmd[data-cmd_uid=#uid#] .bt_plus').on('click', function () {
+      var max = ('#maxValue#' == '') ?  Number.MAX_VALUE : parseInt('#maxValue#',10);
+      var step = 1;
+      if (parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val(),10) <= max - step){
+        jeedom.cmd.update['#id#']({display_value:parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val(),10) + step});
+        $('.cmd[data-cmd_uid=#uid#] .in_value').trigger('change');
+      }
+    });
+    $('.cmd[data-cmd_uid=#uid#] .bt_minus').on('click', function () {
+      var min = ('#minValue#' == '') ? Number.MIN_VALUE : parseInt('#minValue#',10);
+      var step = 1;
+      if (parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val(),10) >= min + step){
+        jeedom.cmd.update['#id#']({display_value:parseInt($('.cmd[data-cmd_uid=#uid#] .in_value').val(),10) - step});
+        $('.cmd[data-cmd_uid=#uid#] .in_value').trigger('change');
+      }
+    });
+    $('.cmd[data-cmd_uid=#uid#] .in_value').on('change', function () {
+      if (typeof timerHandle#uid# !== 'undefined') {
+        clearTimeout(timerHandle#uid#);
+      }
+      timerHandle#uid# = setTimeout(function() {
+        jeedom.cmd.execute({id:'#id#', value: {slider: $('.cmd[data-cmd_uid=#uid#] .in_value').val().replace(" ", "")}});
+      }, 1000)
+    });
+    $('.cmd[data-cmd_id=#id#] .picture').on('click', function () {
+      var vin_str = '#listValue#';
+      var vin_sta1 = vin_str.indexOf('"VIN" selected>');
+      var vin_sta2 = vin_str.indexOf('"VIN">');
+      var vin = "";
+      if (vin_sta1 != -1) {
+        vin = vin_str.substring(vin_sta1+15,vin_sta1+15+17);
+      }
+      else if (vin_sta2 != -1) {
+        vin = vin_str.substring(vin_sta2+6,vin_sta2+6+17);
+      }
+      if (vin != "") {
+        var urlcourante = document.location.href;
+        urlcourante = urlcourante.replace(/\/$/, "");
+        index_end_root = urlcourante.lastIndexOf( "/" );
+        url_root = urlcourante.substring(0, index_end_root);
+        window.location = url_root+"/index.php?v=d&m=peugeotcars&p=panel&car="+vin;
+      }
+    });
+    jeedom.cmd.update['#id#'] = function(_options){
+      var slider_val = (_options.display_value == '')? 0:parseInt(_options.display_value,10);
+      $('.cmd[data-cmd_uid=#uid#] .in_value').val(slider_val);
+      var img_fn = "/img"+_options.display_value+".png";
+      var vin_str = '#listValue#';
+      var vin_sta1 = vin_str.indexOf('"VIN" selected>');
+      var vin_sta2 = vin_str.indexOf('"VIN">');
+      var vin = "";
+      if (vin_sta1 != -1) {
+        vin = vin_str.substring(vin_sta1+15,vin_sta1+15+17);
+      }
+      else if (vin_sta2 != -1) {
+        vin = vin_str.substring(vin_sta2+6,vin_sta2+6+17);
+      }
+      if (vin != "") {
+        var img_path = '<img src="plugins/peugeotcars/data/' + vin + img_fn + '" style="max-height:150px;max-width:250px;height:auto;width:auto;"/>';
+        $('.cmd[data-cmd_id=#id#] .picture').empty().append(img_path);
+      }
+    }
+    jeedom.cmd.update['#id#']({display_value:'#state#'});
+  </script>
+</div>

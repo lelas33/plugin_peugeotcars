@@ -5,15 +5,16 @@
     </center>
     <script>
         $('.iconCmd#uid#').empty();
-        if (parseFloat('#state#') == 0) {
+        tmp = parseFloat('#state#');
+        if (('#state#' === 'undefined') || (tmp == 0)) {
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal0"></i>');
-        } else if  (parseFloat('#state#') <= 2){
+        } else if  (tmp <= 2){
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal1"></i>');
-        } else if  (parseFloat('#state#') <= 4){
+        } else if  (tmp <= 4){
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal2"></i>');
-        } else if  (parseFloat('#state#') <= 6){
+        } else if  (tmp <= 6){
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal3"></i>');
-        } else if  (parseFloat('#state#') <= 8){
+        } else if  (tmp <= 8){
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal4"></i>');
         } else {
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal5"></i>');

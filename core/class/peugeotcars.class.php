@@ -72,6 +72,7 @@ class peugeotcars extends eqLogic {
                       "charging_remain_time" => array('Temps restant',       'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_rate"        => array('Vitesse chargement',  'info',  'numeric',"km/h", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_mode"        => array('Mode chargement',     'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "precond_status"       => array('Etat climatisation',  'info',  'binary',     "", 1, "GENERIC_INFO",   'peugeotcars::clim', 'peugeotcars::clim'),
                       "num_photo_sld"        => array('Change photo',        'action','slider',     "", 0, "GENERIC_ACTION", 'peugeotcars::img', 'peugeotcars::img'),
                       "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, "GENERIC_INFO",   'core::badge', 'core::badge') 
         );
@@ -225,6 +226,7 @@ class peugeotcars extends eqLogic {
     public function periodic_state($rfh) {
       // V1 : API Connected car V3
       $minute = intval(date("i"));
+      $heure  = intval(date("G"));
       // Appel API pour le statut courant du vehicule
       $vin = $this->getlogicalId();
       $fn_car_gps   = dirname(__FILE__).CARS_FILES_DIR.$vin.'/gps.log';
@@ -367,6 +369,22 @@ class peugeotcars extends eqLogic {
           $cmd = $this->getCmd(null, "charging_mode");
           $charging_mode = $ret["charging_mode"];
           $cmd->event($charging_mode);
+          $cmd = $this->getCmd(null, "precond_status");
+          $precond_status = ($ret["precond_status"] == "Enabled")?1:0;
+          $cmd->event($precond_status);
+          // A minuit, mise à jour maintenance
+          if (($heure==0) && ($minute==0)) {
+            $ret = $session_peugeotcars->pg_ap_mym_maintenance($vin);
+            log::add('peugeotcars','info',"Mise à jour date maintenance");
+            // jours jusqu'à la prochaine visite
+            $nbj_ts = round ((intval($ret["visite1_ts"]) - time())/(24*3600));
+            $cmd = $this->getCmd(null, "entretien_jours");
+            $cmd->event($nbj_ts);
+            // km jusqu'à la prochaine visite
+            $dist = intval($ret["visite1_mileage"]) - intval($ret["mileage_km"]);
+            $cmd = $this->getCmd(null, "entretien_dist");
+            $cmd->event($dist);          
+          }
         }
       }
     }
