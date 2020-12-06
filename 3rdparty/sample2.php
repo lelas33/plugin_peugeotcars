@@ -2,11 +2,10 @@
 require_once("peugeotcars_api2.class.php");
 
 
-$vin2 = "VF30A9HR8BS331949";  // 5008
-$vin  = "VR3UHZKXZLT075235";    // e208
+$vin  = "Vxxxxxxxxxxxxxxxx";
 
-$username = "laurent.jardin@free.fr";
-$password = "m3t5g8e2";
+$username = "xx.yy@zz.fr";
+$password = "xxxxxxxx";
 
 // print("Login API PSA Step1:\n");
 // print("====================\n");

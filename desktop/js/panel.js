@@ -507,9 +507,10 @@ function veh_disp_infos(info_cars){
   $("#infos_vehicule").append("<b>Version disponible:</b> "+info_cars.rcc_available_ver+" (datée du "+info_cars.rcc_available_date+")<br>");
   $("#infos_vehicule").append("<b>Taille du fichier:</b> "+Math.round(parseInt(info_cars.rcc_available_size,10)/(1024*1024))+" MB.<br>");
   $("#infos_vehicule").append("<b>Liens de téléchargement:</b><br>");
-  $("#infos_vehicule").append("<b> . Fichier:</b><br>"+info_cars.rcc_available_UpURL+"<br>");
-  $("#infos_vehicule").append("<b> . Licence:</b><br>"+info_cars.rcc_available_LiURL+"<br>");
+  $("#infos_vehicule").append('<b> . Fichier =></b>  <a href="'+info_cars.rcc_available_UpURL+'"><b><i>Télécharger</b></i></a><br>');
+  $("#infos_vehicule").append('<b> . Licence =></b> <a href="'+info_cars.rcc_available_LiURL+'"><b><i>Télécharger</b></i></a><br>');
 }
+
 
 // =============================================================================================
 //                       Gestion des informations de maintenance du véhicule
