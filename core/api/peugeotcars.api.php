@@ -27,11 +27,6 @@ try {
 		}
 	}
 
-/*     if (init('action') == 'force_detect_movers') {
-		peugeotcars::force_detect_movers();
-		exit;
-    }
- */
     throw new Exception(__('Aucune methode correspondante à : ', __FILE__) . init('action'));
     /*     * *********Catch exeption*************** */
 } catch (Exception $e) {

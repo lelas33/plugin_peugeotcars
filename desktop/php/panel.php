@@ -40,7 +40,7 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
                 </select>
               </div>
               <div class="pull-right" style="min-height: 30px;">
-                <img id="voiture_img" src=<?php echo "plugins/peugeotcars/ressources/$vin.png"; ?> width="400" />
+                <img id="voiture_img" src=<?php echo "plugins/peugeotcars/data/$vin/img0.png"; ?> width="400" />
               </div>
             </fieldset>
         </div>
