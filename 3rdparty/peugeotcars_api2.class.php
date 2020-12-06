@@ -343,20 +343,31 @@ class peugeotcars_api_v2 {
     $json_req = '{"siteCode":"AP_FR_ESP","culture":"fr-FR","action":"authenticate","fields":{"USR_EMAIL":{"value":"'.$this->username.'"},"USR_PASSWORD":{"value":"'.$this->password.'"}}}';
     $param = "mobile-services/GetAccessToken?jsonRequest=".urlencode($json_req);
     $ret = $this->post_api_psa_auth1($param);
-    $this->access_token["access_token1"] = $ret["result"]->accessToken;
-    $this->access_token["access_token1_ts"]  = time();  // token consented on
-    $this->access_token["access_token1_dur"] = 3600;    // For the duration (fixed 1h)
-    //printf("access_token1=".$this->access_token["access_token1"]."\n");
-
+    //var_dump($ret["result"]);
+    if (isset($ret["result"]->accessToken)) {
+      $this->access_token["access_token1"] = $ret["result"]->accessToken;
+      $this->access_token["access_token1_ts"]  = time();  // token consented on
+      $this->access_token["access_token1_dur"] = 3600;    // For the duration (fixed 1h)
+      //printf("access_token1=".$this->access_token["access_token1"]."\n");
+    }
+    else {
+      return(0);  // Login error
+    }
     // Login step 2
     $form = "client_id=".$this->client_id."&grant_type=password&client_secret=".$this->client_secret."&username=".urlencode("AP#".$this->username)."&password=".urlencode($this->password)."&scope=public";
     $param = "oauth2/token";
     $ret = $this->post_api_psa_appli_cvs($param, $form);
-    $this->access_token["access_token2"]     = $ret["result"]->access_token;
-    $this->access_token["access_token2_ts"]  = $ret["result"]->consented_on;  // token consented on
-    $this->access_token["access_token2_dur"] = $ret["result"]->expires_in;    // For the duration (fixed 1h)
-    //printf("access_token2=".$this->access_token["access_token2"]."\n");
-    return($this->access_token);  // new login performed
+    //var_dump($ret["result"]);
+    if (isset($ret["result"]->access_token)) {
+      $this->access_token["access_token2"]     = $ret["result"]->access_token;
+      $this->access_token["access_token2_ts"]  = $ret["result"]->consented_on;  // token consented on
+      $this->access_token["access_token2_dur"] = $ret["result"]->expires_in;    // For the duration (fixed 1h)
+      //printf("access_token2=".$this->access_token["access_token2"]."\n");
+      return($this->access_token);  // new login performed
+    }
+    else {
+      return(0);  // Login error
+    }
   }
   
   // Check login state (Tokens still allowed)
