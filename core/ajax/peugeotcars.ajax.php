@@ -101,7 +101,7 @@ function get_car_trips_gps($vin, $ts_start, $ts_end)
 function get_car_infos($vin)
 {
   $session_peugeotcars = new peugeotcars_api_v2();
-  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'));
+  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
   $session_peugeotcars->pg_api_login1_2();   // Authentification
   // Section caractéristiques véhicule
   $ret = $session_peugeotcars->pg_ap_mym_user();
@@ -138,7 +138,7 @@ function get_car_infos($vin)
 function get_car_maint($vin)
 {
   $session_peugeotcars = new peugeotcars_api_v2();
-  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'));
+  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
   $session_peugeotcars->pg_api_login1_2();   // Authentification
   // Section caractéristiques véhicule
   $ret = $session_peugeotcars->pg_ap_mym_maintenance($vin);

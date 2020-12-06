@@ -18,17 +18,17 @@ class peugeotcars_api_v2 {
   protected $url_api_psa_conn_car      = 'https://api.groupe-psa.com/connectedcar/v3/user/';
   protected $url_api_psa_mym_sgp       = 'https://ap-mym.servicesgp.mpsa.com/api/v1/';
 
-	protected $client_id_b64     = "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw";
-	protected $client_secret_b64 = "VDV0UDdpUzBjTzhzQzBsQTJpRTJhUjdnSzZ1RTVyRjNsSjhwQzNuTzFwUjd0TDh2VTE=";
+  protected $client_id_b64     = "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw";
+  protected $client_secret_b64 = "VDV0UDdpUzBjTzhzQzBsQTJpRTJhUjdnSzZ1RTVyRjNsSjhwQzNuTzFwUjd0TDh2VTE=";
 
-	protected $username;
-	protected $password;
-	protected $client_id;
-	protected $client_secret;
+  protected $username;
+  protected $password;
+  protected $client_id;
+  protected $client_secret;
   protected $access_token = [];
   protected $vehicle_id;
-	protected $user_id;
-	protected $apv_site_geo;
+  protected $user_id;
+  protected $apv_site_geo;
   protected $apv_rrdi;
 
 
@@ -36,13 +36,13 @@ class peugeotcars_api_v2 {
   // General function : login
   // ==============================
   function login($username, $password, $token)
-	{
+  {
     $this->username = $username;
     $this->password = $password;
     $this->access_token = $token;  // Etat des token des appels précédents
     $this->client_id     = base64_decode ($this->client_id_b64);
     $this->client_secret = base64_decode ($this->client_secret_b64);
-	}
+  }
 
   // ====================================
   // Functions dedicated to API psa_auth1
@@ -309,7 +309,7 @@ class peugeotcars_api_v2 {
   function pg_api_login1()
   {
     $json_req = '{"siteCode":"AP_FR_ESP","culture":"fr-FR","action":"authenticate","fields":{"USR_EMAIL":{"value":"'.$this->username.'"},"USR_PASSWORD":{"value":"'.$this->password.'"}}}';
-		$param = "mobile-services/GetAccessToken?jsonRequest=".urlencode($json_req);
+    $param = "mobile-services/GetAccessToken?jsonRequest=".urlencode($json_req);
     print("PARAM:\n".$param."\n");
     $ret = $this->post_api_psa_auth1($param);
     //var_dump($ret["info"]);
@@ -324,7 +324,7 @@ class peugeotcars_api_v2 {
   function pg_api_login2()
   {
     $form = "client_id=".$this->client_id."&grant_type=password&client_secret=".$this->client_secret."&username=".urlencode("AP#".$this->username)."&password=".urlencode($this->password)."&scope=public";
-		$param = "oauth2/token";
+    $param = "oauth2/token";
     print("PARAM:\n".$param."\n");
     $ret = $this->post_api_psa_appli_cvs($param, $form);
     //var_dump($ret["info"]);
@@ -341,7 +341,7 @@ class peugeotcars_api_v2 {
   {
     // Login step 1
     $json_req = '{"siteCode":"AP_FR_ESP","culture":"fr-FR","action":"authenticate","fields":{"USR_EMAIL":{"value":"'.$this->username.'"},"USR_PASSWORD":{"value":"'.$this->password.'"}}}';
-		$param = "mobile-services/GetAccessToken?jsonRequest=".urlencode($json_req);
+    $param = "mobile-services/GetAccessToken?jsonRequest=".urlencode($json_req);
     $ret = $this->post_api_psa_auth1($param);
     $this->access_token["access_token1"] = $ret["result"]->accessToken;
     $this->access_token["access_token1_ts"]  = time();  // token consented on
@@ -350,7 +350,7 @@ class peugeotcars_api_v2 {
 
     // Login step 2
     $form = "client_id=".$this->client_id."&grant_type=password&client_secret=".$this->client_secret."&username=".urlencode("AP#".$this->username)."&password=".urlencode($this->password)."&scope=public";
-		$param = "oauth2/token";
+    $param = "oauth2/token";
     $ret = $this->post_api_psa_appli_cvs($param, $form);
     $this->access_token["access_token2"]     = $ret["result"]->access_token;
     $this->access_token["access_token2_ts"]  = $ret["result"]->consented_on;  // token consented on
@@ -378,7 +378,7 @@ class peugeotcars_api_v2 {
   function pg_api_login3()
   {
     $form = "grant_type=password&username=".urlencode($this->username)."&password=".urlencode($this->password)."&scope=openid+profile";
-		$param = "access_token";
+    $param = "access_token";
     print("PARAM:\n".$param."\n");
     $ret = $this->post_api_psa_auth2($param, $form);
     //var_dump($ret["info"]);
@@ -391,7 +391,7 @@ class peugeotcars_api_v2 {
   // ===================================================
   function pg_api_vehicles($vin)
   {
-		$param = "vehicles?client_id=".$this->client_id;
+    $param = "vehicles?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
@@ -412,7 +412,7 @@ class peugeotcars_api_v2 {
 
   function pg_api_vehicles_status()
   {
-		$param = "vehicles/".$this->vehicle_id."/status?client_id=".$this->client_id;
+    $param = "vehicles/".$this->vehicle_id."/status?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
@@ -448,7 +448,7 @@ class peugeotcars_api_v2 {
   // Retour des trajets effectués par le vehicule (pas de retour de cette fonction !!)
   function pg_api_vehicles_trips()
   {
-		$param = "vehicles/".$this->vehicle_id."/trips?client_id=".$this->client_id;
+    $param = "vehicles/".$this->vehicle_id."/trips?client_id=".$this->client_id;
     print("PARAM:\n".$param."\n");
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
@@ -459,7 +459,7 @@ class peugeotcars_api_v2 {
   // Retour des alertes sur le vehicule (pas de retour de cette fonction !!)
   function pg_api_vehicles_alerts()
   {
-		$param = "vehicles/".$this->vehicle_id."/alerts?client_id=".$this->client_id;
+    $param = "vehicles/".$this->vehicle_id."/alerts?client_id=".$this->client_id;
     print("PARAM:\n".$param."\n");
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
@@ -470,7 +470,7 @@ class peugeotcars_api_v2 {
   // derniere position GPS connue du vehicule (Info identique a status)
   function pg_api_vehicles_last_position()
   {
-		$param = "vehicles/".$this->vehicle_id."/lastPosition?client_id=".$this->client_id;
+    $param = "vehicles/".$this->vehicle_id."/lastPosition?client_id=".$this->client_id;
     print("PARAM:\n".$param."\n");
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
@@ -481,7 +481,7 @@ class peugeotcars_api_v2 {
   // Retour des telemetries sur le vehicule (pas de retour de cette fonction !!)
   function pg_api_vehicles_telemetry()
   {
-		$param = "vehicles/".$this->vehicle_id."/telemetry?client_id=".$this->client_id;
+    $param = "vehicles/".$this->vehicle_id."/telemetry?client_id=".$this->client_id;
     print("PARAM:\n".$param."\n");
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
@@ -492,7 +492,7 @@ class peugeotcars_api_v2 {
   // Info de maintenance du vehicule (Info identique a status)
   function pg_api_vehicles_maintenance()
   {
-		$param = "vehicles/".$this->vehicle_id."/maintenance?client_id=".$this->client_id;
+    $param = "vehicles/".$this->vehicle_id."/maintenance?client_id=".$this->client_id;
     print("PARAM:\n".$param."\n");
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
@@ -508,7 +508,7 @@ class peugeotcars_api_v2 {
   {
     $param = "user?culture=fr_FR&width=1080&cgu=1605377025";
     $fields = '{"site_code": "AP_FR_ESP","ticket": "'.$this->access_token["access_token1"].'"}';
-		$ret = $this->post_ap_mym_servicesgp($param, $fields);
+    $ret = $this->post_ap_mym_servicesgp($param, $fields);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
     $retf = "";
@@ -545,7 +545,7 @@ class peugeotcars_api_v2 {
   {
     $param = "user/vehicles/".$vin."/maintenance?culture=fr_FR&rrdi=".$this->apv_rrdi."&siteGeo=".$this->apv_site_geo;
     $fields = '{"site_code": "AP_FR_ESP","ticket": "'.$this->access_token["access_token1"].'"}';
-		$ret = $this->post_ap_mym_servicesgp($param, $fields);
+    $ret = $this->post_ap_mym_servicesgp($param, $fields);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
     $retf = "";
@@ -615,7 +615,7 @@ class peugeotcars_api_v2 {
   {
     $param = "getAvailableUpdate?client_id=1eeecd7f-6c2b-486a-b59c-8e08fca81f54";
     $fields = '{"vin":"'.$vin.'","softwareTypes":[{"softwareType":"'.$sw.'"}]}';
-		$ret = $this->post_api_sw($param, $fields);
+    $ret = $this->post_api_sw($param, $fields);
     $retf = "";
     if ($ret["result"]->requestResult == "OK") {
       $retf["sw_type"]           = $ret["result"]->software[0]->softwareType;
