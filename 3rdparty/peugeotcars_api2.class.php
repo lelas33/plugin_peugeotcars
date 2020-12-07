@@ -340,6 +340,7 @@ class peugeotcars_api_v2 {
   function pg_api_login1_2()
   {
     // Login step 1
+    $this->access_token = [];
     $json_req = '{"siteCode":"AP_FR_ESP","culture":"fr-FR","action":"authenticate","fields":{"USR_EMAIL":{"value":"'.$this->username.'"},"USR_PASSWORD":{"value":"'.$this->password.'"}}}';
     $param = "mobile-services/GetAccessToken?jsonRequest=".urlencode($json_req);
     $ret = $this->post_api_psa_auth1($param);
@@ -348,10 +349,12 @@ class peugeotcars_api_v2 {
       $this->access_token["access_token1"] = $ret["result"]->accessToken;
       $this->access_token["access_token1_ts"]  = time();  // token consented on
       $this->access_token["access_token1_dur"] = 3600;    // For the duration (fixed 1h)
+      $this->access_token["status"] = "OK";
       //printf("access_token1=".$this->access_token["access_token1"]."\n");
     }
     else {
-      return(0);  // Login error
+      $this->access_token["status"] = "KO";
+      return($this->access_token);  // new login performed
     }
     // Login step 2
     $form = "client_id=".$this->client_id."&grant_type=password&client_secret=".$this->client_secret."&username=".urlencode("AP#".$this->username)."&password=".urlencode($this->password)."&scope=public";
@@ -362,12 +365,13 @@ class peugeotcars_api_v2 {
       $this->access_token["access_token2"]     = $ret["result"]->access_token;
       $this->access_token["access_token2_ts"]  = $ret["result"]->consented_on;  // token consented on
       $this->access_token["access_token2_dur"] = $ret["result"]->expires_in;    // For the duration (fixed 1h)
+      $this->access_token["status"] = "OK";
       //printf("access_token2=".$this->access_token["access_token2"]."\n");
-      return($this->access_token);  // new login performed
     }
     else {
-      return(0);  // Login error
+      $this->access_token["status"] = "KO";
     }
+    return($this->access_token);  // new login performed
   }
   
   // Check login state (Tokens still allowed)
@@ -406,7 +410,7 @@ class peugeotcars_api_v2 {
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
-    $retf["sucess"] = "KO";
+    $retf["success"] = "KO";
     $nb_veh = $ret["result"]->total;
     // recherche du vin dans la liste des vehicules associés à ce compte
     if ($ret["result"]->total >= 1) {
@@ -414,7 +418,7 @@ class peugeotcars_api_v2 {
         if ($vin == $ret["result"]->_embedded->vehicles[$veh]->vin) {
           $this->vehicle_id = $ret["result"]->_embedded->vehicles[$veh]->id;
           $retf["pictures"] = $ret["result"]->_embedded->vehicles[$veh]->pictures;
-          $retf["sucess"] = "OK";
+          $retf["success"] = "OK";
         }
       }
     }
@@ -525,7 +529,7 @@ class peugeotcars_api_v2 {
     $retf = "";
     if (isset($ret["result"]->success)) {
       // proprietaire
-      $retf["sucess"]     = "OK";
+      $retf["success"]     = "OK";
       $retf["apv_name"]    = $ret["result"]->success->dealers->apv->name;
       $retf["apv_address"] = $ret["result"]->success->dealers->apv->address->address1;
       $retf["apv_city"]    = $ret["result"]->success->dealers->apv->address->zip_code . " " . $ret["result"]->success->dealers->apv->address->city;
@@ -545,7 +549,7 @@ class peugeotcars_api_v2 {
       $this->apv_rrdi     = $ret["result"]->success->dealers->apv->rrdi;
     }
     else {
-      $retf["sucess"]     = "KO";
+      $retf["success"]     = "KO";
     }
     //var_dump($retf);
     return($retf);
@@ -561,7 +565,7 @@ class peugeotcars_api_v2 {
     //var_dump($ret["result"]);
     $retf = "";
     if (isset($ret["result"]->success)) {
-      $retf["sucess"]     = "OK";
+      $retf["success"]     = "OK";
       $retf["mileage_km"] = $ret["result"]->success->mileage;
       // Premiere visite
       $retf["visite1_ts"]      = $ret["result"]->success->pas[1]->theo->timestamp;
@@ -610,7 +614,7 @@ class peugeotcars_api_v2 {
       }
     }
     else {
-      $retf["sucess"]     = "KO";
+      $retf["success"]     = "KO";
     }
     //var_dump($retf);
     return($retf);

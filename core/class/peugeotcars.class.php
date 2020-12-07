@@ -90,8 +90,8 @@ class peugeotcars extends eqLogic {
         log::add('peugeotcars','error',"Erreur Login API PSA");
       $vin = $this->getlogicalId();
       $ret = $session_peugeotcars->pg_api_vehicles($vin);
-      log::add('peugeotcars','info',"postSave: sucess=".$ret["sucess"]);
-      if ($ret["sucess"] == "KO") {
+      log::add('peugeotcars','info',"postSave: success=".$ret["success"]);
+      if ($ret["success"] == "KO") {
         log::add('peugeotcars','info',"Ce vehicule n'est pas connecté: vin=".$vin);
         return;  // Ce vehicule n'est pas connecte
       }
@@ -244,11 +244,13 @@ class peugeotcars extends eqLogic {
         if ((($record_period == 0) && ($minute%5 == 0)) || ($record_period > 0) || ($rfh==1)) {
           // Login a l'API PSA
           $last_login_token = $cmd_record_period->getConfiguration('save_auth');
+          if ((!isset($last_login_token)) || ($last_login_token == "") || ($rfh==1))
+            $last_login_token = NULL;
           $session_peugeotcars = new peugeotcars_api_v2();
           $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), $last_login_token);
           if ($last_login_token == NULL) {
             $login_token = $session_peugeotcars->pg_api_login1_2();   // Authentification
-            if ($login_token == 0)
+            if ($login_token["status"] != "OK")
               log::add('peugeotcars','error',"Erreur Login API PSA");
             $cmd_record_period->setConfiguration ('save_auth', $login_token);
             $cmd_record_period->save();
@@ -256,14 +258,16 @@ class peugeotcars extends eqLogic {
           }
           else if ($session_peugeotcars->state_login() == 0) {
             $login_token = $session_peugeotcars->pg_api_login1_2();   // Authentification
-            if ($login_token == 0)
+            if ($login_token["status"] != "OK")
               log::add('peugeotcars','error',"Erreur Login API PSA");
             $cmd_record_period->setConfiguration ('save_auth', $login_token);
             $cmd_record_period->save();
             log::add('peugeotcars','debug',"Session expirée => New login");
           }
           // Capture du statut du vehicule
-          $session_peugeotcars->pg_api_vehicles($vin);
+          $ret = $session_peugeotcars->pg_api_vehicles($vin);
+          if ($ret["success"] == "KO")
+            log::add('peugeotcars','error',"Erreur Login API PSA");
           $ret = $session_peugeotcars->pg_api_vehicles_status();
           log::add('peugeotcars','debug',"MAJ statut du véhicule:".$vin);
           $cmd_mlg = $this->getCmd(null, "kilometrage");
