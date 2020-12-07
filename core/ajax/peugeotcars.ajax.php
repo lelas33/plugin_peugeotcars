@@ -102,10 +102,12 @@ function get_car_infos($vin)
 {
   $session_peugeotcars = new peugeotcars_api_v2();
   $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
-  $session_peugeotcars->pg_api_login1_2();   // Authentification
+  $login_token = $session_peugeotcars->pg_api_login1_2();   // Authentification
+  if ($login_token["status"] != "OK")
+    log::add('peugeotcars','error',"Erreur Login API PSA");
   // Section caractéristiques véhicule
   $ret = $session_peugeotcars->pg_ap_mym_user();
-  log::add('peugeotcars','debug','get_car_infos:sucess='.$ret["sucess"]);
+  log::add('peugeotcars','debug','get_car_infos:success='.$ret["success"]);
   $info["vin"] = $vin;
   $info["short_label"] = $ret["short_label"];
   $info["lcdv"] = $ret["lcdv"];
@@ -139,9 +141,12 @@ function get_car_maint($vin)
 {
   $session_peugeotcars = new peugeotcars_api_v2();
   $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
-  $session_peugeotcars->pg_api_login1_2();   // Authentification
+  $login_token = $session_peugeotcars->pg_api_login1_2();   // Authentification
+  if ($login_token["status"] != "OK")
+    log::add('peugeotcars','error',"Erreur Login API PSA");
   // Section caractéristiques véhicule
   $ret = $session_peugeotcars->pg_ap_mym_maintenance($vin);
+  log::add('peugeotcars','debug','get_car_maint:success='.$ret["success"]);
   $maint["mileage_km"]         = $ret["mileage_km"];
   $maint["visite1_date"]       = date("j-n-Y", intval($ret["visite1_ts"]));
   $maint["visite1_conditions"] = $ret["visite1_age"]." an(s) ou ".$ret["visite1_mileage"]." kms";
