@@ -526,7 +526,7 @@ class peugeotcars_api_v2 {
     $ret = $this->post_ap_mym_servicesgp($param, $fields);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
-    $retf = "";
+    $retf = [];
     if (isset($ret["result"]->success)) {
       // proprietaire
       $retf["success"]     = "OK";
@@ -563,7 +563,7 @@ class peugeotcars_api_v2 {
     $ret = $this->post_ap_mym_servicesgp($param, $fields);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
-    $retf = "";
+    $retf = [];
     if (isset($ret["result"]->success)) {
       $retf["success"]     = "OK";
       $retf["mileage_km"] = $ret["result"]->success->mileage;
@@ -631,7 +631,7 @@ class peugeotcars_api_v2 {
     $param = "getAvailableUpdate?client_id=1eeecd7f-6c2b-486a-b59c-8e08fca81f54";
     $fields = '{"vin":"'.$vin.'","softwareTypes":[{"softwareType":"'.$sw.'"}]}';
     $ret = $this->post_api_sw($param, $fields);
-    $retf = "";
+    $retf = [];
     if ($ret["result"]->requestResult == "OK") {
       $retf["sw_type"]           = $ret["result"]->software[0]->softwareType;
       $retf["sw_current_ver"]    = $ret["result"]->software[0]->currentSoftwareVersion;
