@@ -2,6 +2,11 @@
 if (!isConnect()) {
     throw new Exception('{{401 - Accès non autorisé}}');
 }
+
+include_file('3rdparty', 'DataTables/DataTables-1.10.22/js/jquery.dataTables.min', 'js', 'peugeotcars');
+include_file('3rdparty', 'DataTables/DataTables-1.10.22/css/jquery.dataTables.min', 'css', 'peugeotcars');
+include_file('3rdparty', 'leaflet_v1.7.1/leaflet', 'js', 'peugeotcars');
+include_file('3rdparty', 'leaflet_v1.7.1/leaflet', 'css', 'peugeotcars');
 $date = array(
     'start' => date('Y-m-d', strtotime(config::byKey('history::defautShowPeriod') . ' ' . date('Y-m-d'))),
     'end' => date('Y-m-d'),
@@ -19,10 +24,6 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
 
 ?>
 
-<script type="text/javascript" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
 <div class="row" id="div_peugeotcars">
     <div class="row">
         <div class="col-lg-8 col-lg-offset-2" style="height: 250px;padding-top:10px">
@@ -139,4 +140,3 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
     </div>
 </div>
 <?php include_file('desktop', 'panel', 'js', 'peugeotcars');?>
-
