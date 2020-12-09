@@ -237,7 +237,7 @@ function trip_list () {
 
   var trips_number = car_trips.length;
   if (trips_number <1) {
-    if ( $.fn.dataTable.isDataTable( '#trip_liste' ) ) {
+    if ( $.fn.DataTable.isDataTable( '#trip_liste' ) ) {
       $('#trip_liste').DataTable().destroy();
     }
     var x = document.getElementById("div_hist_liste2");
@@ -280,7 +280,7 @@ function trip_list () {
 
   }
   // generation de la table / liste des trajet : Utilisation de la librairie DataTable
-  if ($.fn.dataTable.isDataTable('#trip_liste')) {
+  if ($.fn.DataTable.isDataTable('#trip_liste')) {
     $('#trip_liste').DataTable().destroy();
   }
   //$('#div_hist_liste2').style.display = "block";
