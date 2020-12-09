@@ -16,7 +16,7 @@ Il doit fonctionner pour les autres véhicules électriques ou essence/Diesel de
  
 
 <p align="left">
-  <img src="../master/doc/images/widget.png" width="500" title="Widget dashboard">
+  <img src="../master/doc/images/widget.png" width="400" title="Widget dashboard">
 </p>
 
 ## Versions
@@ -44,7 +44,7 @@ Sur l'onglet "**Equipement**", choisissez l'objet parent, et notez le numéro VI
 Indiquez également la capacité de la batterie pour un véhicule électrique. (Cela permet d'évaluer la consommation sur un trajet) <br>
 Lors de la sauvegarde de l'équipement, quelques photos du véhicules sont téléchargées et rendues disponibles pour affichage sur le widget.
 <p align="left">
-  <img src="../master/doc/images/config_equipement.png" width="600" title="Widget dashboard">
+  <img src="../master/doc/images/config_equipement.png" width="700" title="Widget dashboard">
 </p>
 
 ## Widget
@@ -54,7 +54,7 @@ Il est possible d'agencer les éléments dans le widgets par la fonction d'édit
 Je propose l'agencement suivant comme exemple, en utilisant la présentation en tableau dans Configuration Avancée=>Disposition (voir ci dessous) <br>
 Lorsque l'on clique sur la photo, on bascule sur la page "Panel" du plugin associée au véhicule.
 <p align="left">
-  <img src="../master/doc/images/config_widget.png" width="600" title="Widget dashboard">
+  <img src="../master/doc/images/config_widget.png" width="700" title="Widget dashboard">
 </p>
 
 ## Panel
@@ -78,7 +78,7 @@ Un résumé sur l'ensemble des trajets sélectionnés et donné également sur c
 Quelques informations sont données sur le véhicule
 En particulier la dernière version du logiciel disponible
 <p align="left">
-  <img src="../master/doc/images/panel2.png" width="600" title="Panel2">
+  <img src="../master/doc/images/panel2.png" width="500" title="Panel2">
 </p>
 
 **Visites d'entretien:**
