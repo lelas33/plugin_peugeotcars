@@ -2,64 +2,52 @@
 if (!isConnect('admin')) {
     throw new Exception('{{401 - Accès non autorisé}}');
 }
-sendVarToJS('eqType', 'peugeotcars');
+$plugin = plugin::byId('peugeotcars');
+sendVarToJS('eqType', $plugin->getId());
+$eqLogics = eqLogic::byType($plugin->getId());
 ?>
 
 <div class="row row-overflow">
-    <div class="col-lg-2 col-md-3 col-sm-4">
-        <div class="bs-sidebar">
-            <ul id="ul_eqLogic" class="nav nav-list bs-sidenav">
-                <?php
-				        $eqLogics = eqLogic::byType('peugeotcars');
-				        foreach ($eqLogics as $eqLogic) {
-                    echo '<li>'."\n";
-						        echo '<a class="cursor li_eqLogic" data-eqLogic_id="' . $eqLogic->getId() . '" data-eqLogic_type="peugeotcars"><i class="fa fa-download"></i> ' . $eqLogic->getName() . '</a>'."\n";
-					          echo '</li>'."\n";
-                }
-                ?>
-            </ul>
-        </div>
-    </div>
-    <div class="col-lg-10 col-md-9 col-sm-8 eqLogicThumbnailDisplay" style="border-left: solid 1px #EEE; padding-left: 25px;">
-        <legend><i class="fa fa-cog"></i>  {{Gestion}}</legend>
+   <div class="col-xs-12 eqLogicThumbnailDisplay">
+        <legend><i class="fas fa-cog"></i>  {{Gestion}}</legend>
         <div class="eqLogicThumbnailContainer">
-            <div class="cursor eqLogicAction" data-action="gotoPluginConf" style="background-color : #ffffff; height : 120px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;">
-                <center>
-                    <i class="fa fa-wrench" style="font-size : 6em;color:#767676;"></i>
-                </center>
-                <span style="font-size : 1.1em;position:relative; top : 15px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#767676;background-color : #ff00ff"><center>{{Configuration}}</center></span>
+            <div class="cursor eqLogicAction logoPrimary" data-action="add">
+                <i class="fas fa-plus-circle"></i>
+                <br>
+                <span>{{Ajouter}}</span>
+            </div>
+            <div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
+                <i class="fas fa-wrench"></i>
+                <br>
+                <span>{{Configuration}}</span>
+            </div>
+            <div class="cursor eqLogicAction logoSecondary" onclick="window.open('https:\/\/github.com/lelas33/plugin_peugeotcars/blob/master/README.md', '_blank')">
+                <i class="fas fa-book"></i>
+                <br>
+                <span>{{Documentation}}</span>
             </div>
         </div>
-        <legend>{{Mes equipements}}</legend>
-		<div class="eqLogicThumbnailContainer">
-			<div class="cursor eqLogicAction" data-action="add" style="background-color : #000000; height : 200px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;" >
-				<center>
-					<i class="fa fa-plus-circle" style="font-size : 7em;color:#94ca02;"></i>
-				</center>
-				<span style="font-size : 1.1em;position:relative; top : 23px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#94ca02">
-					<center>{{Ajouter}}</center>
-				</span>
-			</div>
-			<?php
-	        if (count($eqLogics) == 0) {
-				echo "<br/><br/><br/><center><span style='color:#767676;font-size:1.2em;font-weight: bold;'>{{Vous n'avez pas encore de peugeotcars, cliquez sur Detecter un équipement pour commencer}}</span></center>";
-			} else {
-                foreach ($eqLogics as $eqLogic) {
-                    echo '<div class="eqLogicDisplayCard cursor" data-eqLogic_id="' . $eqLogic->getId() . '" style="background-color : #ffffff; height : 200px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;" >';
-                    echo "<center>";
-                    echo '<img src="plugins/peugeotcars/plugin_info/peugeotcars_icon.png" height="105" width="95" />';
-                    echo "</center>";
-                    echo '<span style="font-size : 0.9em;position:relative; top : 5px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#000000"> <center>' . $eqLogic->getHumanName(true, true) . '</center></span>';
-                    echo '</div>';
-                }
+        <legend><i class="fas fa-table"></i> {{Mes voitures}}</legend>
+        <input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
+        <div class="eqLogicThumbnailContainer">
+            <?php
+            foreach ($eqLogics as $eqLogic) {
+                $opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
+                echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
+                echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
+                echo '<br>';
+                echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
+                echo '</div>';
             }
             ?>
         </div>
     </div>
-    <div class="col-lg-9 eqLogic peugeotcars" style="border-left: solid 1px #EEE; padding-left: 25px;display: none;">
-		<a class="btn btn-success eqLogicAction pull-right" data-action="save"><i class="fa fa-check-circle"></i> {{Sauvegarder}}</a>
-		<a class="btn btn-danger eqLogicAction pull-right" data-action="remove"><i class="fa fa-minus-circle"></i> {{Supprimer}}</a>
-		<a class="btn btn-default eqLogicAction pull-right" data-action="configure"><i class="fa fa-cogs"></i> {{Configuration avancée}}</a>
+    <div class="col-xs-12 eqLogic" style="display: none;">
+	    <div class="input-group pull-right" style="display:inline-flex">
+            <span class="input-group-btn">
+                <a class="btn btn-default btn-sm eqLogicAction roundedLeft" data-action="configure"><i class="fa fa-cogs"></i> {{Configuration avancée}}</a><a class="btn btn-default btn-sm eqLogicAction" data-action="copy"><i class="fas fa-copy"></i> {{Dupliquer}}</a><a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i> {{Sauvegarder}}</a><a class="btn btn-danger btn-sm eqLogicAction roundedRight" data-action="remove"><i class="fas fa-minus-circle"></i> {{Supprimer}}</a>
+            </span>
+        </div>
 		<ul class="nav nav-tabs" role="tablist">
 			<li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fa fa-arrow-circle-left"></i></a></li>
 			<li role="presentation" class="active"><a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Equipement}}</a></li>
@@ -73,17 +61,17 @@ sendVarToJS('eqType', 'peugeotcars');
                            <i class="fa fa-arrow-circle-left eqLogicAction cursor" data-action="returnToThumbnailDisplay"></i> {{Général}}
                            <i class='fa fa-cogs eqLogicAction pull-right cursor expertModeVisible' data-action='configure'></i>
                        </legend>
-                        <div class="form-group">
-                            <label class="col-lg-2 control-label">{{Numéro du véhicule}}</label>
-                            <div class="col-lg-3">
-                                <input type="text" class="eqLogicAttr form-control" data-l1key="logicalId" placeholder="{{VIN du véhicule}}"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
+			<div class="form-group">
                             <label class="col-lg-2 control-label">{{Nom de l'équipement}}</label>
                             <div class="col-lg-3">
                                 <input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
                                 <input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom de la voiture}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">{{Numéro du véhicule}}</label>
+                            <div class="col-lg-3">
+                                <input type="text" class="eqLogicAttr form-control" data-l1key="logicalId" placeholder="{{VIN du véhicule}}"/>
                             </div>
                         </div>
                         <div class="form-group">
