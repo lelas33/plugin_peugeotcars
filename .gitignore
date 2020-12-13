@@ -1,4 +1,4 @@
 # Ignoring directories (Both the directory itself and its contents will be ignored.)
 data/V*/
-3rdparty/sample2.php
+3rdparty/sample_lau.php
 

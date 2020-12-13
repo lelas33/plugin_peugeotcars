@@ -86,8 +86,10 @@ class peugeotcars extends eqLogic {
       $session_peugeotcars = new peugeotcars_api_v2();
       $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
       $login_token = $session_peugeotcars->pg_api_login1_2();   // Authentification
-      if ($login_token == 0)
+      if ($login_token["status"] == "KO") {
         log::add('peugeotcars','error',"Erreur Login API PSA");
+        return;  // Ce vehicule n'est pas connecte
+      }
       $vin = $this->getlogicalId();
       $ret = $session_peugeotcars->pg_api_vehicles($vin);
       log::add('peugeotcars','info',"postSave: success=".$ret["success"]);
