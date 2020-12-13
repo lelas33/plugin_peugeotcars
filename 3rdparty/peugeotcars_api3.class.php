@@ -190,7 +190,7 @@ class peugeotcars_api3 {
     $param = "user/vehicles/".$this->vehicle_id."/status?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
-    var_dump($ret["result"]);
+    //var_dump($ret["result"]);
     // For trace analysis
     // $fn_log_sts = "/var/www/html/plugins/peugeotcars/data/car_log.txt";
     // $date = date("Y-m-d H:i:s");
