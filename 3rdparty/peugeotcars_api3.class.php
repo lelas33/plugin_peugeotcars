@@ -5,8 +5,11 @@
 class peugeotcars_api3 {
 
   // Constantes pour la classe
-  protected $url_api_psa_oauth         = 'https://idpcvs.peugeot.com/am/oauth2/';
+  protected $url_api_psa_oauth1        = 'https://id-dcr.peugeot.com/';
+  protected $url_api_psa_oauth2        = 'https://idpcvs.peugeot.com/am/oauth2/';
   protected $url_api_psa_conn_car      = 'https://api.groupe-psa.com/connectedcar/v4/';
+  protected $url_api_psa_mym_sgp       = 'https://ap-mym.servicesgp.mpsa.com/api/v1/';
+  protected $url_api_sw                = 'https://api.groupe-psa.com/applications/majesticf/v1/';
 
 
   protected $client_id_b64     = "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw";
@@ -21,6 +24,8 @@ class peugeotcars_api3 {
   protected $user_id;
   protected $apv_site_geo;
   protected $apv_rrdi;
+  protected $access_token_mym;
+  protected $debug_api;
 
 
   // ==============================
@@ -33,8 +38,60 @@ class peugeotcars_api3 {
     $this->access_token = $token;  // Etat des token des appels précédents
     $this->client_id     = base64_decode ($this->client_id_b64);
     $this->client_secret = base64_decode ($this->client_secret_b64);
+    $this->debug_api = false;
   }
 
+  // Check login state (Tokens still allowed)
+  function state_login()
+  {
+    if (isset($this->access_token["access_token"]) && isset($this->access_token["access_token_ts"]) && isset($this->access_token["access_token_dur"])) {
+      $ctime = time();
+      //printf("login:ctime=".$ctime."\n");
+      if (($ctime >= $this->access_token["access_token_ts"]) && ($ctime < ($this->access_token["access_token_ts"] + $this->access_token["access_token_dur"] - 15))) {
+        return(1);  // no need for new login
+      }
+    }
+    else
+      return (0);
+  }
+
+  // Set debug mode
+  function set_debug_api()
+  {
+    $this->debug_api = true;
+  }
+
+
+  // ====================================
+  // Functions dedicated to API psa_auth1
+  // ====================================
+  // GET HTTP command : unsused
+  
+  // POST HTTP command
+  private function post_api_psa_auth1($param)
+  {
+    $session = curl_init();
+
+    curl_setopt($session, CURLOPT_URL, $this->url_api_psa_oauth1.$param);
+    curl_setopt($session, CURLOPT_HTTPHEADER, array(
+       'Content-type: application/json',
+       'Accept: application/json'));
+    curl_setopt($session, CURLOPT_POST, true);
+    curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+    $json = curl_exec($session);
+    // Vérifie si une erreur survient
+    if(curl_errno($session)) {
+      $info = [];
+      echo 'Erreur Curl : ' . curl_error($session);
+    }
+    else {
+      $info = curl_getinfo($session);
+    }
+    curl_close($session);
+    $ret_array["info"] = $info;
+    $ret_array["result"] = json_decode($json);
+    return $ret_array;
+  }
 
   // =====================================
   // Functions dedicated to API psa_auth2
@@ -42,11 +99,11 @@ class peugeotcars_api3 {
   // GET HTTP command : unsused
   
   // POST HTTP command
-  private function post_api_psa_auth($param, $fields = null)
+  private function post_api_psa_auth2($param, $fields = null)
   {
     $session = curl_init();
 
-    curl_setopt($session, CURLOPT_URL, $this->url_api_psa_oauth.$param);
+    curl_setopt($session, CURLOPT_URL, $this->url_api_psa_oauth2.$param);
     curl_setopt($session, CURLOPT_HTTPHEADER, array(
        'Content-Type: application/x-www-form-urlencoded',
        'Authorization: Basic '.base64_encode($this->client_id.":".$this->client_secret),
@@ -133,17 +190,84 @@ class peugeotcars_api3 {
     return $ret_array;
   }
 
-
-
-  // ==========================================
-  // Connection aux API PSU : authentification
-  // ==========================================
+  // ======================================================
+  // Functions dedicated to API ap-mym.servicesgp.mpsa.com
+  // ======================================================
+  // GET HTTP command: not used
   
+  // POST HTTP command
+  private function post_ap_mym_servicesgp($param, $fields = null)
+  {
+    $session = curl_init();
+
+    curl_setopt($session, CURLOPT_URL, $this->url_api_psa_mym_sgp.$param);
+    curl_setopt($session, CURLOPT_HTTPHEADER, array(
+      'Content-Type: application/json',
+      'Version: 1.23.4',
+      'Token: ' . $this->access_token_mym));
+    curl_setopt($session, CURLOPT_POST, true);
+    curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+    if (isset($fields)) {
+      curl_setopt($session, CURLOPT_POSTFIELDS, $fields);
+    }
+    $json = curl_exec($session);
+    // Vérifie si une erreur survient
+    if(curl_errno($session)) {
+      $info = [];
+      echo 'Erreur Curl : ' . curl_error($session);
+    }
+    else {
+      $info = curl_getinfo($session);
+    }
+    curl_close($session);
+//    throw new Exception(__('La livebox ne repond pas a la demande de cookie.', __FILE__));
+    $ret_array["info"] = $info;
+    $ret_array["result"] = json_decode($json);
+    return $ret_array;
+  }
+
+  // =============================
+  // Functions dedicated to api_sw
+  // =============================
+  // GET HTTP command (not used)
+  // POST HTTP command
+  private function post_api_sw($param, $fields = null)
+  {
+    $session = curl_init();
+
+    curl_setopt($session, CURLOPT_URL, $this->url_api_sw.$param);
+    curl_setopt($session, CURLOPT_HTTPHEADER, array(
+      'Content-Type: application/json',
+      'Accept: application/json, text/plain, */*'));
+    curl_setopt($session, CURLOPT_POST, true);
+    curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+    if ( isset($fields) ) {
+      curl_setopt($session, CURLOPT_POSTFIELDS, $fields);
+    }
+    $json = curl_exec($session);
+    // Vérifie si une erreur survient
+    if(curl_errno($session)) {
+      $info = [];
+      echo 'Erreur Curl : ' . curl_error($session);
+    }
+    else {
+      $info = curl_getinfo($session);
+    }
+    curl_close($session);
+    $ret_array["info"] = $info;
+    $ret_array["result"] = json_decode($json);
+    return $ret_array;
+  }
+
+  // ===================================================
+  // Connection aux API: api.groupe-psa.com/connectedcar
+  // ===================================================
+  // Login pour l'API: authentification
   function pg_api_login()
   {
     $form = "grant_type=password&username=".urlencode($this->username)."&password=".urlencode($this->password)."&scope=openid profile&realm=clientsB2CPeugeot";
     $param = "access_token";
-    $ret = $this->post_api_psa_auth($param, $form);
+    $ret = $this->post_api_psa_auth2($param, $form);
     //var_dump($ret["info"]);
     //var_dump($ret["result"]);
     $this->access_token = [];
@@ -160,37 +284,40 @@ class peugeotcars_api3 {
     return($this->access_token);  // new login performed
   }
 
-  // ===================================================
-  // Connection aux API: api.groupe-psa.com/connectedcar
-  // ===================================================
+  // Get vehicle
   function pg_api_vehicles($vin)
   {
     $param = "user/vehicles?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
-    //var_dump($ret["result"]);
+    if ($this->debug_api)
+      var_dump($ret["result"]);
     $retf = [];
     $retf["success"] = "KO";
-    $nb_veh = $ret["result"]->total;
-    // recherche du vin dans la liste des vehicules associés à ce compte
-    if ($ret["result"]->total >= 1) {
-      for ($veh=0; $veh<$nb_veh; $veh++) {
-        if ($vin == $ret["result"]->_embedded->vehicles[$veh]->vin) {
-          $this->vehicle_id = $ret["result"]->_embedded->vehicles[$veh]->id;
-          $retf["pictures"] = $ret["result"]->_embedded->vehicles[$veh]->pictures;
-          $retf["success"] = "OK";
+    if (isset($ret["result"]->total)) {
+      $nb_veh = $ret["result"]->total;
+      // recherche du vin dans la liste des vehicules associés à ce compte
+      if ($nb_veh >= 1) {
+        for ($veh=0; $veh<$nb_veh; $veh++) {
+          if ($vin == $ret["result"]->_embedded->vehicles[$veh]->vin) {
+            $this->vehicle_id = $ret["result"]->_embedded->vehicles[$veh]->id;
+            $retf["pictures"] = $ret["result"]->_embedded->vehicles[$veh]->pictures;
+            $retf["success"] = "OK";
+          }
         }
       }
     }
     return($retf);
   }
 
+  // Get vehicule status
   function pg_api_vehicles_status()
   {
     $param = "user/vehicles/".$this->vehicle_id."/status?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
     //var_dump($ret["info"]);
-    //var_dump($ret["result"]);
+    if ($this->debug_api)
+      var_dump($ret["result"]);
     // For trace analysis
     // $fn_log_sts = "/var/www/html/plugins/peugeotcars/data/car_log.txt";
     // $date = date("Y-m-d H:i:s");
@@ -221,7 +348,159 @@ class peugeotcars_api3 {
     return $retf;
   }
 
+  // =========================================
+  // Connection aux API: :ap-mym.servicesgp
+  // =========================================
+  // Login pour l'API: authentification
+  function pg_api_mym_login()
+  {
+    $json_req = '{"siteCode":"AP_FR_ESP","culture":"fr-FR","action":"authenticate","fields":{"USR_EMAIL":{"value":"'.$this->username.'"},"USR_PASSWORD":{"value":"'.$this->password.'"}}}';
+    $param = "mobile-services/GetAccessToken?jsonRequest=".urlencode($json_req);
+    //print("PARAM:\n".$param."\n");
+    $ret = $this->post_api_psa_auth1($param);
+    //var_dump($ret["info"]);
+    //var_dump($ret["result"]);
+    if ($ret["info"]["http_code"] == "200") {
+      $this->access_token_mym = $ret["result"]->accessToken;
+      //printf("access_token_mym=".$this->access_token_mym."\n");
+      return("OK");
+    }
+    else {
+      $this->access_token_mym = "";
+      return("KO");
+    }
+  }
+
+  // Information utilisateur et véhicule
+  function pg_ap_mym_user()
+  {
+    $param = "user?culture=fr_FR&width=1080&cgu=1605377025";
+    $fields = '{"site_code": "AP_FR_ESP","ticket": "'.$this->access_token_mym.'"}';
+    $ret = $this->post_ap_mym_servicesgp($param, $fields);
+    //var_dump($ret["info"]);
+    //var_dump($ret["result"]);
+    $retf = [];
+    if (isset($ret["result"]->success)) {
+      // proprietaire
+      $retf["success"]     = "OK";
+      $retf["apv_name"]    = $ret["result"]->success->dealers->apv->name;
+      $retf["apv_address"] = $ret["result"]->success->dealers->apv->address->address1;
+      $retf["apv_city"]    = $ret["result"]->success->dealers->apv->address->zip_code . " " . $ret["result"]->success->dealers->apv->address->city;
+      // vehicule
+      $retf["vin"]  = $ret["result"]->success->vehicles[0]->vin;
+      $retf["lcdv"] = $ret["result"]->success->vehicles[0]->lcdv;
+      $retf["short_label"] = $ret["result"]->success->vehicles[0]->short_label;
+      $retf["warranty_start_date"] = $ret["result"]->success->vehicles[0]->warranty_start_date;
+      $retf["visual"] = $ret["result"]->success->vehicles[0]->visual;
+      $retf["eligibility"] = $ret["result"]->success->vehicles[0]->eligibility;
+      $retf["mileage_val"] = $ret["result"]->success->vehicles[0]->mileage->value;
+      $retf["mileage_ts"] = $ret["result"]->success->vehicles[0]->mileage->timestamp;
+
+      // Additional parameters stored for further API requests
+      $this->user_id      = $ret["result"]->success->id;
+      $this->apv_site_geo = $ret["result"]->success->dealers->apv->site_geo;
+      $this->apv_rrdi     = $ret["result"]->success->dealers->apv->rrdi;
+    }
+    else {
+      $retf["success"]     = "KO";
+    }
+    return($retf);
+  }
+
+  // Information maintenance du véhicule
+  function pg_ap_mym_maintenance($vin)
+  {
+    $param = "user/vehicles/".$vin."/maintenance?culture=fr_FR&rrdi=".$this->apv_rrdi."&siteGeo=".$this->apv_site_geo;
+    $fields = '{"site_code": "AP_FR_ESP","ticket": "'.$this->access_token_mym.'"}';
+    $ret = $this->post_ap_mym_servicesgp($param, $fields);
+    //var_dump($ret["info"]);
+    //var_dump($ret["result"]);
+    $retf = [];
+    if (isset($ret["result"]->success)) {
+      $retf["success"]     = "OK";
+      $retf["mileage_km"] = $ret["result"]->success->mileage;
+      // Premiere visite
+      $retf["visite1_ts"]      = $ret["result"]->success->pas[1]->theo->timestamp;
+      $retf["visite1_mileage"] = $ret["result"]->success->pas[1]->theo->mileage;
+      $retf["visite1_age"]     = $ret["result"]->success->pas[1]->theo->age;
+      if (isset($ret["result"]->success->pas[1]->labels)) {
+        for ($i=0; $i<count($ret["result"]->success->pas[1]->labels); $i++) {
+          $retf["visite1_lb_title"][$i]= $ret["result"]->success->pas[1]->labels[$i]->title;
+          $retf["visite1_lb_body"][$i]= [];
+          if (isset($ret["result"]->success->pas[1]->labels[$i]->body)) {
+            for ($j=0; $j<count($ret["result"]->success->pas[1]->labels[$i]->body); $j++) {
+              $retf["visite1_lb_body"][$i][$j] = $ret["result"]->success->pas[1]->labels[$i]->body[$j];
+            }
+          }
+        }
+      }
+      // Seconde visite
+      $retf["visite2_ts"]      = $ret["result"]->success->pas[2]->theo->timestamp;
+      $retf["visite2_mileage"] = $ret["result"]->success->pas[2]->theo->mileage;
+      $retf["visite2_age"]     = $ret["result"]->success->pas[2]->theo->age;
+      if (isset($ret["result"]->success->pas[2]->labels)) {
+        for ($i=0; $i<count($ret["result"]->success->pas[2]->labels); $i++) {
+          $retf["visite2_lb_title"][$i]= $ret["result"]->success->pas[2]->labels[$i]->title;
+          $retf["visite2_lb_body"][$i]= [];
+          if (isset($ret["result"]->success->pas[2]->labels[$i]->body)) {
+            for ($j=0; $j<count($ret["result"]->success->pas[2]->labels[$i]->body); $j++) {
+              $retf["visite2_lb_body"][$i][$j] = $ret["result"]->success->pas[2]->labels[$i]->body[$j];
+            }
+          }
+        }
+      }
+      // Troisieme visite
+      $retf["visite3_ts"]      = $ret["result"]->success->pas[3]->theo->timestamp;
+      $retf["visite3_mileage"] = $ret["result"]->success->pas[3]->theo->mileage;
+      $retf["visite3_age"]     = $ret["result"]->success->pas[3]->theo->age;
+      if (isset($ret["result"]->success->pas[3]->labels)) {
+        for ($i=0; $i<count($ret["result"]->success->pas[3]->labels); $i++) {
+          $retf["visite3_lb_title"][$i]= $ret["result"]->success->pas[3]->labels[$i]->title;
+          $retf["visite3_lb_body"][$i]= [];
+          if (isset($ret["result"]->success->pas[3]->labels[$i]->body)) {
+            for ($j=0; $j<count($ret["result"]->success->pas[3]->labels[$i]->body); $j++) {
+              $retf["visite3_lb_body"][$i][$j] = $ret["result"]->success->pas[3]->labels[$i]->body[$j];
+            }
+          }
+        }
+      }
+    }
+    else {
+      $retf["success"]     = "KO";
+    }
+    return($retf);
+  }
+
+  // ==========================================
+  // Information disponibles par l'API:api.sw
+  // ==========================================
+  // Recherche de mise à jour logicielles => Interessant
+  // Renvoie la version courante des SW (par exemple RCC), et la derniere version disponible + date de cette version + lien de téléchargement
+  // Logiciels existants: ("rcc-firmware", "ovip-int-firmware-version", "map-eur")
+  function pg_api_sw_updates($vin, $sw)
+  {
+    $param = "getAvailableUpdate?client_id=1eeecd7f-6c2b-486a-b59c-8e08fca81f54";
+    $fields = '{"vin":"'.$vin.'","softwareTypes":[{"softwareType":"'.$sw.'"}]}';
+    $ret = $this->post_api_sw($param, $fields);
+    $retf = [];
+    if ($ret["result"]->requestResult == "OK") {
+      $retf["sw_type"]           = $ret["result"]->software[0]->softwareType;
+      $retf["sw_current_ver"]    = $ret["result"]->software[0]->currentSoftwareVersion;
+      $retf["sw_available_ver"]  = $ret["result"]->software[0]->update[0]->updateVersion;
+      $retf["sw_available_date"] = $ret["result"]->software[0]->update[0]->updateDate;
+      $retf["sw_available_size"] = $ret["result"]->software[0]->update[0]->updateSize;
+      $retf["sw_available_UpURL"] = $ret["result"]->software[0]->update[0]->updateURL;
+      $retf["sw_available_LiURL"] = $ret["result"]->software[0]->update[0]->licenseURL;
+    }
+    // var_dump($ret["info"]);
+    // var_dump($ret["result"]);
+    //var_dump($retf);
+    return($retf);
+  }
+
+
 }
+
 
 ?>
 

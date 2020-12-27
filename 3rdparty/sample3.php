@@ -7,14 +7,16 @@ $vin  = "Vxxx";
 $username = "";
 $password = "";
 
+
 print("Login API PSA:\n");
 print("==============\n");
 $session_peugeotcars = new peugeotcars_api3();
 $session_peugeotcars->login($username, $password, NULL);
 $login = $session_peugeotcars->pg_api_login();
-var_dump($login);
+//var_dump($login);
 print("\n");
 
+$session_peugeotcars->set_debug_api();
 
 print("ID vehicules:\n");
 print("=============\n");
@@ -66,6 +68,13 @@ print("\n");
 // print("AP MYM User:\n");
 // print("============\n");
 // $session_peugeotcars->pg_ap_mym_user();
+// print("\n");
+
+
+// print("Login API MYM :\n");
+// print("===============\n");
+// $login = $session_peugeotcars->pg_api_mym_login();
+// var_dump($login);
 // print("\n");
 
 // print("AP MYM Maintenance:\n");
