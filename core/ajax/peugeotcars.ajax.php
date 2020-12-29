@@ -16,7 +16,7 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api2.class.php';
+require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api3.class.php';
 
 define("MYP_FILES_DIR",  "/../../data/MyPeugeot/");
 define("CARS_FILES_DIR", "/../../data/");
@@ -100,23 +100,42 @@ function get_car_trips_gps($vin, $ts_start, $ts_end)
 // ===========================================================
 function get_car_infos($vin)
 {
-  $session_peugeotcars = new peugeotcars_api_v2();
+  $session_peugeotcars = new peugeotcars_api3();
   $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
-  $login_token = $session_peugeotcars->pg_api_login1_2();   // Authentification
-  if ($login_token["status"] != "OK")
-    log::add('peugeotcars','error',"Erreur Login API PSA");
-  // Section caractéristiques véhicule
-  $ret = $session_peugeotcars->pg_ap_mym_user();
-  log::add('peugeotcars','debug','get_car_infos:success='.$ret["success"]);
-  $info["vin"] = $vin;
-  $info["short_label"] = $ret["short_label"];
-  $info["lcdv"] = $ret["lcdv"];
-  $info["warranty_start_date"] = date("j-n-Y", intval($ret["warranty_start_date"]));
-  $info["eligibility"] = $ret["eligibility"];
-  $info["types"] = $ret["eligibility"][0];
-  $liste_logiciel = $ret["eligibility"][1];
-  $info["mileage_km"] = $ret["mileage_val"];
-  $info["mileage_ts"] = date("j-n-Y \à G\hi", intval($ret["mileage_ts"]));
+  $login_ctr = $session_peugeotcars->pg_api_mym_login();   // Authentification
+  $info = [];
+  if ($login_ctr == "OK") {
+    // Recuperation de l'info type du vehicule
+    // $eqLogic = eqLogic::byLogicalId($vin,'peugeotcars');
+    // if (is_object($eqLogic)) {
+      // $cmd = $eqLogic->getCmd(null, "veh_type");
+      // if (is_object($cmd)) {
+        // $veh_type = $cmd->execCmd();
+      // }
+    // }
+
+    // Section caractéristiques véhicule
+    $ret = $session_peugeotcars->pg_ap_mym_user();
+    if ($ret["success"] == "OK") {
+      log::add('peugeotcars','debug','get_car_infos:success='.$ret["success"]);
+      $info["vin"] = $vin;
+      $info["short_label"] = $ret["short_label"];
+      $info["veh_type"] = $veh_type;
+      $info["lcdv"] = $ret["lcdv"];
+      $info["warranty_start_date"] = date("j-n-Y", intval($ret["warranty_start_date"]));
+      $info["eligibility"] = $ret["eligibility"];
+      $info["types"] = $ret["eligibility"][0];
+      $liste_logiciel = $ret["eligibility"][1];
+      $info["mileage_km"] = $ret["mileage_val"];
+      $info["mileage_ts"] = date("j-n-Y \à G\hi", intval($ret["mileage_ts"]));
+    }
+    else {
+      log::add('peugeotcars','error',"get_car_infos:Erreur d'accès à l'API pour informations sur le véhicule");
+    }
+  }
+  else {
+    log::add('peugeotcars','error',"get_car_infos:Erreur login API pour informations sur le véhicule");
+  }
   
   // Section version logiciels
   //log::add('peugeotcars','debug','get_car_infos:liste_logiciel='.$liste_logiciel);
@@ -139,43 +158,50 @@ function get_car_infos($vin)
 // ======================================================================
 function get_car_maint($vin)
 {
-  $session_peugeotcars = new peugeotcars_api_v2();
+  $session_peugeotcars = new peugeotcars_api3();
   $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
-  $login_token = $session_peugeotcars->pg_api_login1_2();   // Authentification
-  if ($login_token["status"] != "OK")
-    log::add('peugeotcars','error',"Erreur Login API PSA");
-  // Section caractéristiques véhicule
-  $ret = $session_peugeotcars->pg_ap_mym_maintenance($vin);
-  log::add('peugeotcars','debug','get_car_maint:success='.$ret["success"]);
-  $maint["mileage_km"]         = $ret["mileage_km"];
-  $maint["visite1_date"]       = date("j-n-Y", intval($ret["visite1_ts"]));
-  $maint["visite1_conditions"] = $ret["visite1_age"]." an(s) ou ".$ret["visite1_mileage"]." kms";
-  $maint["visite1_lb_title"]   = $ret["visite1_lb_title"];
-  $maint["visite1_lb_body"]    = $ret["visite1_lb_body"];
+  $login_ctr = $session_peugeotcars->pg_api_mym_login();   // Authentification
+  $maint = [];
+  if ($login_ctr == "OK") {
+    $ret = $session_peugeotcars->pg_ap_mym_maintenance($vin);
+    if ($ret["success"] == "OK") {
+      log::add('peugeotcars','info',"Mise à jour date maintenance");
+      $maint["mileage_km"]         = $ret["mileage_km"];
+      $maint["visite1_date"]       = date("j-n-Y", intval($ret["visite1_ts"]));
+      $maint["visite1_conditions"] = $ret["visite1_age"]." an(s) ou ".$ret["visite1_mileage"]." kms";
+      $maint["visite1_lb_title"]   = $ret["visite1_lb_title"];
+      $maint["visite1_lb_body"]    = $ret["visite1_lb_body"];
 
-  $maint["visite2_date"]       = date("j-n-Y", intval($ret["visite2_ts"]));
-  $maint["visite2_conditions"] = $ret["visite2_age"]." an(s) ou ".$ret["visite2_mileage"]." kms";
-  $maint["visite2_lb_title"]   = $ret["visite2_lb_title"];
-  $maint["visite2_lb_body"]    = $ret["visite2_lb_body"];
+      $maint["visite2_date"]       = date("j-n-Y", intval($ret["visite2_ts"]));
+      $maint["visite2_conditions"] = $ret["visite2_age"]." an(s) ou ".$ret["visite2_mileage"]." kms";
+      $maint["visite2_lb_title"]   = $ret["visite2_lb_title"];
+      $maint["visite2_lb_body"]    = $ret["visite2_lb_body"];
 
-  $maint["visite3_date"]       = date("j-n-Y", intval($ret["visite3_ts"]));
-  $maint["visite3_conditions"] = $ret["visite3_age"]." an(s) ou ".$ret["visite3_mileage"]." kms";
-  $maint["visite3_lb_title"]   = $ret["visite3_lb_title"];
-  $maint["visite3_lb_body"]    = $ret["visite3_lb_body"];
+      $maint["visite3_date"]       = date("j-n-Y", intval($ret["visite3_ts"]));
+      $maint["visite3_conditions"] = $ret["visite3_age"]." an(s) ou ".$ret["visite3_mileage"]." kms";
+      $maint["visite3_lb_title"]   = $ret["visite3_lb_title"];
+      $maint["visite3_lb_body"]    = $ret["visite3_lb_body"];
 
-  // Mise à jour des paramètres du plugin "peugeotcars"
-  $eq = eqLogic::byLogicalId($vin, "peugeotcars");
-  if ($eq->getIsEnable()) {
-    // jours jusqu'à la prochaine visite
-    $nbj_ts = round ((intval($ret["visite1_ts"]) - time())/(24*3600));
-    $cmd = $eq->getCmd(null, "entretien_jours");
-    $cmd->event($nbj_ts);
-    // km jusqu'à la prochaine visite
-    $dist = intval($ret["visite1_mileage"]) - intval($ret["mileage_km"]);
-    $cmd = $eq->getCmd(null, "entretien_dist");
-    $cmd->event($dist);
+      // Mise à jour des paramètres du plugin "peugeotcars"
+      $eq = eqLogic::byLogicalId($vin, "peugeotcars");
+      if ($eq->getIsEnable()) {
+        // jours jusqu'à la prochaine visite
+        $nbj_ts = round ((intval($ret["visite1_ts"]) - time())/(24*3600));
+        $cmd = $eq->getCmd(null, "entretien_jours");
+        $cmd->event($nbj_ts);
+        // km jusqu'à la prochaine visite
+        $dist = intval($ret["visite1_mileage"]) - intval($ret["mileage_km"]);
+        $cmd = $eq->getCmd(null, "entretien_dist");
+        $cmd->event($dist);
+      }
+    }
+    else {
+      log::add('peugeotcars','error',"get_car_maint:Erreur d'accès à l'API pour informations de maintenance");
+    }
   }
-
+  else {
+    log::add('peugeotcars','error',"get_car_maint:Erreur login API pour informations de maintenance");
+  }
   return $maint;
 }
 

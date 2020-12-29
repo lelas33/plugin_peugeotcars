@@ -20,7 +20,7 @@ if (isset($_GET["car"]))
 else
   $vin = $eqLogic->getlogicalId();
 
-log::add('peugeotcars', 'debug', 'VIN:'.$vin);
+log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
 
 ?>
 
@@ -61,24 +61,31 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
       <div class="tab-content" style="height:1000px;">
         <div role="tabpanel" class="tab-pane" id="car_trips_tab">
           <div class="row">
-            <div class="col-lg-8 col-lg-offset-2" style="height: 170px;padding-top:10px;">
+            <div class="col-lg-8 col-lg-offset-2" style="height: 150px;padding-top:10px;">
               <form class="form-horizontal">
                 <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 0px 5px;background-color:#f8f8f8">
-                  <div class="form-horizontal" style="min-height: 10px;">
+                  <div style="min-height: 10px;">
                   </div>
-                  <div class="pull-left" style="min-height:130px;font-size: 1.5em;">
+                  <div style="min-height:40px;font-size: 1.5em;">
                     <i style="font-size: initial;"></i> {{Période analysée}}
-                    <br>
-                    Début : <input id="gps_startDate" class="pull-right form-control input-sm in_datepicker" style="display : inline-block; width: 87px;" value="<?php echo $date['start']?>"/>
-                    <br>
-                    Fin : <input id="gps_endDate" class="pull-right form-control input-sm in_datepicker" style="display : inline-block; width: 87px;" value="<?php echo $date['end']?>"/>
                   </div>
-                  <div class="pull-left" style="padding-top:30px;padding-left:20px;min-height:130px;font-size: 1.5em;">
-                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_validChangeDate' title="{{Mise à jour des données sur la période}}">{{Mise à jour période}}</a><br>
-                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_today'>{{Aujourd'hui}}</a>
-                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_yesterday'>{{Hier}}</a>
-                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_last_week'>{{Les 7 derniers jours}}</a>
-                    <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_all'>{{Tout}}</a>
+                  <div style="min-height:30px;">
+                    <div class="pull-left" style="font-size: 1.3em;"> Début:
+                      <input id="gps_startDate" class="pull-right form-control input-sm in_datepicker" style="display : inline-block; width: 87px;" value="<?php echo $date['start']?>"/>
+                    </div>
+                    <div class="pull-left" style="font-size: 1.3em;">Fin:
+                      <input id="gps_endDate" class="pull-right form-control input-sm in_datepicker" style="display : inline-block; width: 87px;" value="<?php echo $date['end']?>"/>
+                    </div>
+                    <a style="margin-left:5px" class="pull-left btn btn-primary btn-sm tooltips" id='btgps_validChangeDate' title="{{Mise à jour des données sur la période}}">{{Mise à jour période}}</a><br>
+                  </div>
+                  <div style="min-height:50px;">
+                    <div style="padding-top:10px;font-size: 1.5em;">
+                      <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_today'>{{Aujourd'hui}}</a>
+                      <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_yesterday'>{{Hier}}</a>
+                      <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_this_week'>{{Cette semaine}}</a>
+                      <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_last_week'>{{Les 7 derniers jours}}</a>
+                      <a style="margin-right:5px;" class="pull-left btn btn-success btn-sm tooltips" id='btgps_per_all'>{{Tout}}</a>
+                    </div>
                   </div>
                 </fieldset>
               </form>
@@ -101,15 +108,15 @@ log::add('peugeotcars', 'debug', 'VIN:'.$vin);
                    </form>
               </div>
               <div class="col-lg-8 col-lg-offset-2">
-                <div id="trips_list" style="float:left;width:49%">
+                <div id="trips_list" style="float:left;width:45%">
                   <div id='div_hist_liste' style="font-size: 1.2em;"></div>
                   <div id='div_hist_liste2' style="font-size: 1.2em;">
                     <table id="trip_liste" class="display compact" width="100%"></table>
                   </div>
                 </div>
-                <div id="trips_separ" style="margin-left:49%;width:2%">
+                <div id="trips_separ" style="margin-left:45%;width:1%">
                 </div>
-                <div id="trips_map" style="margin-left:51%;width:49%">
+                <div id="trips_map" style="margin-left:46%;width:54%">
                 </div>
               </div>
           </div>

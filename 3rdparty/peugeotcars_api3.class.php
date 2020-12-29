@@ -331,20 +331,44 @@ class peugeotcars_api3 {
     $retf["gps_lat"]  = $ret["result"]->lastPosition->geometry->coordinates[1];
     $retf["gps_head"] = $ret["result"]->lastPosition->geometry->coordinates[2];
     $retf["conn_level"]   = $ret["result"]->lastPosition->properties->signalQuality;
-    $retf["batt_level"]   = $ret["result"]->energy[0]->level;
-    $retf["batt_autonomy"]= $ret["result"]->energy[0]->autonomy;
     $retf["batt_voltage"] = $ret["result"]->battery->voltage;
     $retf["batt_current"] = $ret["result"]->battery->current;
     $retf["precond_status"] = $ret["result"]->preconditionning->airConditioning->status;
-    $retf["charging_plugged"] = $ret["result"]->energy[0]->charging->plugged;
-    $retf["charging_status"] = $ret["result"]->energy[0]->charging->status;
-    $tmp = $ret["result"]->energy[0]->charging->remainingTime;
-    $tmp = strtolower(substr($tmp, 2));  // modification format "charging_remain_time" : PT8H40M => 8h40m
-    $retf["charging_remain_time"] = $tmp;
-    $retf["charging_rate"] = $ret["result"]->energy[0]->charging->chargingRate;
-    $retf["charging_mode"] = $ret["result"]->energy[0]->charging->chargingMode;
+    //$veh_type = strtolower ($ret["result"]->service->type);
+    $veh_type = "hybrid";
+    $retf["service_type"]  = $veh_type;
     $retf["kinetic_moving"]= $ret["result"]->kinetic->moving;
     $retf["gen_mileage"]   = $ret["result"]->{"timed.odometer"}->mileage;
+    // Retours energie electrique
+    if ($veh_type == "electric") {
+      $elec_id = 0;
+      $fuel_id = 0;
+    }
+    else if ($veh_type == "hybrid") {
+      if (strtolower($ret["result"]->energy[0]->type) == "electric") {
+        $elec_id = 0;
+        $fuel_id = 1;
+      }
+      else {
+        $elec_id = 1;
+        $fuel_id = 0;
+      }
+    }
+    $retf["batt_level"]   = $ret["result"]->energy[$elec_id]->level;
+    $retf["batt_autonomy"]= $ret["result"]->energy[$elec_id]->autonomy;
+    $retf["charging_plugged"] = $ret["result"]->energy[$elec_id]->charging->plugged;
+    $retf["charging_status"] = $ret["result"]->energy[$elec_id]->charging->status;
+    $tmp = $ret["result"]->energy[$elec_id]->charging->remainingTime;
+    $tmp = strtolower(substr($tmp, 2));  // modification format "charging_remain_time" : PT8H40M => 8h40m
+    $retf["charging_remain_time"] = $tmp;
+    $retf["charging_rate"] = $ret["result"]->energy[$elec_id]->charging->chargingRate;
+    $retf["charging_mode"] = $ret["result"]->energy[$elec_id]->charging->chargingMode;
+
+    // Retours energie carburant si vehicule hybride
+    $fuel_id = 0;  // for tests
+    $retf["fuel_level"]   = $ret["result"]->energy[$fuel_id]->level + 10;
+    $retf["fuel_autonomy"]= $ret["result"]->energy[$fuel_id]->autonomy + 10;
+
     return $retf;
   }
 

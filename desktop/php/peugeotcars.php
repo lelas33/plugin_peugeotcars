@@ -61,7 +61,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
                            <i class="fa fa-arrow-circle-left eqLogicAction cursor" data-action="returnToThumbnailDisplay"></i> {{Général}}
                            <i class='fa fa-cogs eqLogicAction pull-right cursor expertModeVisible' data-action='configure'></i>
                        </legend>
-			<div class="form-group">
+			                 <div class="form-group">
                             <label class="col-lg-2 control-label">{{Nom de l'équipement}}</label>
                             <div class="col-lg-3">
                                 <input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
@@ -72,12 +72,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
                             <label class="col-lg-2 control-label">{{Numéro du véhicule}}</label>
                             <div class="col-lg-3">
                                 <input type="text" class="eqLogicAttr form-control" data-l1key="logicalId" placeholder="{{VIN du véhicule}}"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-2 control-label">{{Capacité de la batterie (kWh)}}</label>
-                            <div class="col-lg-3">
-                                <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="batt_capacity" placeholder="{{50 par exemple}}"/>
                             </div>
                         </div>
                         <div class="form-group">
