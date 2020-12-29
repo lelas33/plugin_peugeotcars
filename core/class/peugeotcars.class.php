@@ -159,9 +159,11 @@ class peugeotcars extends eqLogic {
             $cmd->setConfiguration('trip_in_progress', 0);
             $cmd->save();
           }
-          else if ((substr($id, 0, 5) == "fuel_") && ($veh_type == "hybrid")) {
+          else if (substr($id, 0, 5) == "fuel_") {
             // Ajoute les commandes "fuel_xxx" pour les véhicules hybrides
-            $cmd->save();
+            if ($veh_type == "hybrid") {
+              $cmd->save();
+            }
           }
           else {
             $cmd->save();
