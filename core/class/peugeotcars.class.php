@@ -78,7 +78,8 @@ class peugeotcars extends eqLogic {
                       "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       // Informations complémentaires pour vehicule hybride
                       "fuel_level"           => array('Niveau carburant',    'info',  'numeric',   "%", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "fuel_autonomy"        => array('Autonomie carburant', 'info',  'numeric',  "km", 1, "GENERIC_INFO",   'core::badge', 'core::badge')
+                      "fuel_autonomy"        => array('Autonomie carburant', 'info',  'numeric',  "km", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "fuel_ready"           => array('Véhicule Actif',      'info',  'binary',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge')
                       
         );
     }
@@ -333,9 +334,15 @@ class peugeotcars extends eqLogic {
           // infos complementaires pour vehicule hybride
           if ($veh_type == "hybrid") {
             $cmd = $this->getCmd(null, "fuel_level");
+            $cmd_ready = $this->getCmd(null, "fuel_ready");
             $fuel_level = intval($ret["fuel_level"]);
-            if ($fuel_level != 0)
+            if ($fuel_level != 0) {
               $cmd->event($fuel_level);
+              $cmd_ready->event(true);
+            }
+            else {
+              $cmd_ready->event(false);
+            }
             $cmd = $this->getCmd(null, "fuel_autonomy");
             $fuel_auto = $ret["fuel_autonomy"];
             $cmd->event($fuel_auto);
