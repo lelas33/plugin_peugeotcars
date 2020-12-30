@@ -329,8 +329,12 @@ class peugeotcars_api3 {
     $retf = [];
     $retf["gps_lon"]  = $ret["result"]->lastPosition->geometry->coordinates[0];
     $retf["gps_lat"]  = $ret["result"]->lastPosition->geometry->coordinates[1];
-    $retf["gps_head"] = $ret["result"]->lastPosition->geometry->coordinates[2];
-    $retf["conn_level"]   = $ret["result"]->lastPosition->properties->signalQuality;
+    if (count($ret["result"]->lastPosition->geometry) >= 2)
+      $retf["gps_head"] = $ret["result"]->lastPosition->geometry->coordinates[2];
+    else
+      $retf["gps_head"] = 0;
+    if (isset($ret["result"]->lastPosition->properties->signalQuality))
+      $retf["conn_level"]   = $ret["result"]->lastPosition->properties->signalQuality;
     $retf["batt_voltage"] = $ret["result"]->battery->voltage;
     $retf["batt_current"] = $ret["result"]->battery->current;
     $retf["precond_status"] = $ret["result"]->preconditionning->airConditioning->status;

@@ -57,11 +57,11 @@ class peugeotcars extends eqLogic {
     private function getListeDefaultCommandes()
     {
         return array( "veh_type"             => array('Type véhicule',       'info',  'string',     "", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "kilometrage"          => array('Kilometrage',         'info',  'numeric', "kms", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "entretien_dist"       => array('Dist.Entretien',      'info',  'numeric', "kms", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "kilometrage"          => array('Kilometrage',         'info',  'numeric',  "km", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "entretien_dist"       => array('Dist.Entretien',      'info',  'numeric',  "km", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "entretien_jours"      => array('Jours.Entretien',     'info',  'numeric',   "j", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "battery_level"        => array('Niveau batterie',     'info',  'numeric',   "%", 1, "GENERIC_INFO",   'peugeotcars::battery_status_mmi', 'peugeotcars::battery_status_mmi'),
-                      "battery_autonomy"     => array('Autonomie',           'info',  'numeric', "kms", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "battery_autonomy"     => array('Autonomie',           'info',  'numeric',  "km", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "battery_voltage"      => array('Tension batterie',    'info',  'numeric',   "V", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "battery_current"      => array('Courant batterie',    'info',  'numeric',   "A", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "gps_position"         => array('Position GPS',        'info',  'string',     "", 0, "GENERIC_INFO",   'peugeotcars::opensmap',   'peugeotcars::opensmap'),
@@ -78,7 +78,7 @@ class peugeotcars extends eqLogic {
                       "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       // Informations complémentaires pour vehicule hybride
                       "fuel_level"           => array('Niveau carburant',    'info',  'numeric',   "%", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "fuel_autonomy"        => array('Autonomie carburant', 'info',  'numeric', "kms", 1, "GENERIC_INFO",   'core::badge', 'core::badge')
+                      "fuel_autonomy"        => array('Autonomie carburant', 'info',  'numeric',  "km", 1, "GENERIC_INFO",   'core::badge', 'core::badge')
                       
         );
     }
@@ -333,8 +333,9 @@ class peugeotcars extends eqLogic {
           // infos complementaires pour vehicule hybride
           if ($veh_type == "hybrid") {
             $cmd = $this->getCmd(null, "fuel_level");
-            $fuel_level = $ret["fuel_level"];
-            $cmd->event($fuel_level);
+            $fuel_level = intval($ret["fuel_level"]);
+            if ($fuel_level != 0)
+              $cmd->event($fuel_level);
             $cmd = $this->getCmd(null, "fuel_autonomy");
             $fuel_auto = $ret["fuel_autonomy"];
             $cmd->event($fuel_auto);
