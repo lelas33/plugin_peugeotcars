@@ -44,7 +44,14 @@ Sur l'onglet "**Equipement**", choisissez l'objet parent, et notez le numéro VI
 Indiquez également la capacité de la batterie pour un véhicule électrique. (Cela permet d'évaluer la consommation sur un trajet) <br>
 Lors de la sauvegarde de l'équipement, quelques photos du véhicules sont téléchargées et rendues disponibles pour affichage sur le widget.
 <p align="left">
-  <img src="../master/doc/images/config_equipement.png" width="700" title="Widget dashboard">
+  <img src="../master/doc/images/config_equipement.png" width="700" title="Configuration équipement">
+</p>
+
+La page du panel à besoin de connaitre les coordonnées GPS de stationnement habituel de la voiture afin de centrer la carte pour l’affichage des trajets. <br>
+Pour cela, il faut renseigner ces coordonnées GPS dans la page de configuration de jeedom. <br>
+Règlages => Système => Configuration => Informations <br>
+<p align="left">
+  <img src="../master/doc/images/config_informations.png" width="500" title="Configuration informations">
 </p>
 
 ## Widget

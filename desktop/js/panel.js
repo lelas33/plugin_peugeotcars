@@ -76,6 +76,8 @@ var veh_trip_loaded = 0;
 var veh_info_loaded = 0;
 var veh_maint_loaded = 0;
 
+const DAY_NAME = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+
 // Fonctions realisées au chargement de la page: charger les données sur la période par défaut,
 // et afficher les infos correspondantes
 // ============================================================================================
@@ -220,7 +222,7 @@ function stat_usage () {
   
   // Affichage des résultats dans le DIV:"trips_info"
   $("#trips_info").empty();
-  $("#trips_info").append("Nombre de trajets: "+trips_number+"  (du "+ts_first.toLocaleDateString()+" au "+ts_last.toLocaleDateString()+")<br>");
+  $("#trips_info").append("Nombre de trajets: "+trips_number+"  (du "+DAY_NAME[ts_first.getDay()]+" "+ts_first.toLocaleDateString()+" au "+DAY_NAME[ts_last.getDay()]+" "+ts_last.toLocaleDateString()+")<br>");
   $("#trips_info").append("Distance totale: "+total_distance+" kms<br>");
   $("#trips_info").append("Temps de trajet global: "+dur_h+" h "+dur_m+" mn<br>");
   $("#trips_info").append("Vitesse moyenne sur ces trajets: "+vit_moyenne+" km/h<br>");
@@ -337,6 +339,15 @@ $('#btgps_per_today').on('click',function(){
 $('#btgps_per_yesterday').on('click',function(){
   $('#gps_startDate').datepicker( "setDate", "-1" );
   $('#gps_endDate').datepicker( "setDate", "+0" );
+  loadData();
+});
+// Cette semaine
+$('#btgps_per_this_week').on('click',function(){
+  var now = new Date();
+  jour_sem = now.getDay();                 // de 0(dim) a 6(sam)
+  jour_sem = (jour_sem == 0)?6:jour_sem-1; // de 0(lun) a 6(dim)
+  $('#gps_startDate').datepicker( "setDate", -jour_sem);
+  $('#gps_endDate').datepicker( "setDate", -jour_sem+7);
   loadData();
 });
 // Les 7 derniers jours
