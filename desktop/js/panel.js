@@ -346,8 +346,8 @@ $('#btgps_per_this_week').on('click',function(){
   var now = new Date();
   jour_sem = now.getDay();                 // de 0(dim) a 6(sam)
   jour_sem = (jour_sem == 0)?6:jour_sem-1; // de 0(lun) a 6(dim)
-  $('#gps_startDate').datepicker( "setDate", -jour_sem);
-  $('#gps_endDate').datepicker( "setDate", -jour_sem+7);
+  $('#gps_startDate').datepicker( "setDate", (-jour_sem).toString());
+  $('#gps_endDate').datepicker( "setDate", (-jour_sem+7).toString());
   loadData();
 });
 // Les 7 derniers jours

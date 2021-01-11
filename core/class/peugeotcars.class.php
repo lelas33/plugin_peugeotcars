@@ -56,30 +56,37 @@ class peugeotcars extends eqLogic {
 
     private function getListeDefaultCommandes()
     {
-        return array( "veh_type"             => array('Type véhicule',       'info',  'string',     "", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "kilometrage"          => array('Kilometrage',         'info',  'numeric',  "km", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "entretien_dist"       => array('Dist.Entretien',      'info',  'numeric',  "km", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "entretien_jours"      => array('Jours.Entretien',     'info',  'numeric',   "j", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "battery_level"        => array('Niveau batterie',     'info',  'numeric',   "%", 1, "GENERIC_INFO",   'peugeotcars::battery_status_mmi', 'peugeotcars::battery_status_mmi'),
-                      "battery_autonomy"     => array('Autonomie',           'info',  'numeric',  "km", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "battery_voltage"      => array('Tension batterie',    'info',  'numeric',   "V", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "battery_current"      => array('Courant batterie',    'info',  'numeric',   "A", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "gps_position"         => array('Position GPS',        'info',  'string',     "", 0, "GENERIC_INFO",   'peugeotcars::opensmap',   'peugeotcars::opensmap'),
-                      "conn_level"           => array('Niveau connection',   'info',  'numeric',    "", 1, "GENERIC_INFO",   'peugeotcars::con_level',  'peugeotcars::con_level'),
-                      "kinetic_moving"       => array('Voiture en mouvement','info',  'binary',     "", 1, "GENERIC_INFO",   'peugeotcars::veh_moving', 'peugeotcars::veh_moving'),
-                      "record_period"        => array('Période enregistrement','info','numeric',    "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "charging_plugged"     => array('Prise connectée',     'info',  'binary',     "", 1, "GENERIC_INFO",   'peugeotcars::plugged', 'peugeotcars::plugged'),
-                      "charging_status"      => array('Statut charge',       'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "charging_remain_time" => array('Temps restant',       'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "charging_rate"        => array('Vitesse chargement',  'info',  'numeric',"km/h", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "charging_mode"        => array('Mode chargement',     'info',  'string',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "precond_status"       => array('Etat climatisation',  'info',  'binary',     "", 1, "GENERIC_INFO",   'peugeotcars::clim', 'peugeotcars::clim'),
-                      "num_photo_sld"        => array('Change photo',        'action','slider',     "", 0, "GENERIC_ACTION", 'peugeotcars::img', 'peugeotcars::img'),
-                      "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      // Informations complémentaires pour vehicule hybride
-                      "fuel_level"           => array('Niveau carburant',    'info',  'numeric',   "%", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "fuel_autonomy"        => array('Autonomie carburant', 'info',  'numeric',  "km", 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "fuel_ready"           => array('Véhicule Actif',      'info',  'binary',     "", 1, "GENERIC_INFO",   'core::badge', 'core::badge')
+        return array( "veh_type"             => array('Type véhicule',       'info',  'string',     "", 0, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "kilometrage"          => array('Kilometrage',         'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "entretien_dist"       => array('Dist.Entretien',      'info',  'numeric',  "km", 0, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "entretien_jours"      => array('Jours.Entretien',     'info',  'numeric',   "j", 0, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "battery_level"        => array('Niveau batterie',     'info',  'numeric',   "%", 1, 1, "GENERIC_INFO",   'peugeotcars::battery_status_mmi', 'peugeotcars::battery_status_mmi'),
+                      "battery_autonomy"     => array('Autonomie',           'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "battery_voltage"      => array('Tension batterie',    'info',  'numeric',   "V", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "battery_current"      => array('Courant batterie',    'info',  'numeric',   "A", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_position"         => array('Position GPS',        'info',  'string',     "", 0, 1, "GENERIC_INFO",   'peugeotcars::opensmap',   'peugeotcars::opensmap'),
+                      "gps_position_lat"     => array('Position GPS Lat.',   'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_position_lon"     => array('Position GPS Lon.',   'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_dist_home"        => array('Distance maison',     'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::line', 'core::line'),
+                      "conn_level"           => array('Niveau connection',   'info',  'numeric',    "", 1, 1, "GENERIC_INFO",   'peugeotcars::con_level',  'peugeotcars::con_level'),
+                      "kinetic_moving"       => array('Voiture en mouvement','info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::veh_moving', 'peugeotcars::veh_moving'),
+                      "record_period"        => array('Période enregistrement','info','numeric',    "", 1, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_plugged"     => array('Prise connectée',     'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::plugged', 'peugeotcars::plugged'),
+                      "charging_status"      => array('Statut charge',       'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_remain_time" => array('Temps restant',       'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_end_time"    => array('Fin de chargement',   'info',  'string',     "", 0, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_rate"        => array('Vitesse chargement',  'info',  'numeric',"km/h", 1, 1, "GENERIC_INFO",   'core::line', 'core::line'),
+                      "charging_mode"        => array('Mode chargement',     'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "precond_status"       => array('Etat climatisation',  'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::clim', 'peugeotcars::clim'),
+                      "num_photo_sld"        => array('Change photo',        'action','slider',     "", 0, 1, "GENERIC_ACTION", 'peugeotcars::img', 'peugeotcars::img'),
+                      "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "info_libre1"          => array('Libre1',              'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "info_libre2"          => array('Libre2',              'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      // Informations complémentaires pour vehicule hybride                               
+                      "fuel_level"           => array('Niveau carburant',    'info',  'numeric',   "%", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "fuel_autonomy"        => array('Autonomie carburant', 'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "fuel_ready"           => array('Véhicule Actif',      'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge')
                       
         );
     }
@@ -114,7 +121,7 @@ class peugeotcars extends eqLogic {
 
       // creation de la liste des commandes / infos
       foreach( $this->getListeDefaultCommandes() as $id => $data) {
-        list($name, $type, $subtype, $unit, $hist, $generic_type, $template_dashboard, $template_mobile) = $data;
+        list($name, $type, $subtype, $unit, $hist, $visible, $generic_type, $template_dashboard, $template_mobile) = $data;
         $cmd = $this->getCmd(null, $id);
         if (! is_object($cmd)) {
           $cmd = new peugeotcarsCmd();
@@ -129,6 +136,7 @@ class peugeotcars extends eqLogic {
           $cmd->setUnite($unit);
           $cmd->setLogicalId($id);
           $cmd->setIsHistorized($hist);
+          $cmd->setIsVisible($visible);
           $cmd->setDisplay('generic_type', $generic_type);
           $cmd->setTemplate('dashboard', $template_dashboard);
           $cmd->setTemplate('mobile', $template_mobile);
@@ -144,13 +152,8 @@ class peugeotcars extends eqLogic {
             $cmd->save();
           }
           else if ($id == "num_photo") {
-            $cmd->setIsVisible(0);
             $cmd->save();
             $cmd->event(0);
-          }
-          else if ($id == "record_period") {
-            $cmd->setIsVisible(0);
-            $cmd->save();
           }
           else if ($id == "gps_position") {
             // Création des parametres de suivi des trajets
@@ -179,6 +182,7 @@ class peugeotcars extends eqLogic {
           $cmd->setSubType($subtype);
           $cmd->setUnite($unit);
           $cmd->setIsHistorized($hist);
+          $cmd->setIsVisible($visible);
           $cmd->setDisplay('generic_type', $generic_type);
           if ($id == "veh_type") {
             $cmd->save();
@@ -356,7 +360,20 @@ class peugeotcars extends eqLogic {
           $previous_gps_position = $cmd_gps->execCmd();
           //log::add('peugeotcars','debug',"Refresh log previous_gps_position=".$previous_gps_position);
           $cmd_gps->event($gps_position);
-
+          $cmd_gpslat = $this->getCmd(null, "gps_position_lat");
+          $cmd_gpslat->event($ret["gps_lat"]);
+          $cmd_gpslon = $this->getCmd(null, "gps_position_lon");
+          $cmd_gpslon->event($ret["gps_lon"]);
+          // Calcul distance maison
+          $lat_home = deg2rad(floatval(config::byKey("info::latitude")));
+          $lon_home = deg2rad(floatval(config::byKey("info::longitude")));
+          $lat_veh = deg2rad(floatval($ret["gps_lat"]));
+          $lon_veh = deg2rad(floatval($ret["gps_lon"]));
+          $dist = 6371.01 * acos(sin($lat_home)*sin($lat_veh) + cos($lat_home)* cos($lat_veh)*cos($lon_home - $lon_veh)); // calcul de la distance
+          $dist = number_format($dist, 3, '.', '');//formatage 3 décimales
+          $cmd_dis_home = $this->getCmd(null, "gps_dist_home");
+          $cmd_dis_home->event($dist);
+          // Autres infos
           $cmd = $this->getCmd(null, "conn_level");
           $conn_level = $ret["conn_level"];
           $cmd->event($conn_level);            
@@ -428,9 +445,15 @@ class peugeotcars extends eqLogic {
           $cmd = $this->getCmd(null, "charging_status");
           $charging_status = $ret["charging_status"];
           $cmd->event($charging_status);
-          $cmd = $this->getCmd(null, "charging_remain_time");
+          $cmd_rt = $this->getCmd(null, "charging_remain_time");
           $charging_remain_time = $ret["charging_remain_time"];
-          $cmd->event($charging_remain_time);
+          $cmd_et = $this->getCmd(null, "charging_end_time");
+          $charging_end_time = $ret["charging_end_time"];
+          if ((strtolower($charging_status) != "inprogress") ||
+             ((strtolower($charging_status) == "inprogress") && ($charging_remain_time != "--"))) {
+            $cmd_rt->event($charging_remain_time);
+            $cmd_et->event($charging_end_time);
+          }
           $cmd = $this->getCmd(null, "charging_rate");
           $charging_rate = $ret["charging_rate"];
           $cmd->event($charging_rate);

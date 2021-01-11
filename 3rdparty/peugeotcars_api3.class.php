@@ -310,6 +310,16 @@ class peugeotcars_api3 {
     return($retf);
   }
 
+  // convertion format date
+  function ISO8601ToSeconds($ISO8601)
+  {
+    $interval = new \DateInterval($ISO8601);
+    return ($interval->d * 24 * 60 * 60) +
+      ($interval->h * 60 * 60) +
+      ($interval->i * 60) +
+      $interval->s;
+  }
+ 
   // Get vehicule status
   function pg_api_vehicles_status()
   {
@@ -364,11 +374,22 @@ class peugeotcars_api3 {
     $retf["batt_level"]   = $ret["result"]->energy[$elec_id]->level;
     $retf["batt_autonomy"]= $ret["result"]->energy[$elec_id]->autonomy;
     $retf["charging_plugged"] = $ret["result"]->energy[$elec_id]->charging->plugged;
-    $retf["charging_status"] = $ret["result"]->energy[$elec_id]->charging->status;
-    $tmp = $ret["result"]->energy[$elec_id]->charging->remainingTime;
-    $tmp = strtolower(substr($tmp, 2));  // modification format "charging_remain_time" : PT8H40M => 8h40m
-    $retf["charging_remain_time"] = $tmp;
-    $retf["charging_rate"] = $ret["result"]->energy[$elec_id]->charging->chargingRate;
+    // status chargement batterie
+    $ch_sts  = $ret["result"]->energy[$elec_id]->charging->status;
+    $ch_rem_tm = $ret["result"]->energy[$elec_id]->charging->remainingTime;
+    $ch_rem_tm = $this->ISO8601ToSeconds($ch_rem_tm);
+    $ch_rate = intval($ret["result"]->energy[$elec_id]->charging->chargingRate);
+    $ch_update = strtotime($ret["result"]->energy[$elec_id]->updatedAt);
+    if ((strtolower($ch_sts) == "inprogress") && ($ch_rem_tm != 0)) {
+      $end_charging = $ch_update + $ch_rem_tm;
+    }
+    else {
+      $end_charging = 0;
+    }
+    $retf["charging_status"] = $ch_sts;
+    $retf["charging_remain_time"] = ($ch_rem_tm == 0)?"--":date("H:i", $ch_rem_tm-3600);
+    $retf["charging_end_time"] = ($end_charging == 0)?"--":date("H:i", $end_charging);
+    $retf["charging_rate"] = $ch_rate;
     $retf["charging_mode"] = $ret["result"]->energy[$elec_id]->charging->chargingMode;
 
     // Retours energie carburant si vehicule hybride
