@@ -313,13 +313,20 @@ class peugeotcars_api3 {
   // convertion format date
   function ISO8601ToSeconds($ISO8601)
   {
-    $interval = new \DateInterval($ISO8601);
-    return ($interval->d * 24 * 60 * 60) +
-      ($interval->h * 60 * 60) +
-      ($interval->i * 60) +
-      $interval->s;
+    preg_match('/\d{1,2}[H]/', $ISO8601, $hours);
+    preg_match('/\d{1,2}[M]/', $ISO8601, $minutes);
+    preg_match('/\d{1,2}[S]/', $ISO8601, $seconds);
+    $duration = [
+      'hours'   => $hours ? $hours[0] : 0,
+      'minutes' => $minutes ? $minutes[0] : 0,
+      'seconds' => $seconds ? $seconds[0] : 0,
+    ];
+    $hours   = substr($duration['hours'], 0, -1);
+    $minutes = substr($duration['minutes'], 0, -1);
+    $seconds = substr($duration['seconds'], 0, -1);
+    $toltalSeconds = ($hours * 60 * 60) + ($minutes * 60) + $seconds;
+    return $toltalSeconds;
   }
- 
   // Get vehicule status
   function pg_api_vehicles_status()
   {
