@@ -431,7 +431,7 @@ function display_trips(number) {
       pts_ts   = parseInt  (tmp[0],10);  // Timestamp
       pts_lat  = parseFloat(tmp[1]);     // Lat
       pts_lon  = parseFloat(tmp[2]);     // Lon
-      pts_head = parseFloat(tmp[3]);     // Heading
+      pts_alt  = parseFloat(tmp[3]);     // Altitude
       batt_level  = parseFloat(tmp[4]);     // Battery level
       mileage     = parseFloat(tmp[5]);     // mileage
       moving      = parseInt(tmp[6],10);    // kinetic

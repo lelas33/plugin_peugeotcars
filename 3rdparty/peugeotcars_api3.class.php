@@ -344,12 +344,15 @@ class peugeotcars_api3 {
     // file_put_contents($fn_log_sts, $log_dt, FILE_APPEND | LOCK_EX);
     // end trace analysis
     $retf = [];
-    $retf["gps_lon"]  = $ret["result"]->lastPosition->geometry->coordinates[0];
-    $retf["gps_lat"]  = $ret["result"]->lastPosition->geometry->coordinates[1];
-    if (count($ret["result"]->lastPosition->geometry) >= 2)
-      $retf["gps_head"] = $ret["result"]->lastPosition->geometry->coordinates[2];
-    else
-      $retf["gps_head"] = 0;
+    $retf["gps_lon"] = 0;
+    $retf["gps_lat"] = 0;
+    $retf["gps_alt"] = 0;
+    if (count($ret["result"]->lastPosition->geometry->coordinates) >= 2) {
+      $retf["gps_lon"]  = $ret["result"]->lastPosition->geometry->coordinates[0];
+      $retf["gps_lat"]  = $ret["result"]->lastPosition->geometry->coordinates[1];
+    }
+    if (count($ret["result"]->lastPosition->geometry->coordinates) >= 3)
+      $retf["gps_alt"] = $ret["result"]->lastPosition->geometry->coordinates[2];
     if (isset($ret["result"]->lastPosition->properties->signalQuality))
       $retf["conn_level"]   = $ret["result"]->lastPosition->properties->signalQuality;
     $retf["batt_voltage"] = $ret["result"]->battery->voltage;

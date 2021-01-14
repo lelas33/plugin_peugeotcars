@@ -67,13 +67,14 @@ class peugeotcars extends eqLogic {
                       "gps_position"         => array('Position GPS',        'info',  'string',     "", 0, 1, "GENERIC_INFO",   'peugeotcars::opensmap',   'peugeotcars::opensmap'),
                       "gps_position_lat"     => array('Position GPS Lat.',   'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "gps_position_lon"     => array('Position GPS Lon.',   'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_position_alt"     => array('Position GPS Alt.',   'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "gps_dist_home"        => array('Distance maison',     'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::line', 'core::line'),
                       "conn_level"           => array('Niveau connection',   'info',  'numeric',    "", 1, 1, "GENERIC_INFO",   'peugeotcars::con_level',  'peugeotcars::con_level'),
                       "kinetic_moving"       => array('Voiture en mouvement','info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::veh_moving', 'peugeotcars::veh_moving'),
                       "record_period"        => array('Période enregistrement','info','numeric',    "", 1, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_plugged"     => array('Prise connectée',     'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::plugged', 'peugeotcars::plugged'),
                       "charging_status"      => array('Statut charge',       'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "charging_remain_time" => array('Temps de chage',      'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_remain_time" => array('Temps de charge',     'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_end_time"    => array('Fin de charge',       'info',  'string',     "", 0, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_rate"        => array('Vitesse de charge',   'info',  'numeric',"km/h", 1, 1, "GENERIC_INFO",   'core::line', 'core::line'),
                       "charging_mode"        => array('Mode de charge',      'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
@@ -334,7 +335,6 @@ class peugeotcars extends eqLogic {
           $cmd = $this->getCmd(null, "battery_current");
           $batt_current = $ret["batt_current"];
           $cmd->event($batt_current);
-          $cmd_gps = $this->getCmd(null, "gps_position");
           // infos complementaires pour vehicule hybride
           if ($veh_type == "hybrid") {
             $cmd = $this->getCmd(null, "fuel_level");
@@ -352,27 +352,36 @@ class peugeotcars extends eqLogic {
             $cmd->event($fuel_auto);
           }
           // Etat courant du trajet
+          $cmd_gps = $this->getCmd(null, "gps_position");
           $trip_start_ts       = $cmd_gps->getConfiguration('trip_start_ts');
           $trip_start_mileage  = $cmd_gps->getConfiguration('trip_start_mileage');
           $trip_start_battlevel= $cmd_gps->getConfiguration('trip_start_battlevel');
           $trip_in_progress    = $cmd_gps->getConfiguration('trip_in_progress');
-          $gps_position = $ret["gps_lat"].",".$ret["gps_lon"].",".$ret["gps_head"];
-          $previous_gps_position = $cmd_gps->execCmd();
-          //log::add('peugeotcars','debug',"Refresh log previous_gps_position=".$previous_gps_position);
-          $cmd_gps->event($gps_position);
-          $cmd_gpslat = $this->getCmd(null, "gps_position_lat");
-          $cmd_gpslat->event($ret["gps_lat"]);
-          $cmd_gpslon = $this->getCmd(null, "gps_position_lon");
-          $cmd_gpslon->event($ret["gps_lon"]);
-          // Calcul distance maison
-          $lat_home = deg2rad(floatval(config::byKey("info::latitude")));
-          $lon_home = deg2rad(floatval(config::byKey("info::longitude")));
-          $lat_veh = deg2rad(floatval($ret["gps_lat"]));
-          $lon_veh = deg2rad(floatval($ret["gps_lon"]));
-          $dist = 6371.01 * acos(sin($lat_home)*sin($lat_veh) + cos($lat_home)* cos($lat_veh)*cos($lon_home - $lon_veh)); // calcul de la distance
-          $dist = number_format($dist, 3, '.', '');//formatage 3 décimales
-          $cmd_dis_home = $this->getCmd(null, "gps_dist_home");
-          $cmd_dis_home->event($dist);
+          if (($ret["gps_lat"] == 0) && ($ret["gps_lat"] == 0))
+            $gps_pts_ok = false; // points GPS non valide
+          else
+            $gps_pts_ok = true;
+          if ($gps_pts_ok == true) {
+            $gps_position = $ret["gps_lat"].",".$ret["gps_lon"].",".$ret["gps_alt"];
+            $previous_gps_position = $cmd_gps->execCmd();
+            //log::add('peugeotcars','debug',"Refresh log previous_gps_position=".$previous_gps_position);
+            $cmd_gps->event($gps_position);
+            $cmd_gpslat = $this->getCmd(null, "gps_position_lat");
+            $cmd_gpslat->event($ret["gps_lat"]);
+            $cmd_gpslon = $this->getCmd(null, "gps_position_lon");
+            $cmd_gpslon->event($ret["gps_lon"]);
+            $cmd_gpsalt = $this->getCmd(null, "gps_position_alt");
+            $cmd_gpsalt->event($ret["gps_alt"]);
+            // Calcul distance maison
+            $lat_home = deg2rad(floatval(config::byKey("info::latitude")));
+            $lon_home = deg2rad(floatval(config::byKey("info::longitude")));
+            $lat_veh = deg2rad(floatval($ret["gps_lat"]));
+            $lon_veh = deg2rad(floatval($ret["gps_lon"]));
+            $dist = 6371.01 * acos(sin($lat_home)*sin($lat_veh) + cos($lat_home)* cos($lat_veh)*cos($lon_home - $lon_veh)); // calcul de la distance
+            $dist = number_format($dist, 3, '.', '');//formatage 3 décimales
+            $cmd_dis_home = $this->getCmd(null, "gps_dist_home");
+            $cmd_dis_home->event($dist);
+          }
           // Autres infos
           $cmd = $this->getCmd(null, "conn_level");
           $conn_level = $ret["conn_level"];
@@ -420,9 +429,11 @@ class peugeotcars extends eqLogic {
           }
           // Log position courante vers GPS log file
 //          if (($gps_position !== $previous_gps_position) || ($trip_event == 1)) {
-            $gps_log_dt = $ctime.",".$gps_position.",".$batt_level.",".$mileage.",".$kinetic_moving."\n";
-            log::add('peugeotcars','debug',"Refresh->recording Gps_dt=".$gps_log_dt);
-            file_put_contents($fn_car_gps, $gps_log_dt, FILE_APPEND | LOCK_EX);
+            if ($gps_pts_ok == true) {
+              $gps_log_dt = $ctime.",".$gps_position.",".$batt_level.",".$mileage.",".$kinetic_moving."\n";
+              log::add('peugeotcars','debug',"Refresh->recording Gps_dt=".$gps_log_dt);
+              file_put_contents($fn_car_gps, $gps_log_dt, FILE_APPEND | LOCK_EX);
+            }
             // enregistre le ts du point courant
             $cmd_mlg->setConfiguration('prev_ctime', $ctime);
             $cmd_mlg->save();

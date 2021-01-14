@@ -9,11 +9,12 @@ Les informations disponibles dans le widgets sont:
 * Charge de la batterie, autonomie et kilométrage de la voiture
 * Information sur le chargement de la batterie (Prise connectée, temps de chargement, vitesse de chargement..)
 * Nombre de jours et kilomètres jusqu'au prochain entretien du véhicule
-* Situation du véhicule sur une carte (Position GPS), et information si le véhicule se déplace.
+* Situation du véhicule sur une carte (Position GPS), distance au domicile, et information si le véhicule se déplace.
 
-Ce plugin a été développé et testé avec un véhicule Peugeot 208 électrique. 
-Il doit fonctionner pour les autres véhicules électriques ou essence/Diesel de la marque, mais il y aura sans doute quelques infos manquantes.
- 
+Ce plugin a été développé et testé avec un véhicule Peugeot 208 électrique. <br>
+Il a été testé également sur d'autres 208 électrique, et sur un SUV 3008 hybride. <br>
+Il semble qu'il ne fonctionne pas pour les véhicules thermiques. <br>
+(Il serait intéressant toutefois de le tester sur une voiture 208 thermique de dernière génération)<br>
 
 <p align="left">
   <img src="../master/doc/images/widget.png" width="400" title="Widget dashboard">
@@ -23,6 +24,7 @@ Il doit fonctionner pour les autres véhicules électriques ou essence/Diesel de
 * Tag pgc_v0.1: Version draft originale du 19/10/2020
 * Tag pgc_v0.2: Version draft avec correction plantage Jeedom (20/10/2020)
 * Tag pgc_v0.3: Première version connectée du plugin (20/10/2020)
+* Tag pgc_v0.4: ajout des particularités pour véhicule hybride, et quelques améliorations (14/01/2021)
 
 ## Installation
 Par source Github:
@@ -96,7 +98,7 @@ Les opérations principales d'entretion sont données également.
 </p>
 
 **Bugs connus:**
-Cette version 0.3 est encore draft. Il y a quelques bugs connus mais non pénalisants
+Cette version 0.4 est encore draft. Il y a quelques bugs connus mais non pénalisants
 * Javascript erreur : "ReferenceError: L is not defined" (affichée dans la barre de titre de jeedom) <br>
   Problème de temps de chargement de la librairie Leaflet.
   Ce bug empèche l'affichage de la carte dans le widget lors du rafraichissement de la page Dashboard.
