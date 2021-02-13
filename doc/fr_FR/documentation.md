@@ -17,7 +17,7 @@ Il semble qu'il ne fonctionne pas pour les véhicules thermiques. <br>
 (Il serait intéressant toutefois de le tester sur une voiture 208 thermique de dernière génération)<br>
 
 <p align="left">
-  <img src="../master/doc/images/widget.png" width="400" title="Widget dashboard">
+  <img src="../images/widget.png" width="400" title="Widget dashboard">
 </p>
 
 ## Versions
