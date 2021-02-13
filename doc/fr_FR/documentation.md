@@ -65,7 +65,7 @@ Lorsque l'on clique sur la photo, on bascule sur la page "Panel" du plugin assoc
 Une page de type "panel" est disponible pour le plugin dans le menu Acceuil de jeedom. <br>
 Cette page permet de consulter les informations suivantes sur 4 onglets différents:
 * Liste des trajets effectués par le véhicule
-* Statistiques sur l'utilisation et la consommation du véhicule. (Pas encore développé) 
+* Statistiques sur l'utilisation et la consommation du véhicule. 
 * Quelques informations sur le véhicule
 * Informations sur les visites d'entretien du véhicule recommandées par Peugeot
 
