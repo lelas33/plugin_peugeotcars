@@ -20,11 +20,6 @@ Il semble qu'il ne fonctionne pas pour les véhicules thermiques. <br>
   <img src="../images/widget.png" width="400" title="Widget dashboard">
 </p>
 
-## Versions
-* Tag pgc_v0.1: Version draft originale du 19/10/2020
-* Tag pgc_v0.2: Version draft avec correction plantage Jeedom (20/10/2020)
-* Tag pgc_v0.3: Première version connectée du plugin (20/10/2020)
-* Tag pgc_v0.4: ajout des particularités pour véhicule hybride, et quelques améliorations (14/01/2021)
 
 ## Installation
 Par source Github:
@@ -46,14 +41,14 @@ Sur l'onglet "**Equipement**", choisissez l'objet parent, et notez le numéro VI
 Indiquez également la capacité de la batterie pour un véhicule électrique. (Cela permet d'évaluer la consommation sur un trajet) <br>
 Lors de la sauvegarde de l'équipement, quelques photos du véhicules sont téléchargées et rendues disponibles pour affichage sur le widget.
 <p align="left">
-  <img src="../master/doc/images/config_equipement.png" width="700" title="Configuration équipement">
+  <img src="../images/config_equipement.png" width="700" title="Configuration équipement">
 </p>
 
 La page du panel à besoin de connaitre les coordonnées GPS de stationnement habituel de la voiture afin de centrer la carte pour l’affichage des trajets. <br>
 Pour cela, il faut renseigner ces coordonnées GPS dans la page de configuration de jeedom. <br>
 Règlages => Système => Configuration => Informations <br>
 <p align="left">
-  <img src="../master/doc/images/config_informations.png" width="500" title="Configuration informations">
+  <img src="../images/config_informations.png" width="500" title="Configuration informations">
 </p>
 
 ## Widget
@@ -63,7 +58,7 @@ Il est possible d'agencer les éléments dans le widgets par la fonction d'édit
 Je propose l'agencement suivant comme exemple, en utilisant la présentation en tableau dans Configuration Avancée=>Disposition (voir ci dessous) <br>
 Lorsque l'on clique sur la photo, on bascule sur la page "Panel" du plugin associée au véhicule.
 <p align="left">
-  <img src="../master/doc/images/config_widget.png" width="700" title="Widget dashboard">
+  <img src="../images/config_widget.png" width="700" title="Widget dashboard">
 </p>
 
 ## Panel
@@ -80,21 +75,21 @@ La suite de la page est mise à jour avec l'affichage des trajets sélectionnés
 On peut sélectionner les trajets 1 par 1 dans le tableau pour afficher un seul trajet dans la liste. <br>
 Un résumé sur l'ensemble des trajets sélectionnés et donné également sur cette page.
 <p align="left">
-  <img src="../master/doc/images/panel1.png" width="600" title="Panel1">
+  <img src="../images/panel1.png" width="600" title="Panel1">
 </p>
 
 **Informations sur le véhicule:**
 Quelques informations sont données sur le véhicule
 En particulier la dernière version du logiciel disponible
 <p align="left">
-  <img src="../master/doc/images/panel2.png" width="500" title="Panel2">
+  <img src="../images/panel2.png" width="500" title="Panel2">
 </p>
 
 **Visites d'entretien:**
 Liste des 3 prochaines opérations d'entretien du véhicule, avec leur date ou kilométrage prévisionels
 Les opérations principales d'entretion sont données également.
 <p align="left">
-  <img src="../master/doc/images/panel3.png" width="600" title="Panel3">
+  <img src="../images/panel3.png" width="600" title="Panel3">
 </p>
 
 **Bugs connus:**
