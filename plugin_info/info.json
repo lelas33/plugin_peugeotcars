@@ -8,8 +8,8 @@
 	"display" : "panel",
 	"hasDependency" : false,
 	"hasOwnDeamon" : false,
-	"changelog" : "https://github.com/lelas33/plugin_peugeotcars/doc/fr_FR/changelog.md",
-	"documentation" : "https://github.com/lelas33/plugin_peugeotcars/doc/fr_FR/documentation.md",
+	"changelog" : "https://github.com/lelas33/plugin_peugeotcars/blob/test_v5/doc/fr_FR/changelog.md",
+	"documentation" : "https://github.com/lelas33/plugin_peugeotcars/blob/test_v5/doc/fr_FR/documentation.md",
 	"language" : ["fr_FR"],
   "compatibility": ["miniplus","smart","rpi","docker","diy","mobile","v4"]
 }
