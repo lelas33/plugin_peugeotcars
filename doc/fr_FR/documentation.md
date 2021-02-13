@@ -78,6 +78,14 @@ Un résumé sur l'ensemble des trajets sélectionnés et donné également sur c
   <img src="../images/panel1.png" width="600" title="Panel1">
 </p>
 
+**Statistiques:**
+Présentations sous forme de graphe de quelques statistiques d'utilisation du véhicule, basées sur l'historique des trajets mémorisés.
+
+* Distances parcourues 
+* Consommation du véhicule au 100 km
+* Energie consommée et coût estimé
+
+
 **Informations sur le véhicule:**
 Quelques informations sont données sur le véhicule
 En particulier la dernière version du logiciel disponible
@@ -87,21 +95,18 @@ En particulier la dernière version du logiciel disponible
 
 **Visites d'entretien:**
 Liste des 3 prochaines opérations d'entretien du véhicule, avec leur date ou kilométrage prévisionels
-Les opérations principales d'entretion sont données également.
+Les opérations principales d'entretion sont données également. : plus fonctionnel pour le moment
 <p align="left">
   <img src="../images/panel3.png" width="600" title="Panel3">
 </p>
 
 **Bugs connus:**
-Cette version 0.4 est encore draft. Il y a quelques bugs connus mais non pénalisants
+Cette version 0.5 est encore draft. Il y a quelques bugs connus mais non pénalisants
 * Javascript erreur : "ReferenceError: L is not defined" (affichée dans la barre de titre de jeedom) <br>
-  Problème de temps de chargement de la librairie Leaflet.
-  Ce bug empèche l'affichage de la carte dans le widget lors du rafraichissement de la page Dashboard.
-  Mais on peut avoir la carte en faisant un refresh du widget.
+  => Corrigé
 * Affichage des trajets sur le pannel: On ne peut pas toujours sélectionner un trajet pour affichage sur la carte.
-  Il suffit également de faire un refresh de la page.
+  => Corrigé
 
 **Suite prévue pour ce plugin:**
 * Ajouter le pilotage de la wallbox Evbox (si elle est connectée en Wifi) afin de gérer une durée de chargement, ainsi que le courant maxi de chargement.
-* Ajouter la page des statistiques d'utilisation
 * Ajouter le pilotage du préconditionnement du véhicule.
