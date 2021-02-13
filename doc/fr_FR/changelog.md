@@ -2,7 +2,7 @@
 
 # 13/02/2021: Tag pgc_v0.5
 
-- Ajout de l'affichage du projet d'un trajet (altitude)
+- Ajout de l'affichage du profil d'un trajet (altitude)
 - Ajout des statistiques d'utilisation (distances / consommation / couts)
 - Correction de bugs
 
