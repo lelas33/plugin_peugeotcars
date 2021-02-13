@@ -24,7 +24,6 @@ define("CARS_FILES_DIR", "/../../data/");
 global $cars_dt;
 global $cars_dt_gps;
 global $report;
-global $car_infos;
 
 // =====================================================
 // Fonction de lecture de tous les trajets d'une voiture
@@ -90,9 +89,80 @@ function get_car_trips_gps($vin, $ts_start, $ts_end)
   $latitute=config::byKey("info::latitude");
   $longitude=config::byKey("info::longitude");
   $cars_dt["home"] = $latitute.",".$longitude;
-
+  // Ajoute la config de la taille batterie
+  $eq = eqLogic::byLogicalId($vin, "peugeotcars");
+  if ($eq->getIsEnable()) {
+    $cfg_batt_capacity = $eq->getConfiguration("batt_capacity");
+    $cars_dt["cfg_batt_capacity"] = intval($cfg_batt_capacity);
+  }
   //log::add('peugeotcars', 'debug', 'Ajax:get_car_trips:nb_lines'.$line);
   return;
+}
+
+
+// ===========================================================
+// Fourniture des statistiques sur l'ensemble des trajets
+// ===========================================================
+function get_car_trips_stats($vin)
+{
+  // config de la taille batterie
+  // ----------------------------
+  $eq = eqLogic::byLogicalId($vin, "peugeotcars");
+  if ($eq->getIsEnable()) {
+    $cfg_batt_capacity = floatval($eq->getConfiguration("batt_capacity"));
+  }
+  else {
+    return;
+  }
+
+  // Lecture des trajets
+  // -------------------
+  // ouverture du fichier de log: trajets
+  $fn_car = dirname(__FILE__).CARS_FILES_DIR.$vin.'/trips.log';
+  $fcar = fopen($fn_car, "r");
+
+  // lecture de l'ensemble des trajets
+  $line = 0;
+  $trips = [];
+  if ($fcar) {
+    while (($buffer = fgets($fcar, 4096)) !== false) {
+      // extrait les timestamps debut et fin du trajet
+      list($tr_tss, $tr_tse, $tr_ds, $tr_batt) = explode(",", $buffer);
+      $tsi_s = intval($tr_tss);
+      $tsi_e = intval($tr_tse);
+      $trips[$line]["tss"]   = intval($tr_tss);
+      $trips[$line]["tse"]   = intval($tr_tse);
+      $trips[$line]["dist"]  = floatval($tr_ds);
+      $trips[$line]["conso"] = (floatval($tr_batt) * $cfg_batt_capacity)/100.0;  // conso en kWh
+      $line = $line + 1;
+    }
+  }
+  fclose($fcar);
+  $nb_trips = $line;
+  
+  // calcul des statistiques par mois
+  // --------------------------------
+  $trip_stat["dist"]  = [[]];
+  $trip_stat["conso"] = [[]];
+  $trip_stat["nb_trips"] = $nb_trips;
+  for ($tr=0; $tr<$nb_trips; $tr++) {
+    $tss = $trips[$tr]["tss"];
+    $year  = intval(date('Y', $tss));  // Year => ex 2020
+    $month = intval(date('n', $tss));  // Month => 1-12
+    if (isset($trip_stat["dist"][$year][$month])){
+      $trip_stat["dist"][$year][$month] += $trips[$tr]["dist"];
+    }
+    else {
+      $trip_stat["dist"][$year][$month] = $trips[$tr]["dist"];
+    }
+    if (isset($trip_stat["conso"][$year][$month])){
+      $trip_stat["conso"][$year][$month] += $trips[$tr]["conso"];
+    }
+    else {
+      $trip_stat["conso"][$year][$month] = $trips[$tr]["conso"];
+    }
+  }
+  return($trip_stat);
 }
 
 // ===========================================================
@@ -102,9 +172,9 @@ function get_car_infos($vin)
 {
   $session_peugeotcars = new peugeotcars_api3();
   $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
-  $login_ctr = $session_peugeotcars->pg_api_mym_login();   // Authentification
-  $info = [];
-  if ($login_ctr == "OK") {
+  // $login_ctr = $session_peugeotcars->pg_api_mym_login();   // Authentification
+  // $info = [];
+  // if ($login_ctr == "OK") {
     // Recuperation de l'info type du vehicule
     // $eqLogic = eqLogic::byLogicalId($vin,'peugeotcars');
     // if (is_object($eqLogic)) {
@@ -115,33 +185,36 @@ function get_car_infos($vin)
     // }
 
     // Section caractéristiques véhicule
-    $ret = $session_peugeotcars->pg_ap_mym_user();
-    if ($ret["success"] == "OK") {
-      log::add('peugeotcars','debug','get_car_infos:success='.$ret["success"]);
-      $info["vin"] = $vin;
-      $info["short_label"] = $ret["short_label"];
-      $info["veh_type"] = $veh_type;
-      $info["lcdv"] = $ret["lcdv"];
-      $info["warranty_start_date"] = date("j-n-Y", intval($ret["warranty_start_date"]));
-      $info["eligibility"] = $ret["eligibility"];
-      $info["types"] = $ret["eligibility"][0];
-      $liste_logiciel = $ret["eligibility"][1];
-      $info["mileage_km"] = $ret["mileage_val"];
-      $info["mileage_ts"] = date("j-n-Y \à G\hi", intval($ret["mileage_ts"]));
-    }
-    else {
-      log::add('peugeotcars','error',"get_car_infos:Erreur d'accès à l'API pour informations sur le véhicule");
-    }
-  }
-  else {
-    log::add('peugeotcars','error',"get_car_infos:Erreur login API pour informations sur le véhicule");
-  }
+    // $ret = $session_peugeotcars->pg_ap_mym_user();
+    // if ($ret["success"] == "OK") {
+      // log::add('peugeotcars','debug','get_car_infos:success='.$ret["success"]);
+      // $info["vin"] = $vin;
+      // $info["short_label"] = $ret["short_label"];
+      // $info["veh_type"] = $veh_type;
+      // $info["lcdv"] = $ret["lcdv"];
+      // $info["warranty_start_date"] = date("j-n-Y", intval($ret["warranty_start_date"]));
+      // $info["eligibility"] = $ret["eligibility"];
+      // $info["types"] = $ret["eligibility"][0];
+      // $liste_logiciel = $ret["eligibility"][1];
+      // $info["mileage_km"] = $ret["mileage_val"];
+      // $info["mileage_ts"] = date("j-n-Y \à G\hi", intval($ret["mileage_ts"]));
+    // }
+    // else {
+      // log::add('peugeotcars','error',"get_car_infos:Erreur d'accès à l'API pour informations sur le véhicule");
+    // }
+  // }
+  // else {
+    // log::add('peugeotcars','error',"get_car_infos:Erreur login API pour informations sur le véhicule");
+  // }
   
   // Section version logiciels
   //log::add('peugeotcars','debug','get_car_infos:liste_logiciel='.$liste_logiciel);
-  if (strpos($liste_logiciel, "rcc") !== FALSE) {
-    // recherche la version SW du log RCC
-    $ret = $session_peugeotcars->pg_api_sw_updates($vin, "rcc-firmware");
+  // $liste_logiciel = "rcc";
+  // if (strpos($liste_logiciel, "rcc") !== FALSE) {
+
+  // recherche la version SW du log RCC
+  $ret = $session_peugeotcars->pg_api_sw_updates($vin, "rcc-firmware");
+  if ($ret["status"] == "OK") {
     $info["rcc_type"]            = $ret["sw_type"];
     $info["rcc_current_ver"]     = $ret["sw_current_ver"];
     $info["rcc_available_ver"]   = $ret["sw_available_ver"];
@@ -150,6 +223,31 @@ function get_car_infos($vin)
     $info["rcc_available_UpURL"] = $ret["sw_available_UpURL"];
     $info["rcc_available_LiURL"] = $ret["sw_available_LiURL"];
   }
+    
+  // recherche la version SW du log GPS
+  $ret = $session_peugeotcars->pg_api_sw_updates($vin, "ovip-int-firmware-version");
+  if ($ret["status"] == "OK") {
+    $info["gps_type"]            = $ret["sw_type"];
+    $info["gps_current_ver"]     = $ret["sw_current_ver"];
+    $info["gps_available_ver"]   = $ret["sw_available_ver"];
+    $info["gps_available_date"]  = $ret["sw_available_date"];
+    $info["gps_available_size"]  = $ret["sw_available_size"];
+    $info["gps_available_UpURL"] = $ret["sw_available_UpURL"];
+    $info["gps_available_LiURL"] = $ret["sw_available_LiURL"];
+  }
+
+  // recherche la version SW de la base carte GPS
+  $ret = $session_peugeotcars->pg_api_sw_updates($vin, "map-eur");
+  if ($ret["status"] == "OK") {
+    $info["map_type"]            = $ret["sw_type"];
+    $info["map_current_ver"]     = $ret["sw_current_ver"];
+    $info["map_available_ver"]   = $ret["sw_available_ver"];
+    $info["map_available_date"]  = $ret["sw_available_date"];
+    $info["map_available_size"]  = $ret["sw_available_size"];
+    $info["map_available_UpURL"] = $ret["sw_available_UpURL"];
+    $info["map_available_LiURL"] = $ret["sw_available_LiURL"];
+  }
+
   return $info;
 }
 
@@ -225,11 +323,17 @@ try {
     $ts_start = init('param')[0];
     $ts_end   = init('param')[1];
     log::add('peugeotcars', 'debug', 'vin   :'.$vin);
-    log::add('peugeotcars', 'debug', 'param0:'.$ts_start);
-    log::add('peugeotcars', 'debug', 'param1:'.$ts_end);
     // Param 0 et 1 sont les timestamp de debut et fin de la periode de log demandée
     get_car_trips_gps($vin, intval ($ts_start), intval ($ts_end));
     $ret_json = json_encode ($cars_dt);
+    ajax::success($ret_json);
+    }
+
+  else if (init('action') == 'getTripStats') {
+    log::add('peugeotcars', 'info', 'Ajax:getTripStats');
+    $vin = init('eqLogic_id');
+    $trip_stat = get_car_trips_stats($vin);
+    $ret_json = json_encode ($trip_stat);
     ajax::success($ret_json);
     }
 

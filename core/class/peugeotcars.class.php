@@ -20,7 +20,7 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api3.class.php';
 
-define("CARS_FILES_DIR", "/../../data/");
+define("CARS_FILES_DIR_CL", "/../../data/");
 
 // 2 fichiers pour enregistrer les trajets en détails
 // car_trips.log: liste des trajets
@@ -239,7 +239,7 @@ class peugeotcars extends eqLogic {
       // Ajout des photos de la voiture dans le dossier "data/vin/" du plugin (recuperation du lien par l'API Peugeot)
       log::add('peugeotcars','info','postSave:Sauvegarde de '.$nb_images. " photos");
       // création du dossier des donnees du vehicule dans le repertoire data
-      $vin_dir = dirname(__FILE__).CARS_FILES_DIR.$vin;
+      $vin_dir = dirname(__FILE__).CARS_FILES_DIR_CL.$vin;
       if (!file_exists($vin_dir)) {
         mkdir($vin_dir, 0777);
       }
@@ -277,8 +277,8 @@ class peugeotcars extends eqLogic {
       $heure  = intval(date("G"));
       // Appel API pour le statut courant du vehicule
       $vin = $this->getlogicalId();
-      $fn_car_gps   = dirname(__FILE__).CARS_FILES_DIR.$vin.'/gps.log';
-      $fn_car_trips = dirname(__FILE__).CARS_FILES_DIR.$vin.'/trips.log';
+      $fn_car_gps   = dirname(__FILE__).CARS_FILES_DIR_CL.$vin.'/gps.log';
+      $fn_car_trips = dirname(__FILE__).CARS_FILES_DIR_CL.$vin.'/trips.log';
 
       if ($this->getIsEnable()) {
         $cmd_record_period = $this->getCmd(null, "record_period");
@@ -296,29 +296,36 @@ class peugeotcars extends eqLogic {
           $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), $last_login_token);
           if ($last_login_token == NULL) {
             $login_token = $session_peugeotcars->pg_api_login();   // Authentification
-            if ($login_token["status"] != "OK")
+            if ($login_token["status"] != "OK") {
               log::add('peugeotcars','error',"Erreur Login API PSA");
+              return;  // Erreur de login API PSA
+            }
             $cmd_record_period->setConfiguration ('save_auth', $login_token);
             $cmd_record_period->save();
             log::add('peugeotcars','debug',"Pas de session en cours => New login");
           }
           else if ($session_peugeotcars->state_login() == 0) {
             $login_token = $session_peugeotcars->pg_api_login();   // Authentification
-            if ($login_token["status"] != "OK")
+            if ($login_token["status"] != "OK") {
               log::add('peugeotcars','error',"Erreur Login API PSA");
+              return;  // Erreur de login API PSA
+            }
             $cmd_record_period->setConfiguration ('save_auth', $login_token);
             $cmd_record_period->save();
             log::add('peugeotcars','debug',"Session expirée => New login");
           }
           // Capture du statut du vehicule
           $ret = $session_peugeotcars->pg_api_vehicles($vin);
-          if ($ret["success"] == "KO")
+          if ($ret["success"] == "KO") {
             log::add('peugeotcars','error',"Erreur Login API PSA");
+            return;  // Erreur de login API PSA
+            }
           $ret = $session_peugeotcars->pg_api_vehicles_status();
+          $batt_nominal_voltage = $this->getConfiguration("batt_nominal_voltage");
           $veh_type = $ret["service_type"];
           log::add('peugeotcars','debug',"MAJ statut du véhicule:".$vin);
           $cmd_mlg = $this->getCmd(null, "kilometrage");
-          $mileage = $ret["gen_mileage"];
+          $mileage = round(floatval($ret["gen_mileage"]), 1);
           $previous_mileage = $cmd_mlg->execCmd();
           $previous_ts = $cmd_mlg->getConfiguration('prev_ctime');
           $cmd_mlg->event($mileage);
@@ -330,7 +337,7 @@ class peugeotcars extends eqLogic {
           $batt_auto = $ret["batt_autonomy"];
           $cmd->event($batt_auto);
           $cmd = $this->getCmd(null, "battery_voltage");
-          $batt_voltage = $ret["batt_voltage"];
+          $batt_voltage = round(($batt_nominal_voltage * $ret["batt_voltage"]) / 100);
           $cmd->event($batt_voltage);
           $cmd = $this->getCmd(null, "battery_current");
           $batt_current = $ret["batt_current"];
@@ -418,7 +425,7 @@ class peugeotcars extends eqLogic {
               $trip_in_progress  = 0;
               $trip_event = 1;
               // enregistrement d'un trajet
-              $trip_distance = $trip_end_mileage - $trip_start_mileage;
+              $trip_distance = round($trip_end_mileage - $trip_start_mileage, 1);
               $trip_batt_diff = $trip_start_battlevel - $trip_end_battlevel;
               $trip_log_dt = $trip_start_ts.",".$trip_end_ts.",".$trip_distance.",".$trip_batt_diff."\n";
               log::add('peugeotcars','debug',"Refresh->recording Trip_dt=".$trip_log_dt);
@@ -475,29 +482,29 @@ class peugeotcars extends eqLogic {
           $precond_status = ($ret["precond_status"] == "Enabled")?1:0;
           $cmd->event($precond_status);
           // A minuit, mise à jour maintenance
-          if (($heure==0) && ($minute==0)) {
-            $login_ctr = $session_peugeotcars->pg_api_mym_login();
-            if ($login_ctr == "OK") {
-              $ret = $session_peugeotcars->pg_ap_mym_maintenance($vin);
-              if ($ret["success"] == "OK") {
-                log::add('peugeotcars','info',"Mise à jour date maintenance");
-                // jours jusqu'à la prochaine visite
-                $nbj_ts = round ((intval($ret["visite1_ts"]) - time())/(24*3600));
-                $cmd = $this->getCmd(null, "entretien_jours");
-                $cmd->event($nbj_ts);
-                // km jusqu'à la prochaine visite
-                $dist = intval($ret["visite1_mileage"]) - intval($ret["mileage_km"]);
-                $cmd = $this->getCmd(null, "entretien_dist");
-                $cmd->event($dist);
-              }
-              else {
-                log::add('peugeotcars','error',"Erreur d'accès à l'API pour informations de maintenance");
-              }
-            }
-            else {
-              log::add('peugeotcars','error',"Erreur login API pour informations de maintenance");
-            }
-          }
+//          if (($heure==0) && ($minute==0)) {
+//            $login_ctr = $session_peugeotcars->pg_api_mym_login();
+//            if ($login_ctr == "OK") {
+//              $ret = $session_peugeotcars->pg_ap_mym_maintenance($vin);
+//              if ($ret["success"] == "OK") {
+//                log::add('peugeotcars','info',"Mise à jour date maintenance");
+//                // jours jusqu'à la prochaine visite
+//                $nbj_ts = round ((intval($ret["visite1_ts"]) - time())/(24*3600));
+//                $cmd = $this->getCmd(null, "entretien_jours");
+//                $cmd->event($nbj_ts);
+//                // km jusqu'à la prochaine visite
+//                $dist = intval($ret["visite1_mileage"]) - intval($ret["mileage_km"]);
+//                $cmd = $this->getCmd(null, "entretien_dist");
+//                $cmd->event($dist);
+//              }
+//              else {
+//                log::add('peugeotcars','error',"Erreur d'accès à l'API pour informations de maintenance");
+//              }
+//            }
+//            else {
+//              log::add('peugeotcars','error',"Erreur login API pour informations de maintenance");
+//            }
+//          }
         }
       }
     }
@@ -538,4 +545,5 @@ class peugeotcarsCmd extends cmd
 
     /*     * **********************Getteur Setteur*************************** */
 }
+
 ?>

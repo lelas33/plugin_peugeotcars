@@ -58,7 +58,7 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
       </div>
       </div>
       <div class="row">
-      <div class="tab-content" style="height:1000px;">
+      <div class="tab-content" style="height:1200px;">
         <div role="tabpanel" class="tab-pane" id="car_trips_tab">
           <div class="row">
             <div class="col-lg-8 col-lg-offset-2" style="height: 150px;padding-top:10px;">
@@ -110,6 +110,7 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
               <div class="col-lg-8 col-lg-offset-2">
                 <div id="trips_list" style="float:left;width:45%">
                   <div id='div_hist_liste' style="font-size: 1.2em;"></div>
+                  <div id='div_graph_alti'  style="padding-top:10px;min-height:200px;"></div>
                   <div id='div_hist_liste2' style="font-size: 1.2em;">
                     <table id="trip_liste" class="display compact" width="100%"></table>
                   </div>
@@ -124,7 +125,29 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
         <div role="tabpanel" class="tab-pane" id="car_stat_tab">
           <div class="row">
               <div class="col-lg-8 col-lg-offset-2" style="padding-top:10px">
-                Développement en cours
+                <form class="form-horizontal">
+                     <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
+                         <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
+                             <i style="font-size: initial;"></i> {{Statistiques par mois sur les trajets réalisés}}
+                         </div>
+                         <div style="min-height: 30px;">
+                           <img src="plugins/peugeotcars/desktop/php/distance.jpg"; width="150" />
+                           <i style="font-size: 1.5em;">{{Distances parcourues}}</i>
+                         </div>
+                         <div id='div_graph_stat_dist' style="font-size: 1.2em;"></div>
+                         <div style="min-height: 30px;">
+                           <img src="plugins/peugeotcars/desktop/php/consommation.jpg"; width="150" />
+                           <i style="font-size: 1.5em;">{{Consommation du véhicule au 100 km}}</i>
+                         </div>
+                         <div id='div_graph_stat_conso' style="font-size: 1.2em;"></div>
+                         <div style="min-height: 30px;">
+                           <img src="plugins/peugeotcars/desktop/php/energie.jpg"; width="150" />
+                           <i style="font-size: 1.5em;">{{Energie consommée et coût estimé}}</i>
+                         </div>
+                         <div id='div_graph_stat_energy' style="font-size: 1.2em;"></div>
+                     </fieldset>
+                     <div style="min-height: 10px;"></div>
+                 </form>
               </div>
           </div>
         </div>
@@ -138,7 +161,7 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
         <div role="tabpanel" class="tab-pane" id="car_maint_tab">
           <div class="row">
               <div class="col-lg-8 col-lg-offset-2"  id="infos_maintenance" style="padding-top:10px">
-                Chargement en cours
+                Développement en cours
               </div>
           </div>
         </div>

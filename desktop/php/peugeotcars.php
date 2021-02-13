@@ -75,12 +75,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-lg-2 control-label">{{Capacité de la batterie (kWh)}}</label>
-                            <div class="col-lg-3">
-                                <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="batt_capacity" placeholder="{{50 par exemple}}"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="col-lg-2 control-label" >{{Objet parent}}</label>
                             <div class="col-lg-3">
                                 <select class="form-control eqLogicAttr" data-l1key="object_id">
@@ -114,6 +108,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
                             <label class="col-lg-2 control-label" >{{Visible}}</label>
                             <div class="col-lg-1">
                                 <input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label"></label>
+                            <label class="col-lg-3"><br>{{Informations complémentaires sur le véhicule}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">{{Capacité de la batterie (kWh)}}</label>
+                            <div class="col-lg-3">
+                                <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="batt_capacity" title="{{50 kWh pour une peugeot e-208 ou e-2008, 13.2 kWh pour une peugeot 3008 Hybride}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">{{Tension nominale de la batterie (V)}}</label>
+                            <div class="col-lg-3">
+                                <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="batt_nominal_voltage" title="{{400 V pour une peugeot e-208 ou e-2008, 300 V pour une peugeot 3008 Hybride}}"/>
                             </div>
                         </div>
                     </fieldset>

@@ -1,26 +1,26 @@
 <div style="width:180px;height:150px;" class="cmd cmd-widget #history# tooltips" data-type="info" data-subtype="string" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
   <!-- Fichiers Javascript -->
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <link rel="stylesheet" href="plugins/peugeotcars/3rdparty/leaflet_v1.7.1/leaflet.css" />
   <style type="text/css">
     #macarte{ height:130px; }
   </style>
+  <script src="plugins/peugeotcars/3rdparty/leaflet_v1.7.1/leaflet.js"></script>
   <div id="macarte">
     <!-- Ici s'affichera la carte -->
 	</div>
   <!-- Fichiers Javascript -->
 	<script type="text/javascript">
     jeedom.cmd.update['#id#'] = function(_options) {
-
+      console.log("[jeedom.cmd.update map]: " + _options.display_value);
       // Position GPS de la voiture
       hist = _options.display_value;    
       gps_pos = hist.split(',');
       var lat = gps_pos[0];
       var lon = gps_pos[1];
       var alt = gps_pos[2];
-      //alert ("GPS:"+lat + "/" + lon);
       // Fonction d'initialisation de la carte
       function initMap() {
+          console.log("[jeedom.cmd.update map]: Init map");
           // Créer l'objet "macarte" et l'insèrer dans l'élément HTML qui a l'ID "map"
           carte = L.map('macarte').setView([lat, lon], 16);
           // Leaflet ne récupère pas les cartes (tiles) sur un serveur par défaut. Nous devons lui préciser où nous souhaitons les récupérer. Ici, openstreetmap.fr

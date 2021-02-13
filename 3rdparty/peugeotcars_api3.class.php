@@ -355,8 +355,8 @@ class peugeotcars_api3 {
       $retf["gps_alt"] = $ret["result"]->lastPosition->geometry->coordinates[2];
     if (isset($ret["result"]->lastPosition->properties->signalQuality))
       $retf["conn_level"]   = $ret["result"]->lastPosition->properties->signalQuality;
-    $retf["batt_voltage"] = $ret["result"]->battery->voltage;
-    $retf["batt_current"] = $ret["result"]->battery->current;
+    $retf["batt_voltage"] = intval($ret["result"]->battery->voltage);
+    $retf["batt_current"] = intval($ret["result"]->battery->current);
     $retf["precond_status"] = $ret["result"]->preconditionning->airConditioning->status;
     $veh_type = strtolower ($ret["result"]->service->type);
     $retf["service_type"]  = $veh_type;
@@ -409,6 +409,21 @@ class peugeotcars_api3 {
     return $retf;
   }
 
+  // Get vehicule status
+  function pg_api_vehicles_test()
+  {
+//    $param = "user/vehicles/".$this->vehicle_id."/maintenance?client_id=".$this->client_id;
+//    $param = "user/vehicles/".$this->vehicle_id."/telemetry?client_id=".$this->client_id;
+//    $param = "user/vehicles/".$this->vehicle_id."/lastPosition?client_id=".$this->client_id;
+    $param = "user/vehicles/".$this->vehicle_id."/alerts?client_id=".$this->client_id;
+//    $param = "user/vehicles/".$this->vehicle_id."/status?client_id=".$this->client_id;
+    $ret = $this->get_api_psa_conn_car($param);
+    //var_dump($ret["info"]);
+    if ($this->debug_api)
+      var_dump($ret["result"]);
+  }
+
+
   // =========================================
   // Connection aux API: :ap-mym.servicesgp
   // =========================================
@@ -420,7 +435,8 @@ class peugeotcars_api3 {
     //print("PARAM:\n".$param."\n");
     $ret = $this->post_api_psa_auth1($param);
     //var_dump($ret["info"]);
-    //var_dump($ret["result"]);
+    if ($this->debug_api)
+      var_dump($ret["result"]);
     if ($ret["info"]["http_code"] == "200") {
       $this->access_token_mym = $ret["result"]->accessToken;
       //printf("access_token_mym=".$this->access_token_mym."\n");
@@ -544,7 +560,8 @@ class peugeotcars_api3 {
     $fields = '{"vin":"'.$vin.'","softwareTypes":[{"softwareType":"'.$sw.'"}]}';
     $ret = $this->post_api_sw($param, $fields);
     $retf = [];
-    if ($ret["result"]->requestResult == "OK") {
+    if (($ret["result"]->requestResult == "OK") && (isset($ret["result"]->software))) {
+      $retf["status"]            = "OK";
       $retf["sw_type"]           = $ret["result"]->software[0]->softwareType;
       $retf["sw_current_ver"]    = $ret["result"]->software[0]->currentSoftwareVersion;
       $retf["sw_available_ver"]  = $ret["result"]->software[0]->update[0]->updateVersion;
@@ -553,8 +570,11 @@ class peugeotcars_api3 {
       $retf["sw_available_UpURL"] = $ret["result"]->software[0]->update[0]->updateURL;
       $retf["sw_available_LiURL"] = $ret["result"]->software[0]->update[0]->licenseURL;
     }
-    // var_dump($ret["info"]);
-    // var_dump($ret["result"]);
+    else {
+      $retf["status"] = "KO";
+    }
+    //var_dump($ret["info"]);
+    //var_dump($ret["result"]);
     //var_dump($retf);
     return($retf);
   }
