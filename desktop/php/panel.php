@@ -52,6 +52,7 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
         <ul class="nav nav-tabs" role="tablist">
           <li role="presentation" class="active"><a href="#car_trips_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Trajets}}</a></li>
           <li role="presentation"><a href="#car_stat_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Statistiques}}</a></li>
+          <li role="presentation"><a href="#car_config_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Configuration véhicule}}</a></li>
           <li role="presentation"><a href="#car_info_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Informations véhicule}}</a></li>
           <li role="presentation"><a href="#car_maint_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Maintenance véhicule}}</a></li>
         </ul>
@@ -148,6 +149,38 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
                      </fieldset>
                      <div style="min-height: 10px;"></div>
                  </form>
+              </div>
+          </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="car_config_tab">
+          <div class="row">
+              <div class="col-lg-8 col-lg-offset-2">
+                  <form class="form-horizontal">
+                      <div style="min-height: 10px;">
+                      </div>
+                       <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
+                           <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
+                               <i style="font-size: initial;"></i> {{Configuration du Préconditionnement}}
+                           </div>
+                           <div id='trips_info' style="font-size: 1.2em;"></div>
+                           <div style="v"></div>
+                       </br>
+                       </fieldset>
+                       <div style="min-height: 10px;"></div>
+                   </form>
+              </div>
+              <div class="col-lg-8 col-lg-offset-2">
+                  <form class="form-horizontal">
+                       <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
+                           <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
+                               <i style="font-size: initial;"></i> {{Configuration de la charge}}
+                           </div>
+                           <div id='trips_info' style="font-size: 1.2em;"></div>
+                           <div style="v"></div>
+                       </br>
+                       </fieldset>
+                       <div style="min-height: 10px;"></div>
+                   </form>
               </div>
           </div>
         </div>

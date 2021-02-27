@@ -716,7 +716,7 @@ function trips_stats(stat_data) {
   });
 
   // Energie consommée et cout associé
-  var kwh_to_cost = 0.1599 / 0.80;
+  var kwh_to_cost = stat_data.cfg_cost_kwh / 0.90;
   Highcharts.chart('div_graph_stat_energy', {
       chart: {
           plotBackgroundColor:'#808080',
@@ -811,7 +811,7 @@ function veh_disp_infos(info_cars){
   // $("#infos_vehicule").append("<b>A la date du :</b> "+info_cars.mileage_ts+"<br><br>");
 
   // Section version logicielle
-  $("#infos_vehicule").append("<p style='font-size: 1.5em;color:Cyan;'>Version logicielles disponibles</p>");
+  $("#infos_vehicule").append("<p style='font-size: 1.5em;color:Cyan;'>Versions logicielles disponibles</p>");
   
   if (info_cars.rcc_type != null) {
     $("#infos_vehicule").append("<b>LOGICIEL:</b> "+info_cars.rcc_type+"<br>");

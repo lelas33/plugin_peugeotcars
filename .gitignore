@@ -1,4 +1,11 @@
 # Ignoring directories (Both the directory itself and its contents will be ignored.)
+__pycache__/
+.idea/
+
 data/V*/
 3rdparty/sample_lau.php
+3rdparty/psa_jeedom/config.json
+3rdparty/psa_jeedom/otp.bin
+3rdparty/psa_jeedom/*.log
+3rdparty/psa_jeedom/pycharm_readme.txt
 

@@ -110,6 +110,7 @@ function get_car_trips_stats($vin)
   $eq = eqLogic::byLogicalId($vin, "peugeotcars");
   if ($eq->getIsEnable()) {
     $cfg_batt_capacity = floatval($eq->getConfiguration("batt_capacity"));
+    $cfg_cots_kwh = floatval($eq->getConfiguration("cost_kwh"));
   }
   else {
     return;
@@ -145,6 +146,7 @@ function get_car_trips_stats($vin)
   $trip_stat["dist"]  = [[]];
   $trip_stat["conso"] = [[]];
   $trip_stat["nb_trips"] = $nb_trips;
+  $trip_stat["cfg_cost_kwh"] = $cfg_cots_kwh;
   for ($tr=0; $tr<$nb_trips; $tr++) {
     $tss = $trips[$tr]["tss"];
     $year  = intval(date('Y', $tss));  // Year => ex 2020

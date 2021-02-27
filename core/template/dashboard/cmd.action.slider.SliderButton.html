@@ -1,0 +1,83 @@
+<div class="cmd cmd-widget" data-type="action" data-subtype="slider" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
+<!-- ################ SliderButton ################ 
+       ********** Paramètres Optionnels ********* 
+ style = couleur du widget (noir | blanc par défaut)
+ step = valeur du pas (0.5 par défaut)
+ moins = couleur bouton moins (bleu par défaut)
+ plus = couleur bouton plus (rouge par défaut)
+** 8 couleurs: bleu, vert, jaune, orange, rouge, rose, violet, neutre **
+ hauteur = hauteur du widget en pixels (40 par défaut)
+ largeur = largeur de la partie centrale en pixels (50 par défaut)
+ font-size = taille de la valeur (12 par défaut)
+ ########### by @SALVIALF ;) Images de @Dankoss001 ############# -->
+  <div class="title #hide_name#">
+    <div class="cmdName">#name_display#</div>
+  </div>
+  <div class="content">
+    <div class="input-group buttons">
+      <span class="input-group-btn" style="position: relative;">
+        <a class="bt_minusSB"><img id="minusSB"></a>
+      </span>
+      <input class="input-SB" value="#state# #unite#"/>
+      <span class="input-group-btn" style="position: relative;">
+        <a class="bt_plusSB"><img id="plusSB"></a>
+      </span>
+    </div>
+  </div>
+  <script>
+    var cmd = $('.cmd[data-cmd_uid=#uid#]');
+    var style = ('#style#' == 'noir') ? 'noir' : 'blanc';
+    var colMinus = ('#moins#' != '#'+'moins#') ? '#moins#' : 'bleu';
+    var colPlus = ('#plus#' != '#'+'plus#') ? '#plus#' : 'rouge';
+    var height = is_numeric('#hauteur#') ? parseFloat('#hauteur#'):30;
+    var width = is_numeric('#largeur#') ? parseFloat('#largeur#'):40;
+    var fontSize = is_numeric('#font-size#') ? parseFloat('#font-size#'):10;
+    cmd.find('#minusSB').attr({'height': height+'px', 'src': '/plugins/peugeotcars/core/template/dashboard/cmd.action.slider.SliderButton/SBminus_'+style+'_'+colMinus+'.png'});
+    cmd.find('#plusSB').attr({'height': height+'px', 'src': '/plugins/peugeotcars/core/template/dashboard/cmd.action.slider.SliderButton/SBplus_'+style+'_'+colPlus+'.png'});
+    cmd.find('input.input-SB').css({'font-size': fontSize+'px', 'height': height+'px', 'width': +width+'px', 'background-image':'url(/plugins/peugeotcars/core/template/dashboard/cmd.action.slider.SliderButton/SB_'+style+'.png)','background-size': 'auto '+height+'px'});
+    
+    cmd.find('.bt_plusSB').on('click', function () {
+      let max = ('#maxValue#' == '') ?  Number.MAX_VALUE : parseFloat('#maxValue#');
+      let step = (isNaN(parseFloat('#step#'))) ?  5 : parseFloat('#step#');
+      if (parseFloat($('.cmd[data-cmd_uid=#uid#] .input-SB').val()) <= max - step ){
+        jeedom.cmd.update['#id#']({display_value:parseFloat($('.cmd[data-cmd_uid=#uid#] .input-SB').val()) + step});
+        $('.cmd[data-cmd_uid=#uid#] .input-SB').trigger('change');
+      }
+    });
+    cmd.find('.bt_minusSB').on('click', function () {
+      let min = ('#minValue#' == '') ? Number.MIN_VALUE : parseFloat('#minValue#');
+      let step = (isNaN(parseFloat('#step#'))) ?  5 : parseFloat('#step#');
+      if (parseFloat($('.cmd[data-cmd_uid=#uid#] .input-SB').val()) >= min + step){
+        jeedom.cmd.update['#id#']({display_value:parseFloat($('.cmd[data-cmd_uid=#uid#] .input-SB').val()) - step});
+        $('.cmd[data-cmd_uid=#uid#] .input-SB').trigger('change');
+      }
+    });
+    $('.cmd[data-cmd_uid=#uid#] .input-SB').on('change', function () {
+      if (typeof timerHandle#uid# !== 'undefined') {
+        clearTimeout(timerHandle#uid#);
+      }
+      timerHandle#uid# = setTimeout(function() {
+        jeedom.cmd.execute({id:'#id#', value: {slider: $('.cmd[data-cmd_uid=#uid#] .input-SB').val().replace("#unite#", "").replace(" ", "")}});
+      }, 1000)
+    });
+    jeedom.cmd.update['#id#'] = function(_options){
+      $('.cmd[data-cmd_uid=#uid#] .input-SB').val(_options.display_value+' #unite#');
+    }
+    jeedom.cmd.update['#id#']({display_value:'#state#'});
+  </script>
+<style>
+@font-face {
+  font-family: "nasalization";
+  src: url("plugins/peugeotcars/core/template/dashboard/cmd.action.slider.SliderButton/nasalization.ttf") format("truetype");
+}  
+input.input-SB {
+  text-align: center;
+  font-family:"nasalization";
+  font-weight: normal;
+  border: none!important;
+  }
+input:not(.btn):not(.dial):not([type="radio"]):not([type="image"]):not(.expressionAttr):not(.knob):not([type="checkbox"]).input-SB {
+  color: black!important;
+  }
+</style>
+</div>

@@ -1,0 +1,19 @@
+<div style="width:80px;min-height:50px;" class="cmd tooltips cmd-widget cursor" data-type="info" data-subtype="numeric" data-cmd_id="#id#" data-cmd_uid="#uid#">
+    <center>
+        <span style="font-size: 3em;font-weight: bold;margin-top: 5px;" class="action iconCmd#uid#"></span>
+    </center>
+    <script>
+        jeedom.cmd.update['#id#'] = function(_options){
+          $('.iconCmd#uid#').empty();
+          if (_options.display_value == '1') {
+              $('.iconCmd#uid#').append('<img src="plugins/peugeotcars/core/template/dashboard/imm_diff_on.png" width="80"/>');
+          } else {
+              $('.iconCmd#uid#').append('<img src="plugins/peugeotcars/core/template/dashboard/imm_diff_off.png" width="80"/>');
+          }
+        }
+        $('.cmd[data-cmd_uid=#uid#] .action').on('click', function () {
+            jeedom.cmd.execute({id: '#id#'});
+        });
+        jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
+    </script>
+</div>

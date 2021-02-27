@@ -126,6 +126,16 @@ $eqLogics = eqLogic::byType($plugin->getId());
                                 <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="batt_nominal_voltage" title="{{400 V pour une peugeot e-208 ou e-2008, 300 V pour une peugeot 3008 Hybride}}"/>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label"></label>
+                            <label class="col-lg-3"><br>{{Autres Informations}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">{{Montant du kWh (€)}}</label>
+                            <div class="col-lg-3">
+                                <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cost_kwh" title="{{0.1630 € TTC (9-24kVA Option base EDF 2021)}}"/>
+                            </div>
+                        </div>
                     </fieldset>
                 </form>
 			</div>

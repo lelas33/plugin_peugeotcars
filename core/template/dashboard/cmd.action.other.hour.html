@@ -1,0 +1,15 @@
+<div style="width:70px;min-height:50px;" class="cmd cmd-widget reportModeHidden" data-type="action" data-subtype="other" data-template="default" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
+  <div class="content-xs" style="padding-top: 25px;">
+    <input id="appt-time" type="time" name="appt-time" value="#state#" style="width:70px;min-height:30px;padding-left: 2px !important;padding-right: 2px !important;">
+  </div>
+  <script>
+    $('#appt-time').change(function () {
+      input_value = $('#appt-time').val();
+      console.log("Change time:"+input_value);
+      jeedom.cmd.execute({id: '#id#', value: {message:input_value}});
+    });
+    if("#name#" != '#name_display#'){
+      $('.cmd[data-cmd_uid=#uid#]:last .action').attr('title',"#name#")
+    }
+  </script>
+</div>

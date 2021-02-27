@@ -362,12 +362,12 @@ class peugeotcars_api3 {
     $retf["service_type"]  = $veh_type;
     $retf["kinetic_moving"]= $ret["result"]->kinetic->moving;
     $retf["gen_mileage"]   = $ret["result"]->{"timed.odometer"}->mileage;
-    // Retours energie electrique
-    if ($veh_type == "electric") {
+    // Retours energie electrique & fuel si hybride
+    if (count($ret["result"]->energy) == 1) {
       $elec_id = 0;
       $fuel_id = 0;
     }
-    else if ($veh_type == "hybrid") {
+    else if (count($ret["result"]->energy) == 2) {
       if (strtolower($ret["result"]->energy[0]->type) == "electric") {
         $elec_id = 0;
         $fuel_id = 1;
@@ -381,6 +381,24 @@ class peugeotcars_api3 {
       $elec_id = 0;
       $fuel_id = 0;
     }
+    // if ($veh_type == "electric") {
+      // $elec_id = 0;
+      // $fuel_id = 0;
+    // }
+    // else if ($veh_type == "hybrid") {
+      // if (strtolower($ret["result"]->energy[0]->type) == "electric") {
+        // $elec_id = 0;
+        // $fuel_id = 1;
+      // }
+      // else {
+        // $elec_id = 1;
+        // $fuel_id = 0;
+      // }
+    // }
+    // else {
+      // $elec_id = 0;
+      // $fuel_id = 0;
+    // }
     $retf["batt_level"]   = $ret["result"]->energy[$elec_id]->level;
     $retf["batt_autonomy"]= $ret["result"]->energy[$elec_id]->autonomy;
     $retf["charging_plugged"] = $ret["result"]->energy[$elec_id]->charging->plugged;
