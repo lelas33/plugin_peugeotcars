@@ -2,9 +2,7 @@ paho-mqtt>=1.5.0
 cryptography>=3.0
 oauth2_client
 requests
-numpy
 pytz
-typing
 argparse
 androguard
 pycryptodomex

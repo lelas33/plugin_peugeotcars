@@ -147,9 +147,10 @@ res = psacc.get_vehicles()
 print(f"\nYour vehicles: {res}")
 
 ## Manage OTP ans SMS procedure
-# request for OPT => SMS request
-print("Request for OTP: SMS shall be received (first time only)")
+# request for OPT => SMS request, and remove existing "opt.bin" file
+print("Request for OTP: SMS shall be received (on the phone associated to the MyPeugeot account)")
 otp = psacc.get_sms_otp_code()
+os.remove("otp.bin")
 
 ## Charge control
 charge_controls = ChargeControls()
