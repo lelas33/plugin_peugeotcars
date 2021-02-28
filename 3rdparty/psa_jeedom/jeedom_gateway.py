@@ -39,6 +39,8 @@ if __name__ == "__main__":
     logger.info("server start")
     os.chdir(args.base_path)
     logger.info("Current directory:"+os.getcwd())
+    logger.info("sms code:"+args.smscode)
+    logger.info("pin code:"+args.pincode)
     myp = MyPSACC.load_config()
     myp.set_codes(args.smscode, args.pincode)
     atexit.register(myp.save_config)

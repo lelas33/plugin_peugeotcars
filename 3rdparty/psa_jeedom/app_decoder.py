@@ -149,7 +149,7 @@ print(f"\nYour vehicles: {res}")
 ## Manage OTP ans SMS procedure
 # request for OPT => SMS request
 print("Request for OTP: SMS shall be received (first time only)")
-otp = psacc.load_otp()
+otp = psacc.get_sms_otp_code()
 
 ## Charge control
 charge_controls = ChargeControls()

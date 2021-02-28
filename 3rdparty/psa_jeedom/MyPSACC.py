@@ -221,7 +221,7 @@ class MyPSACC:
     def load_otp(self):
         otp_session = load_otp()
         if otp_session is None:
-            self.get_sms_otp_code()
+            # self.get_sms_otp_code()
             otp_session = new_otp_session(self.sms_code, self.pin_code)
         return otp_session
 
