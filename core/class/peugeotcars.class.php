@@ -68,9 +68,9 @@ class peugeotcars extends eqLogic {
       exec($cmd, $output2, $return_var);
       $cmd = "python3 -m pip list | grep oauth2-client";
       exec($cmd, $output3, $return_var);
-      #log::add('peugeotcars', 'info', 'dependancy_info:'.$output1[0]);
-      #log::add('peugeotcars', 'info', 'dependancy_info:'.$output2[0]);
-      #log::add('peugeotcars', 'info', 'dependancy_info:'.$output3[0]);
+      //log::add('peugeotcars', 'info', 'dependancy_info:'.$output1[0]);
+      //log::add('peugeotcars', 'info', 'dependancy_info:'.$output2[0]);
+      //log::add('peugeotcars', 'info', 'dependancy_info:'.$output3[0]);
       if (($output1[0] != "") && ($output2[0] != "") && ($output3[0] != "")) {
         $return['state'] = 'ok';
       }
@@ -79,7 +79,9 @@ class peugeotcars extends eqLogic {
     
     public static function dependancy_install() {
       log::remove(__CLASS__ . '_update');
-      return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('peugeotcars') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_update'));
+      $add_params = " " . config::byKey('account', 'peugeotcars') . " " . config::byKey('password', 'peugeotcars');
+      log::add('peugeotcars', 'info', 'dependancy_install:'.$add_params);
+      return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('peugeotcars') . '/dependance' . $add_params, 'log' => log::getPathToLog(__CLASS__ . '_update'));
     }
 
     // Gestion du daemon (interface vers serveur MQTT PSA)
