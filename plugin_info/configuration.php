@@ -24,15 +24,27 @@ if (!isConnect('admin')) {
 
 <form class="form-horizontal" id="config">
     <div class="form-group">
-        <label class="col-lg-4 control-label">{{Compte Peugeot}}</label>
+        <label class="col-lg-4 control-label">{{Login compte Peugeot}}</label>
         <div class="col-lg-3">
             <input class="configKey form-control" data-l1key="account"/>
         </div>
     </div>
     <div class="form-group">
-        <label class="col-lg-4 control-label">{{Password Peugeot}}</label>
+        <label class="col-lg-4 control-label">{{Password compte Peugeot}}</label>
         <div class="col-lg-3">
             <input class="configKey form-control" data-l1key="password" type="password"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-4 control-label">{{Code PIN Appli Peugeot}}</label>
+        <div class="col-lg-3">
+            <input class="configKey form-control" data-l1key="code_pin" type="password"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-4 control-label">{{Code reçu par SMS}}</label>
+        <div class="col-lg-3">
+            <input class="configKey form-control" data-l1key="code_sms"/>
         </div>
     </div>
 </form>

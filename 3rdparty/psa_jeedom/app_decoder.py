@@ -138,7 +138,6 @@ except:
     exit(1)
 
 # Psacc
-
 psacc = MyPSACC(None, client_id, client_secret, remote_refresh_token, customer_id, BRAND[package_name]["realm"])
 psacc.connect(client_email, client_password)
 
@@ -146,6 +145,11 @@ os.chdir(current_dir)
 psacc.save_config(name="config.json")
 res = psacc.get_vehicles()
 print(f"\nYour vehicles: {res}")
+
+## Manage OTP ans SMS procedure
+# request for OPT => SMS request
+print("Request for OTP: SMS shall be received (first time only)")
+otp = psacc.load_otp()
 
 ## Charge control
 charge_controls = ChargeControls()

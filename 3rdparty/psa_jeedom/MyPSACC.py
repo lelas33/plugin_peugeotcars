@@ -132,6 +132,10 @@ class MyPSACC:
     def connect(self, user, password):
         self.manager.init_with_user_credentials(user, password, self.realm)
 
+    def set_codes(self, sms_code, pin_code):
+        self.sms_code = sms_code
+        self.pin_code = pin_code
+
     def __init__(self, refresh_token, client_id, client_secret, remote_refresh_token, customer_id, realm, proxies=None, weather_api = None):
         self.realm = realm
         self.service_information = ServiceInformation(authorize_service,
@@ -218,7 +222,7 @@ class MyPSACC:
         otp_session = load_otp()
         if otp_session is None:
             self.get_sms_otp_code()
-            otp_session = new_otp_session()
+            otp_session = new_otp_session(self.sms_code, self.pin_code)
         return otp_session
 
     def get_sms_otp_code(self):

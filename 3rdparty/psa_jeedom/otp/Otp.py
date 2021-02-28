@@ -294,10 +294,10 @@ def load_otp():
         logger.debug(traceback.format_exc())
     return None
 
-def new_otp_session():
+def new_otp_session(sms_code, pin_code):
     otp = Otp("bb8e981582b0f31353108fb020bead1c")
-    otp.smsCode = input("What is the code you just received by SMS ?")
-    otp.codepin = input("What is your app pin code ?")
+    otp.smsCode = sms_code # input("What is the code you just received by SMS ?")
+    otp.codepin = pin_code # input("What is your app pin code ?")
     otp.activation_start()
     otp.activation_finalyze()
     save_otp(otp)
