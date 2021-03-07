@@ -29,6 +29,12 @@ var gps_pts_nb = 0;
 var table_trips = null;
 var veh_batt_cap = 0;   // Capacité batterie vehicule
 
+var precond_progs = // Programmes du preconditionnement
+  { "program1": {"day": [0, 0, 0, 0, 0, 0, 0], "hour": 0, "minute": 0, "on": 0},
+    "program2": {"day": [0, 0, 0, 0, 0, 0, 0], "hour": 0, "minute": 0, "on": 0},
+    "program3": {"day": [0, 0, 0, 0, 0, 0, 0], "hour": 0, "minute": 0, "on": 0},
+    "program4": {"day": [0, 0, 0, 0, 0, 0, 0], "hour": 0, "minute": 0, "on": 0} };
+
 const TRIPS_COLOR_NAMES = [
   "Aquamarine",
   "Blue",
@@ -76,6 +82,7 @@ const TRIPS_COLOR_NAMES = [
 const NB_TRIPS_COLORS = TRIPS_COLOR_NAMES.length;
 var veh_trip_loaded = 0;
 var veh_stat_loaded = 0;
+var veh_cfg_loaded  = 0;
 var veh_info_loaded = 0;
 var veh_maint_loaded = 0;
 
@@ -108,6 +115,13 @@ $('.nav li a').click(function(){
     if (veh_stat_loaded == 0) {
       loadStats();
       veh_stat_loaded = 1;
+    }
+  }
+  else if (selected_tab == "#car_config_tab") {
+    if (veh_cfg_loaded == 0) {
+      cfg_disp_precond_programs();
+      pp_get_progs_from_server("car");
+      veh_cfg_loaded = 1;
     }
   }
   else if (selected_tab == "#car_info_tab") {
@@ -751,6 +765,271 @@ function trips_stats(stat_data) {
       series: energy_series
   });
 
+}
+
+
+// =======================================================================
+//                Gestion de la page configuration véhicule
+// =======================================================================
+
+// Affichage des programmes de preconditionnement => DIV "precond_program"
+// =======================================================================
+function cfg_disp_precond_programs(){
+const DOW = [ "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam.", "Dim." ];
+  
+  $("#precond_program").empty();
+  prg = '';
+  for (prog=0; prog<4; prog++) {
+    prg += '<div class="form-group">';
+    prg += '<label style="margin-top:8px;" class="col-sm-2 control-label" >{{Programme:'+(prog+1)+'}}</label>';
+    prg += '<div class="col-md-3">';
+    prg += '<input type="checkbox" class="eqLogicAttr" id="ck_pp'+prog+'"/>';
+    prg += '<a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id="bt_pp'+prog+'_hp">{{h+}}</a>';
+    prg += '<a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id="bt_pp'+prog+'_hm">{{h-}}</a>';
+    prg += '<input type="text" style="display : inline-block; width: 60px;margin-left: 10px;margin-right: 10px;" class="eqLogicAttr form-control roundedLeft" id="in_pe_'+prog+'"/>';
+    prg += '<a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id="bt_pp'+prog+'_mp">{{m+}}</a>';
+    prg += '<a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id="bt_pp'+prog+'_mm">{{m-}}</a>';
+    prg += '</div>';
+    prg += '<div class="col-md-5">';
+    for (day=0; day<7; day++) {
+      prg += DOW[day];
+      prg += '<input type="checkbox" class="eqLogicAttr" id="ck_pp'+prog+'_'+day+'"/>';
+    }
+    prg += '</div>';
+    prg += '</div>';
+  }
+  $("#precond_program").append(prg);
+  
+  // mise à jour programmes de preconditionnement
+  // for (prog = 0; prog<4; prog++) {
+    // $('#bt_pp'+prog+'_hp').on('click',function(){change_time(prog, 1, 0); });
+    // $('#bt_pp'+prog+'_hm').on('click',function(){change_time(prog,-1, 0); });
+    // $('#bt_pp'+prog+'_mp').on('click',function(){change_time(prog, 0, 1); });
+    // $('#bt_pp'+prog+'_mm').on('click',function(){change_time(prog, 0,-1); });
+  // }
+  $('#bt_pp0_hp').on('click',function(){change_time(0, 1, 0); });
+  $('#bt_pp0_hm').on('click',function(){change_time(0,-1, 0); });
+  $('#bt_pp0_mp').on('click',function(){change_time(0, 0, 1); });
+  $('#bt_pp0_mm').on('click',function(){change_time(0, 0,-1); });
+  $('#bt_pp1_hp').on('click',function(){change_time(1, 1, 0); });
+  $('#bt_pp1_hm').on('click',function(){change_time(1,-1, 0); });
+  $('#bt_pp1_mp').on('click',function(){change_time(1, 0, 1); });
+  $('#bt_pp1_mm').on('click',function(){change_time(1, 0,-1); });
+  $('#bt_pp2_hp').on('click',function(){change_time(2, 1, 0); });
+  $('#bt_pp2_hm').on('click',function(){change_time(2,-1, 0); });
+  $('#bt_pp2_mp').on('click',function(){change_time(2, 0, 1); });
+  $('#bt_pp2_mm').on('click',function(){change_time(2, 0,-1); });
+  $('#bt_pp3_hp').on('click',function(){change_time(3, 1, 0); });
+  $('#bt_pp3_hm').on('click',function(){change_time(3,-1, 0); });
+  $('#bt_pp3_mp').on('click',function(){change_time(3, 0, 1); });
+  $('#bt_pp3_mm').on('click',function(){change_time(3, 0,-1); });
+}
+
+// Mise à jour des programmes de préconditionnement
+// ================================================
+// Fonctions de gestions de la config. planification
+// =================================================
+// fonction de conversion string <=> time
+function str_to_date(tm_str) {
+	var dtm=0;
+  hm = tm_str.split(':');
+  dtm = parseInt(hm[0])*60+parseInt(hm[1]); // nombre de minutes
+  return dtm;
+}
+
+function date_to_str(tm_min) {
+	var str="";
+  min = tm_min%60;
+  hr =  Math.floor(tm_min/60);
+  dtm = (min<10)?'0'+min.toString():min.toString();
+  dth = (hr<10)?'0'+hr.toString():hr.toString();
+  str = dth+":"+dtm;
+  return (str);
+}
+
+function date_to_str2(hr,min) {
+	var str="";
+  dtm = (min<10)?'0'+min.toString():min.toString();
+  dth = (hr<10)?'0'+hr.toString():hr.toString();
+  str = dth+":"+dtm;
+  return (str);
+}
+
+function change_time(prog, h_pm, m_pm) {
+  txt = $('#in_pe_'+prog).value();
+  if ((txt === undefined) || (txt == "")) {
+    txt = "00:00";
+  }
+  dtm = str_to_date(txt);
+  if ((h_pm==1) && (dtm < 23*60))
+    dtm = dtm + 60; // + 60mn
+  else if ((h_pm==-1) && (dtm >= 60))
+    dtm = dtm - 60; // - 60mn
+  else if ((m_pm==1) && (dtm < 24*60-5))
+    dtm = dtm + 5;  // + 5mn
+  else if ((m_pm==-1) && (dtm >= 5))
+    dtm = dtm - 5;  // - 5mn
+  txt = date_to_str(dtm);
+  $('#in_pe_'+prog).val(txt);  
+}
+
+// gestion des boutons associés au préconditionnement
+// ==================================================
+// note: Sauvegarde des programmes courants dans un fichier sur le serveur
+
+// Get programs details from HTML form
+function get_pp_form() {
+  // Programs enable
+  precond_progs.program1.on = 0;
+  precond_progs.program2.on = 0;
+  precond_progs.program3.on = 0;
+  precond_progs.program4.on = 0;
+  if ($('#ck_pp0').is(":checked")) precond_progs.program1.on = 1;
+  if ($('#ck_pp1').is(":checked")) precond_progs.program2.on = 1;
+  if ($('#ck_pp2').is(":checked")) precond_progs.program3.on = 1;
+  if ($('#ck_pp3').is(":checked")) precond_progs.program4.on = 1;
+    
+  // Programs start hour
+  txt = $('#in_pe_0').value();
+  hm = txt.split(':');
+  precond_progs.program1.hour = parseInt(hm[0]);
+  precond_progs.program1.minute = parseInt(hm[1]);
+  txt = $('#in_pe_1').value();
+  hm = txt.split(':');
+  precond_progs.program2.hour = parseInt(hm[0]);
+  precond_progs.program2.minute = parseInt(hm[1]);
+  txt = $('#in_pe_2').value();
+  hm = txt.split(':');
+  precond_progs.program3.hour = parseInt(hm[0]);
+  precond_progs.program3.minute = parseInt(hm[1]);
+  txt = $('#in_pe_3').value();
+  hm = txt.split(':');
+  precond_progs.program4.hour = parseInt(hm[0]);
+  precond_progs.program4.minute = parseInt(hm[1]);
+
+  // day enable by programm
+  for (day=0; day<7; day++) {
+    if ($('#ck_pp0_'+day).is(":checked")) precond_progs.program1.day[day] = 1; else precond_progs.program1.day[day] = 0;
+    if ($('#ck_pp1_'+day).is(":checked")) precond_progs.program2.day[day] = 1; else precond_progs.program2.day[day] = 0;
+    if ($('#ck_pp2_'+day).is(":checked")) precond_progs.program3.day[day] = 1; else precond_progs.program3.day[day] = 0;
+    if ($('#ck_pp3_'+day).is(":checked")) precond_progs.program4.day[day] = 1; else precond_progs.program4.day[day] = 0;
+  }
+}
+
+// Set programs details to HTML form
+function set_pp_form() {
+  // Programs enable
+  $("#ck_pp0").prop( "checked", (precond_progs.program1.on == 1)?true:false);
+  $("#ck_pp1").prop( "checked", (precond_progs.program2.on == 1)?true:false);
+  $("#ck_pp2").prop( "checked", (precond_progs.program3.on == 1)?true:false);
+  $("#ck_pp3").prop( "checked", (precond_progs.program4.on == 1)?true:false);
+
+  // Programs start hour
+  $('#in_pe_0').val(date_to_str2(precond_progs.program1.hour, precond_progs.program1.minute));
+  $('#in_pe_1').val(date_to_str2(precond_progs.program2.hour, precond_progs.program2.minute));
+  $('#in_pe_2').val(date_to_str2(precond_progs.program3.hour, precond_progs.program3.minute));
+  $('#in_pe_3').val(date_to_str2(precond_progs.program4.hour, precond_progs.program4.minute));
+
+  // day enable by programm
+  for (day=0; day<7; day++) {
+    $('#ck_pp0_'+day).prop( "checked", (precond_progs.program1.day[day] == 1)?true:false);
+    $('#ck_pp1_'+day).prop( "checked", (precond_progs.program2.day[day] == 1)?true:false);
+    $('#ck_pp2_'+day).prop( "checked", (precond_progs.program3.day[day] == 1)?true:false);
+    $('#ck_pp3_'+day).prop( "checked", (precond_progs.program4.day[day] == 1)?true:false);
+  }
+}
+
+// Sauvegarde en local des programmes
+$('#btpp_save').on('click',function(){
+  console.log("Préconditionnement:Save");
+  get_pp_form();
+  var pprog_js = JSON.stringify(precond_progs);
+  pp_set_progs_to_server(pprog_js, "file");
+});
+
+// Lecture des programmes depuis la sauvegarde locale
+$('#btpp_load').on('click',function(){
+  console.log("Préconditionnement:Load");
+  pp_get_progs_from_server("file");
+});
+
+// Import des programmes depuis le vehicule
+$('#btpp_getfromcar').on('click',function(){
+  console.log("Préconditionnement:Import");
+  pp_get_progs_from_server("car");
+});
+
+// Envoi des programmes vers le vehicule
+$('#btpp_pushtocar').on('click',function(){
+  console.log("Préconditionnement:Export");
+  get_pp_form();
+  var pprog_js = JSON.stringify(precond_progs);
+  pp_set_progs_to_server(pprog_js, "car");
+});
+
+// Envoi des programmes de preconditionnement au serveur
+// =====================================================
+function pp_set_progs_to_server(pprog_js, pp_to) {
+
+    globalEqLogic = $("#eqlogic_select option:selected").val();
+    $.ajax({
+        type: 'POST',
+        url: 'plugins/peugeotcars/core/ajax/peugeotcars.ajax.php',
+        data: {
+            action: 'setPreconProgs',
+            eqLogic_id: globalEqLogic,  // VIN du vehicule
+            pp_to: pp_to,               // vers fichier ou vehicule
+            param: pprog_js             // programmes, sous forme JSON
+        },
+        dataType: 'json',
+        error: function (request, status, error) {
+            alert("pp_set_progs_to_server:Error"+status+"/"+error);
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            console.log("[pp_set_progs_to_server]:OK");
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+        }
+    });
+}
+
+// reception des programmes de preconditionnement depuis le serveur
+// ================================================================
+function pp_get_progs_from_server(pp_from) {
+
+    globalEqLogic = $("#eqlogic_select option:selected").val();
+    $.ajax({
+        type: 'POST',
+        url: 'plugins/peugeotcars/core/ajax/peugeotcars.ajax.php',
+        data: {
+            action: 'getPreconProgs',
+            eqLogic_id: globalEqLogic,  // VIN du vehicule
+            pp_from: pp_from,           // depuis fichier ou vehicule
+        },
+        dataType: 'json',
+        error: function (request, status, error) {
+            alert("pp_get_progs_from_server:Error"+status+"/"+error);
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+            if ((data.result != "") && (data.result != null)) {
+              console.log("[pp_get_progs_from_server]:OK");              
+              console.log("[pp_get_progs_from_server]:"+data.result);              
+              precond_progs = JSON.parse(data.result);
+              set_pp_form();
+            }
+            else {
+              console.log("[pp_get_progs_from_server]:No data received");              
+            }
+        }
+    });
 }
 
 

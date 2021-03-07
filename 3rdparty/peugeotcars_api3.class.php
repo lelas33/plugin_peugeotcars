@@ -327,6 +327,25 @@ class peugeotcars_api3 {
     $toltalSeconds = ($hours * 60 * 60) + ($minutes * 60) + $seconds;
     return $toltalSeconds;
   }
+  
+  // convertion format date
+  function ISO8601ToHMS($ISO8601)
+  {
+    preg_match('/\d{1,2}[H]/', $ISO8601, $hours);
+    preg_match('/\d{1,2}[M]/', $ISO8601, $minutes);
+    preg_match('/\d{1,2}[S]/', $ISO8601, $seconds);
+    $duration = [
+      'hours'   => $hours ? $hours[0] : 0,
+      'minutes' => $minutes ? $minutes[0] : 0,
+      'seconds' => $seconds ? $seconds[0] : 0,
+    ];
+    $hms = [];
+    $hms['H'] = substr($duration['hours'], 0, -1);
+    $hms['M'] = substr($duration['minutes'], 0, -1);
+    $hms['S'] = substr($duration['seconds'], 0, -1);
+    return $hms;
+  }
+
   // Get vehicule status
   function pg_api_vehicles_status()
   {
@@ -381,24 +400,7 @@ class peugeotcars_api3 {
       $elec_id = 0;
       $fuel_id = 0;
     }
-    // if ($veh_type == "electric") {
-      // $elec_id = 0;
-      // $fuel_id = 0;
-    // }
-    // else if ($veh_type == "hybrid") {
-      // if (strtolower($ret["result"]->energy[0]->type) == "electric") {
-        // $elec_id = 0;
-        // $fuel_id = 1;
-      // }
-      // else {
-        // $elec_id = 1;
-        // $fuel_id = 0;
-      // }
-    // }
-    // else {
-      // $elec_id = 0;
-      // $fuel_id = 0;
-    // }
+
     $retf["batt_level"]   = $ret["result"]->energy[$elec_id]->level;
     $retf["batt_autonomy"]= $ret["result"]->energy[$elec_id]->autonomy;
     $retf["charging_plugged"] = $ret["result"]->energy[$elec_id]->charging->plugged;
@@ -427,7 +429,47 @@ class peugeotcars_api3 {
     return $retf;
   }
 
-  // Get vehicule status
+  // Get vehicule Preconditionning programs
+  function pg_api_vehicles_precond()
+  {
+    $param = "user/vehicles/".$this->vehicle_id."/status?client_id=".$this->client_id;
+    $ret = $this->get_api_psa_conn_car($param);
+    //var_dump($ret["info"]);
+    if ($this->debug_api)
+      var_dump($ret["result"]);
+    $retf = [];
+
+    $retf["pr_status"] = $ret["result"]->preconditionning->airConditioning->status;
+    if (isset($ret["result"]->preconditionning->airConditioning->programs)) {
+      $retf["pp_no_prog"] = 0;
+      $retf["pp_active_number"] = count($ret["result"]->preconditionning->airConditioning->programs);
+      for ($prog=0; $prog<$retf["pp_active_number"]; $prog++) {
+        $retf["pp_prog"][$prog]["slot"] = $ret["result"]->preconditionning->airConditioning->programs[$prog]->slot;
+        $retf["pp_prog"][$prog]["enabled"] = ($ret["result"]->preconditionning->airConditioning->programs[$prog]->enabled)?1:0;
+        $hms_start = $this->ISO8601ToHMS($ret["result"]->preconditionning->airConditioning->programs[$prog]->start);
+        $retf["pp_prog"][$prog]["hour"] = $hms_start['H'];
+        $retf["pp_prog"][$prog]["minute"] = $hms_start['M'];
+        $pp_days = $ret["result"]->preconditionning->airConditioning->programs[$prog]->occurence->day;
+        $retf["pp_prog"][$prog]["day"] = [0,0,0,0,0,0,0];
+        foreach ($pp_days as $day) {
+          if     ($day == "Mon") $retf["pp_prog"][$prog]["day"][0] = 1;
+          elseif ($day == "Tue") $retf["pp_prog"][$prog]["day"][1] = 1;
+          elseif ($day == "Wed") $retf["pp_prog"][$prog]["day"][2] = 1;
+          elseif ($day == "Thu") $retf["pp_prog"][$prog]["day"][3] = 1;
+          elseif ($day == "Fri") $retf["pp_prog"][$prog]["day"][4] = 1;
+          elseif ($day == "Sat") $retf["pp_prog"][$prog]["day"][5] = 1;
+          elseif ($day == "Sun") $retf["pp_prog"][$prog]["day"][6] = 1;
+        }
+      }
+    }
+    else {
+      $retf["pp_no_prog"] = 1;
+    }
+
+    return $retf;
+  }
+
+  // For tests only
   function pg_api_vehicles_test()
   {
 //    $param = "user/vehicles/".$this->vehicle_id."/maintenance?client_id=".$this->client_id;

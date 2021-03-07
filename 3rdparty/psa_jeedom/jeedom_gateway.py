@@ -5,8 +5,8 @@ import os
 import time
 from oauth2_client.credentials_manager import OAuthError
 from threading import Thread
-
 import argparse
+import base64
 
 from MyLogger import my_logger
 from MyLogger import logger
@@ -20,10 +20,7 @@ parser = argparse.ArgumentParser()
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", help="enable debug", const=10, default=20, nargs='?', metavar='Debug level number')
-    parser.add_argument("-m", "--mail", help="set the email address")
-    parser.add_argument("-P", "--password", help="set the password")
-    parser.add_argument("-s", "--smscode", help="set sms code for OTP")
-    parser.add_argument("-p", "--pincode", help="set appli pin code")
+    parser.add_argument("-m", "--param", help="configuration parameters")
     parser.add_argument("-b", "--base-path", help="base path for plugin",default="/")
     parser.parse_args()
     return parser
@@ -39,17 +36,25 @@ if __name__ == "__main__":
     logger.info("server start")
     os.chdir(args.base_path)
     logger.info("Current directory:"+os.getcwd())
-    logger.info("sms code:"+args.smscode)
-    logger.info("pin code:"+args.pincode)
+    # get configuration parameters
+    param = args.param
+    params = base64.b64decode(param).decode('utf-8')
+    logger.info("param:"+param)
+    #logger.info("params:"+params)
+    param_set = params.split(",")
+    #logger.info("account:" +param_set[0])
+    #logger.info("password:"+param_set[1])
+    #logger.info("sms code:"+param_set[2])
+    #logger.info("pin code:"+param_set[3])
     myp = MyPSACC.load_config()
-    myp.set_codes(args.smscode, args.pincode)
+    myp.set_codes(param_set[2], param_set[3])
     atexit.register(myp.save_config)
     try:
         myp.manager._refresh_token()
     except OAuthError:
-        if args.mail and args.password:
-            client_email = args.mail
-            client_password = args.password
+        if param_set[0] and param_set[1]:
+            client_email = param_set[0]
+            client_password = param_set[1]
             myp.connect(client_email, client_password)
         else:
             logger.error("Mail and Password undefined")

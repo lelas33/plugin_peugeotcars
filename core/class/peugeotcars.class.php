@@ -23,12 +23,6 @@ require_once dirname(__FILE__) . '/../php/mqtt_com.php';
 
 define("CARS_FILES_DIR_CL", "/../../data/");
 
-// commandes vers le vehicule
-define("CMD_PRECOND",   0x10);
-define("CMD_CHARGING",  0x20);
-define("CMD_WAKEUP",    0x30);
-define("CMD_GET_STATE", 0x40);
-
 
 // 2 fichiers pour enregistrer les trajets en détails
 // car_trips.log: liste des trajets
@@ -41,7 +35,7 @@ define("CMD_GET_STATE", 0x40);
 //  * PTS_TS: Timestamp
 //  * PTS_LAT: Lattitude GPS
 //  * PTS_LON: Longitude GPS
-//  * PTS_HDN: Cap
+//  * PTS_ALT: Altitude
 //  * PTS_BATT: Niveau de la batterie en %
 //  * PTS_MLG: Kilométrage courant
 //  * PTS_KIN: Voiture en mouvement
@@ -96,13 +90,13 @@ class peugeotcars extends eqLogic {
     public static function deamon_start($_debug = false) {
 				self::deamon_stop();
         log::add('peugeotcars', 'info', 'Starting daemon');
+        $param = config::byKey('account', 'peugeotcars') . ',' . config::byKey('password', 'peugeotcars') . ',' . config::byKey('code_sms', 'peugeotcars') . ',' . config::byKey('code_pin', 'peugeotcars');
+        $param = base64_encode ($param);
 				$cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom/jeedom_gateway.py';
-        $cmd .= ' -m ' . config::byKey('account', 'peugeotcars');
-        $cmd .= ' -P ' . config::byKey('password', 'peugeotcars');
-        $cmd .= ' -s ' . config::byKey('code_sms', 'peugeotcars');
-        $cmd .= ' -p ' . config::byKey('code_pin', 'peugeotcars');
+        $cmd .= ' -m ' . $param;
         $cmd .= ' -b ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom';
 				$cmd .= ' >> ' . log::getPathToLog('peugeotcars') . ' 2>&1 &';
+
         log::add('peugeotcars', 'info', $cmd);
 				shell_exec($cmd);
         $i = 0;
@@ -623,6 +617,16 @@ class peugeotcars extends eqLogic {
           $precond_status = ($ret["precond_status"] == "Enabled")?1:0;
           //$cmd->event($precond_status);
           $this->checkAndUpdateCmd($cmd, $precond_status);
+          # gestion de l'arret de la charge si demandée
+          $cmd_batmax_val = $this->getCmd(null, 'charging_batmax_val');
+          $batmax_val = intval($cmd_batmax_val->execCmd());
+          if ((strtolower($charging_status) == "inprogress") && ($batmax_val < 100)) {
+            if ($batt_level >= $batmax_val) {
+              log::add('peugeotcars','info',"Interruption de la charge de la batterie. (Max level=".$batmax_val."% & Current level=".$batt_level."%)");
+            }
+          }
+          
+          
           // A minuit, mise à jour maintenance
 //          if (($heure==0) && ($minute==0)) {
 //            $login_ctr = $session_peugeotcars->pg_api_mym_login();

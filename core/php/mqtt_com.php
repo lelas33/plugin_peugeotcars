@@ -10,6 +10,12 @@
 define('HOST_MQTT_IP', '127.0.0.1');
 define('HOST_MQTT_PO', 65432);
 
+// commandes vers le vehicule
+define("CMD_PRECOND",       0x10);
+define("CMD_PRECOND_PROGS", 0x11);
+define("CMD_CHARGING",      0x20);
+define("CMD_WAKEUP",        0x30);
+define("CMD_GET_STATE",     0x40);
 
 // Open socket
 // -----------

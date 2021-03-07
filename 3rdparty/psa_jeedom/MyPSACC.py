@@ -442,6 +442,12 @@ class MyPSACC:
         self.mqtt_client.publish(MQTT_REQ_TOPIC + self.customer_id + "/ThermalPrecond", msg)
         return True
 
+    def preconditioning_progs(self, vin, progs):
+        msg = self.mqtt_request(vin, {"asap": "deactivate", "programs": progs})
+        logger.info(msg)
+        self.mqtt_client.publish(MQTT_REQ_TOPIC + self.customer_id + "/ThermalPrecond", msg)
+        return True
+
     def save_config(self, name="config.json", force=False):
         config_str = json.dumps(self, cls=MyPeugeotEncoder, sort_keys=True, indent=4).encode("utf8")
         new_hash = md5(config_str).hexdigest()

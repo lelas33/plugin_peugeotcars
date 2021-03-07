@@ -17,6 +17,7 @@
  */
 
 require_once dirname(__FILE__) . '/../../3rdparty/peugeotcars_api3.class.php';
+require_once dirname(__FILE__) . '/../php/mqtt_com.php';
 
 define("MYP_FILES_DIR",  "/../../data/MyPeugeot/");
 define("CARS_FILES_DIR", "/../../data/");
@@ -253,6 +254,104 @@ function get_car_infos($vin)
   return $info;
 }
 
+// ===========================================================
+//      Gestion des programmes de preconditionnement
+// ===========================================================
+function precond_set_programs($vin, $pp_to, $progs)
+{
+  if ($pp_to == "file") {
+    // Export to file
+    $fn_pp = dirname(__FILE__).CARS_FILES_DIR.$vin.'/precond.cfg';
+    file_put_contents($fn_pp, $progs, LOCK_EX);
+    return("OK");
+  }
+  else if ($pp_to == "car") {
+    // Export to car
+    // Test si deamon OK
+    $eq = eqLogic::byLogicalId($vin, "peugeotcars");
+    $deamon_info = $eq->deamon_info();
+    if ($deamon_info['state'] == 'nok') {
+      log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
+      return;
+    }
+    // Creation d'une liaison TCP/IP avec le serveur MQTT
+    $socket = mqtt_start_socket ();
+    // Construction du message
+    $prog = json_decode($progs);
+    $msg = [];
+    $ack = [];
+    $msg['cmd'] = CMD_PRECOND_PROGS;
+    $msg['nbp'] = 40;
+    $msg['param'] = array_fill (0, 40, 0);
+    $msg['param'][ 0] = $prog->program1->on; $msg['param'][ 1] = $prog->program1->hour; $msg['param'][ 2] = $prog->program1->minute;
+    $msg['param'][10] = $prog->program2->on; $msg['param'][11] = $prog->program2->hour; $msg['param'][12] = $prog->program2->minute;
+    $msg['param'][20] = $prog->program3->on; $msg['param'][21] = $prog->program3->hour; $msg['param'][22] = $prog->program3->minute;
+    $msg['param'][30] = $prog->program4->on; $msg['param'][31] = $prog->program4->hour; $msg['param'][32] = $prog->program4->minute;
+    for ($day=0; $day<7; $day++) {
+      $msg['param'][ 3+$day] = $prog->program1->day[$day];
+      $msg['param'][13+$day] = $prog->program2->day[$day];
+      $msg['param'][23+$day] = $prog->program3->day[$day];
+      $msg['param'][33+$day] = $prog->program4->day[$day];      
+    }
+    // Envoi du message de commande
+    mqtt_message_send ($socket, $msg, $ack);
+    // Fermeture du socket TCP/IP
+    mqtt_end_socket ($socket);
+  }
+}
+
+function precond_get_programs($vin, $pp_from)
+{
+  if ($pp_from == "file") {
+    // Read from file
+    $fn_pp = dirname(__FILE__).CARS_FILES_DIR.$vin.'/precond.cfg';
+    $progs = file_get_contents($fn_pp);
+    return($progs);
+  }
+  else if ($pp_from == "car") {
+    // Get status from car
+
+    // Login a l'API PSA
+    $session_peugeotcars = new peugeotcars_api3();
+    $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
+    $login_token = $session_peugeotcars->pg_api_login();   // Authentification
+    if ($login_token["status"] != "OK") {
+      log::add('peugeotcars','error',"Erreur Login API PSA");
+      return;  // Erreur de login API PSA
+    }
+    $ret = $session_peugeotcars->pg_api_vehicles($vin);
+    if ($ret["success"] == "KO") {
+      log::add('peugeotcars','error',"Erreur Login API PSA");
+      return;  // Erreur de login API PSA
+      }
+    // Get stus from car
+    $ret = $session_peugeotcars->pg_api_vehicles_precond();
+    // Fill the result
+    $pp_prog = [];
+    for ($prog=1; $prog<=4; $prog++) {
+      $pr_name = "program".$prog;
+      // init free programm
+      $pp_prog[$pr_name] = [];
+      $pp_prog[$pr_name]["day"] = [0,0,0,0,0,0,0];
+      $pp_prog[$pr_name]["hour"] = 0;
+      $pp_prog[$pr_name]["minute"] = 0;
+      $pp_prog[$pr_name]["on"] = 0;
+      // search if programm exist in car status
+      for ($idx=0; $idx<$ret["pp_active_number"]; $idx++){
+        if ($ret["pp_prog"][$idx]["slot"] == $prog) {
+          $pp_prog[$pr_name]["day"] = $ret["pp_prog"][$idx]["day"];
+          $pp_prog[$pr_name]["hour"] = intval($ret["pp_prog"][$idx]["hour"]);
+          $pp_prog[$pr_name]["minute"] = intval($ret["pp_prog"][$idx]["minute"]);
+          $pp_prog[$pr_name]["on"] = $ret["pp_prog"][$idx]["enabled"];
+        }
+      }
+    }
+    $progs = json_encode ($pp_prog);
+    return($progs);
+  }
+}
+
+
 // ======================================================================
 // Fourniture des informations de maintenance du véhicule (selon son VIN)
 // ======================================================================
@@ -353,6 +452,24 @@ try {
     $car_maint = get_car_maint($vin);
     $ret_json = json_encode ($car_maint);
     ajax::success($ret_json);
+    }
+
+  else if (init('action') == 'getPreconProgs') {
+    $vin = init('eqLogic_id');
+    $pp_from = init('pp_from');  // file or car
+    log::add('peugeotcars', 'info', 'Ajax:getPreconProgs<='.$pp_from);
+    $ret_json = precond_get_programs($vin, $pp_from);
+    // log::add('peugeotcars', 'info', 'Ajax:getPreconProgs:'.$ret_json);
+    ajax::success($ret_json);
+    }
+
+  else if (init('action') == 'setPreconProgs') {
+    $vin = init('eqLogic_id');
+    $pp_to = init('pp_to');     // file or car
+    $progs = init('param');     // programs
+    log::add('peugeotcars', 'info', 'Ajax:setPreconProgs=>'.$pp_to);
+    $res = precond_set_programs($vin, $pp_to, $progs);
+    ajax::success($res);
     }
 
     throw new Exception(__('Aucune methode correspondante à : ', __FILE__) . init('action'));
