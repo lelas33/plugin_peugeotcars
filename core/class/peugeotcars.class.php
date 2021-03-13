@@ -147,19 +147,19 @@ class peugeotcars extends eqLogic {
                       "conn_level"           => array('Niveau connection',   'info',  'numeric',    "", 1, 1, "GENERIC_INFO",   'peugeotcars::con_level',  'peugeotcars::con_level'),
                       "kinetic_moving"       => array('Voiture en mouvement','info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::veh_moving', 'peugeotcars::veh_moving'),
                       "record_period"        => array('Période enregistrement','info','numeric',    "", 1, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "charging_plugged"     => array('Prise de charge',     'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::plugged', 'peugeotcars::plugged'),
+                      "charging_plugged"     => array('Prise de charge',     'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_imdel_cmd"   => array('Immédiat/Différé',    'action','other',      "", 0, 1, "GENERIC_ACTION", 'peugeotcars::imm_diff', 'peugeotcars::imm_diff'),
                       "charging_imdel_val"   => array('Immédiat/Différé_',   'info',  'binary',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_del_hour_cmd"=> array('Set Heure départ',    'action','other',      "", 0, 1, "GENERIC_ACTION", 'peugeotcars::hour', 'peugeotcars::hour'),
                       "charging_del_hour"    => array('Heure départ',        'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "charging_update"      => array('Progr. Charge',       'action','other',      "", 0, 1, "GENERIC_ACTION", 'core::badge', 'core::badge'),
                       "charging_status"      => array('Statut charge',       'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_remain_time" => array('Temps de charge',     'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_end_time"    => array('Fin de charge',       'info',  'string',     "", 0, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_rate"        => array('Vitesse de charge',   'info',  'numeric',"km/h", 1, 1, "GENERIC_INFO",   'core::line', 'core::line'),
                       "charging_mode"        => array('Mode de charge',      'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_batmax_cmd"  => array('Charge batterie maxi','action','slider',     "", 0, 1, "GENERIC_ACTION", 'peugeotcars::SliderButton', 'peugeotcars::SliderButton'),
-                      "charging_batmax_val"  => array('Charge batterie maxi_','info',  'numeric',  "%", 1, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_batmax_val"  => array('Charge batterie maxi_','info', 'numeric',  "%", 1, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_state"       => array('Etat de la charge',   'info',  'numeric',    "", 1, 1, "GENERIC_INFO",   'peugeotcars::charging_state', 'peugeotcars::charging_state'),
                       "precond_status"       => array('Etat climatisation',  'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::clim', 'peugeotcars::clim'),
                       "precond_start"        => array('Start',               'action','other',      "", 0, 1, "GENERIC_ACTION", 'core::badge', 'core::badge'),
                       "precond_stop"         => array('Stop',                'action','other',      "", 0, 1, "GENERIC_ACTION", 'core::badge', 'core::badge'),
@@ -388,9 +388,7 @@ class peugeotcars extends eqLogic {
     // Fonction appelée au rythme de 1 mn (recupeartion des informations courantes de la voiture)
     // ==========================================================================================
     public static function pull() {
-      log::add('husqvarna_map','debug','Funcion pull');
       if (config::byKey('account', 'peugeotcars') != "" || config::byKey('password', 'peugeotcars') != "" ) {
-        log::add('peugeotcars','debug','Mise à jour périodique');
         foreach (self::byType('peugeotcars') as $eqLogic) {
           $eqLogic->periodic_state(0);
         }
@@ -398,6 +396,11 @@ class peugeotcars extends eqLogic {
     }
     // Lecture des statut du vehicule connecté
     public function periodic_state($rfh) {
+      if ($rfh == 1)
+        log::add('peugeotcars','debug','Mise à jour manuelle');
+      else
+        log::add('peugeotcars','debug','Mise à jour périodique');
+
       // V1 : API Connected car V3
       $minute = intval(date("i"));
       $heure  = intval(date("G"));
@@ -519,10 +522,10 @@ class peugeotcars extends eqLogic {
             $lon_home = deg2rad(floatval(config::byKey("info::longitude")));
             $lat_veh = deg2rad(floatval($ret["gps_lat"]));
             $lon_veh = deg2rad(floatval($ret["gps_lon"]));
-            $dist = 6371.01 * acos(sin($lat_home)*sin($lat_veh) + cos($lat_home)* cos($lat_veh)*cos($lon_home - $lon_veh)); // calcul de la distance
-            $dist = number_format($dist, 3, '.', '');//formatage 3 décimales
+            $dist_home = 6371.01 * acos(sin($lat_home)*sin($lat_veh) + cos($lat_home)* cos($lat_veh)*cos($lon_home - $lon_veh)); // calcul de la distance
+            $dist_home = number_format($dist_home, 3, '.', '');//formatage 3 décimales
             $cmd_dis_home = $this->getCmd(null, "gps_dist_home");
-            $cmd_dis_home->event($dist);
+            $cmd_dis_home->event($dist_home);
           }
           // Autres infos
           $cmd = $this->getCmd(null, "conn_level");
@@ -569,17 +572,15 @@ class peugeotcars extends eqLogic {
               $cmd_gps->save();
             }
           }
-          // Log position courante vers GPS log file
-//          if (($gps_position !== $previous_gps_position) || ($trip_event == 1)) {
-            if ($gps_pts_ok == true) {
-              $gps_log_dt = $ctime.",".$gps_position.",".$batt_level.",".$mileage.",".$kinetic_moving."\n";
-              log::add('peugeotcars','debug',"Refresh->recording Gps_dt=".$gps_log_dt);
-              file_put_contents($fn_car_gps, $gps_log_dt, FILE_APPEND | LOCK_EX);
-            }
-            // enregistre le ts du point courant
-            $cmd_mlg->setConfiguration('prev_ctime', $ctime);
-            $cmd_mlg->save();
-//          }
+          // Log position courante vers GPS log file (pas si vehicule à l'arrêt "à la maison")
+          if (($gps_pts_ok == true) && (($dist_home > 0.050) || ($kinetic_moving == 1))) {
+            $gps_log_dt = $ctime.",".$gps_position.",".$batt_level.",".$mileage.",".$kinetic_moving."\n";
+            log::add('peugeotcars','debug',"Refresh->recording Gps_dt=".$gps_log_dt);
+            file_put_contents($fn_car_gps, $gps_log_dt, FILE_APPEND | LOCK_EX);
+          }
+          // enregistre le ts du point courant
+          $cmd_mlg->setConfiguration('prev_ctime', $ctime);
+          $cmd_mlg->save();
           
           // Si le vehicule est en mouvement, passage en record toute les minutes, et au moins pour 5 mn
           if ($kinetic_moving == 1) {
@@ -593,6 +594,7 @@ class peugeotcars extends eqLogic {
           $cmd_record_period->event($record_period);
           // Chargement batterie
           $cmd = $this->getCmd(null, "charging_plugged");
+          $prev_charging_plugged = $cmd->execCmd();
           $charging_plugged = $ret["charging_plugged"];
           $cmd->event($charging_plugged);
           $cmd = $this->getCmd(null, "charging_status");
@@ -617,7 +619,7 @@ class peugeotcars extends eqLogic {
           $precond_status = ($ret["precond_status"] == "Enabled")?1:0;
           //$cmd->event($precond_status);
           $this->checkAndUpdateCmd($cmd, $precond_status);
-          # gestion de l'arret de la charge si demandée
+          // gestion de l'arret de la charge si demandée
           $cmd_batmax_val = $this->getCmd(null, 'charging_batmax_val');
           $batmax_val = intval($cmd_batmax_val->execCmd());
           if ((strtolower($charging_status) == "inprogress") && ($batmax_val < 100)) {
@@ -625,7 +627,41 @@ class peugeotcars extends eqLogic {
               log::add('peugeotcars','info',"Interruption de la charge de la batterie. (Max level=".$batmax_val."% & Current level=".$batt_level."%)");
             }
           }
-          
+          // gestion de l'etat courant de la charge
+          // Etats possibles:
+          //  * (0):off     => "Pas de charge en cours ou prévue". (prise débranchée)             => [couleur=gris fixe]
+          //  * (1):pending => "Prise branchée, mode différé, et attente de l'heure de départ"    => [couleur=bleu fixe]
+          //  * (2):charging=> "Charge en cours"                                                  => [couleur=vert clignotant]
+          //  * (3):finished=> "Charge terminée"                                                  => [couleur=vert fixe]
+          // Lorsque l'on détecte le branchement de la prise, on (re-)lance une configuration du mode immédiat/différé + heure de départ
+          $cmd_cs = $this->getCmd(null, "charging_state");
+          $charging_state = $cmd_cs->execCmd();
+          log::add('peugeotcars','debug',"charging_state:".$charging_state);
+          if ($charging_state == NULL)
+            $new_charging_state = 0;
+          if ($charging_plugged == '0') {
+            $new_charging_state = 0;
+          }
+          else if (($prev_charging_plugged == 0) && ($charging_plugged == 1)) {
+            // detection du branchement de la prise => lancement configuration du mode immédiat/différé + heure de départ
+            log::add('peugeotcars','debug',"Branchement de la prise de charge détecté");
+            $imm_diff = $this->cfg_charging();
+            if ($imm_diff == 0)
+              $new_charging_state = 1;  // si mode différé
+            else
+              $new_charging_state = 2;  // si mode immédiat
+          }
+          else if ($charging_state == 1) {
+            // Attente de l'heure de charge
+            if (strtolower($charging_status) == "inprogress")
+              $new_charging_state = 2;
+          }
+          else if ($charging_state == 2) {
+            // charge en cours
+            if (strtolower($charging_status) == "finished")
+              $new_charging_state = 0;
+          }
+          $cmd_cs->event($new_charging_state);
           
           // A minuit, mise à jour maintenance
 //          if (($heure==0) && ($minute==0)) {
@@ -711,6 +747,24 @@ class peugeotcars extends eqLogic {
 
     return;
   }
+
+
+  // =====================================================
+  // Fonction de configuration des parametres de la charge
+  // =====================================================
+  public function cfg_charging() {
+    $cmd_imm_diff = $this->getCmd(null, 'charging_imdel_val');
+    $cmd_del_hour = $this->getCmd(null, 'charging_del_hour');
+    if ((is_object($cmd_imm_diff)) && (is_object($cmd_del_hour))) {
+      $imm_diff = $cmd_imm_diff->execCmd();
+      $del_hour = $cmd_del_hour->execCmd();
+      list($del_hr, $del_mn) = explode(":", $del_hour);
+      log::add('peugeotcars','info',"Envoi requete paramètres de chargement => Imm_Diff / Heure = ".$imm_diff." / ".$del_hr.":".$del_mn);
+      $this->mqtt_submit(CMD_CHARGING, intval($imm_diff), intval($del_hr), intval($del_mn));
+      return($imm_diff);
+    }
+  }
+
 }
 
 
@@ -722,7 +776,6 @@ class peugeotcarsCmd extends cmd
     public function execute($_options = null) {
         //log::add('peugeotcars','info',"execute:".$_options['message']);
         if ($this->getLogicalId() == 'refresh') {
-          log::add('peugeotcars','info',"Refresh data");
           if (config::byKey('account', 'peugeotcars') != "" || config::byKey('password', 'peugeotcars') != "" ) {
             foreach (eqLogic::byType('peugeotcars') as $eqLogic) {
               $eqLogic->periodic_state(1);
@@ -769,19 +822,10 @@ class peugeotcarsCmd extends cmd
           if (is_object($cmd_ass)) {
             $cmd_ass->event($new_batmax);
           }
-        }
-        else if ($this->getLogicalId() == 'charging_update') {
-          $eqLogic = $this->getEqLogic();
-          $cmd_imm_diff = $eqLogic->getCmd(null, 'charging_imdel_val');
-          $cmd_del_hour = $eqLogic->getCmd(null, 'charging_del_hour');
-          if ((is_object($cmd_imm_diff)) && (is_object($cmd_del_hour))) {
-            $imm_diff = $cmd_imm_diff->execCmd();
-            $del_hour = $cmd_del_hour->execCmd();
-            list($del_hr, $del_mn) = explode(":", $del_hour);
-            // log::add('peugeotcars','info',"Envoi requete paramètres de chargement => Imm_Diff / Heure = ".$imm_diff." / ".$del_hr.":".$del_mn);
-            peugeotcars::mqtt_submit(CMD_CHARGING, intval($imm_diff), intval($del_hr), intval($del_mn));
-          }
-
+          // for tests
+          $cmd_cs = $eqLogic->getCmd(null, 'charging_state');
+          $new_charging_state = (intval($_options['slider']) / 5)%5;
+          $cmd_cs->event($new_charging_state);
         }
         else if ($this->getLogicalId() == 'test_mqtt1') {
           $eqLogic = $this->getEqLogic();

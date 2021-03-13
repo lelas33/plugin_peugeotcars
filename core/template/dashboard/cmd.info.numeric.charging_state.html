@@ -1,0 +1,43 @@
+<div style="width:130px;" class="#history# tooltips cmd cmd-widget" data-type="info" data-subtype="numeric" data-cmd_id="#id#" title="#collectDate#" >
+  <div class="title #hide_name#">
+    <div class="cmdName">#name_display#</div>
+  </div>
+  <div style="min-height:8px;">
+  </div>
+  <div class="content-sm">
+    <span class="imgCmd"></span>
+  </div>
+  <script>
+    jeedom.cmd.update['#id#'] = function(_options) {
+      var cmd = $('.cmd[data-cmd_id=#id#]');
+      cur_state = _options.display_value;
+      if (_options.display_value == 0) {
+        cmd.find('.imgCmd').empty().append('<img src="plugins/peugeotcars/core/template/dashboard/state_0.png" width="100"/>');
+      } else if (_options.display_value == 1) {
+        cmd.find('.imgCmd').empty().append('<img src="plugins/peugeotcars/core/template/dashboard/state_1.png" width="100"/>');
+      } else if (_options.display_value == 2) {
+        cmd.find('.imgCmd').empty().append('<img src="plugins/peugeotcars/core/template/dashboard/state_2_1.png" width="100"/>');
+      } else if (_options.display_value == 3) {
+        cmd.find('.imgCmd').empty().append('<img src="plugins/peugeotcars/core/template/dashboard/state_3.png" width="100"/>');
+      } else if (_options.display_value == 4) {
+        cmd.find('.imgCmd').empty().append('<img src="plugins/peugeotcars/core/template/dashboard/state_4.png" width="100"/>');
+      }
+    }
+    var cur_state = #state#;
+    var cur_toggle = 0;
+    function state_clignot() {
+      //console.log("Blink. Toggle = "+cur_toggle+" / State = "+cur_state);
+      var cmd = $('.cmd[data-cmd_id=#id#]');
+      if ((cur_state == 2) && (cur_toggle == 0)) {
+        cmd.find('.imgCmd').empty().append('<img src="plugins/peugeotcars/core/template/dashboard/state_2_0.png" width="100"/>');
+        cur_toggle = 1;
+      }
+      else if ((cur_state == 2) && (cur_toggle == 1)) {
+        cmd.find('.imgCmd').empty().append('<img src="plugins/peugeotcars/core/template/dashboard/state_2_1.png" width="100"/>');
+        cur_toggle = 0;
+      }
+    }
+    setInterval("state_clignot();", 1000);
+    jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
+  </script>
+</div>

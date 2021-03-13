@@ -449,16 +449,18 @@ class peugeotcars_api3 {
         $hms_start = $this->ISO8601ToHMS($ret["result"]->preconditionning->airConditioning->programs[$prog]->start);
         $retf["pp_prog"][$prog]["hour"] = $hms_start['H'];
         $retf["pp_prog"][$prog]["minute"] = $hms_start['M'];
-        $pp_days = $ret["result"]->preconditionning->airConditioning->programs[$prog]->occurence->day;
         $retf["pp_prog"][$prog]["day"] = [0,0,0,0,0,0,0];
-        foreach ($pp_days as $day) {
-          if     ($day == "Mon") $retf["pp_prog"][$prog]["day"][0] = 1;
-          elseif ($day == "Tue") $retf["pp_prog"][$prog]["day"][1] = 1;
-          elseif ($day == "Wed") $retf["pp_prog"][$prog]["day"][2] = 1;
-          elseif ($day == "Thu") $retf["pp_prog"][$prog]["day"][3] = 1;
-          elseif ($day == "Fri") $retf["pp_prog"][$prog]["day"][4] = 1;
-          elseif ($day == "Sat") $retf["pp_prog"][$prog]["day"][5] = 1;
-          elseif ($day == "Sun") $retf["pp_prog"][$prog]["day"][6] = 1;
+        if (isset ($ret["result"]->preconditionning->airConditioning->programs[$prog]->occurence)) {
+        $pp_days = $ret["result"]->preconditionning->airConditioning->programs[$prog]->occurence->day;
+          foreach ($pp_days as $day) {
+            if     ($day == "Mon") $retf["pp_prog"][$prog]["day"][0] = 1;
+            elseif ($day == "Tue") $retf["pp_prog"][$prog]["day"][1] = 1;
+            elseif ($day == "Wed") $retf["pp_prog"][$prog]["day"][2] = 1;
+            elseif ($day == "Thu") $retf["pp_prog"][$prog]["day"][3] = 1;
+            elseif ($day == "Fri") $retf["pp_prog"][$prog]["day"][4] = 1;
+            elseif ($day == "Sat") $retf["pp_prog"][$prog]["day"][5] = 1;
+            elseif ($day == "Sun") $retf["pp_prog"][$prog]["day"][6] = 1;
+          }
         }
       }
     }

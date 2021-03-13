@@ -128,6 +128,38 @@ $eqLogics = eqLogic::byType($plugin->getId());
                         </div>
                         <div class="form-group">
                             <label class="col-lg-2 control-label"></label>
+                            <label class="col-lg-3"><br>{{Configuration pour la charge}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label" >{{Utilisation d'un commutateur externe}}</label>
+                            <div class="col-lg-3">
+                                <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="cmd_ext" title="{{A activer si vous utilisez pour la charge un commutateur externe au véhicule, et piloté par Jeedom}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">{{Commande d'activation de la charge}}</label>
+                            <div class="col-lg-3">
+                              <div class="input-group">
+                                <input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="cmd_start_charge"/>
+                                <span class="input-group-btn">
+                                  <a class="btn btn-default listCmdActionOther roundedRight"><i class="fas fa-list-alt"></i></a>
+                                </span>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">{{Commande d'arrêt de la charge}}</label>
+                            <div class="col-lg-3">
+                              <div class="input-group">
+                                <input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="cmd_stop_charge"/>
+                                <span class="input-group-btn">
+                                  <a class="btn btn-default listCmdActionOther roundedRight"><i class="fas fa-list-alt"></i></a>
+                                </span>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label"></label>
                             <label class="col-lg-3"><br>{{Autres Informations}}</label>
                         </div>
                         <div class="form-group">

@@ -156,31 +156,6 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
           <div class="row">
               <div class="col-lg-8 col-lg-offset-2">
                   <form class="form-horizontal">
-                      <div style="min-height: 10px;">
-                      </div>
-                       <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
-                           <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
-                               <i style="font-size: initial;"></i> {{Configuration de la charge}}
-                               <p style='font-size: 0.8em;color:grey;'><br>
-                                 <input type="radio" id="charge_mode1" name="charge_mode" value="mode1" checked>
-                                 <b>Mode 1:</b> Démarrage de la charge lorsque la prise est branchée, et arrêt lorsque la valeur maxi est atteinte<br><br>
-                                 <input type="radio" id="charge_mode2" name="charge_mode" value="mode2">
-                                 <b>Mode 2:</b> Démarrage de la charge en différé à l'heure programmée, et arrêt lorsque la valeur maxi est atteinte<br>
-                                 (Départ et fin de charge piloté par le véhicule)<br><br>
-                                 <input type="radio" id="charge_mode3" name="charge_mode" value="mode3">
-                                 <b>Mode 3:</b> Démarrage de la charge en différé à l'heure programmée, et arrêt lorsque la valeur maxi est atteinte<br>
-                                 (Départ et fin de charge piloté par un commutateur controlé par Jeedom)<br><br>
-                               </p>
-                           </div>
-                           <div id='trips_info' style="font-size: 1.0em;"></div>
-                           <div style="v"></div>
-                       </br>
-                       </fieldset>
-                       <div style="min-height: 10px;"></div>
-                   </form>
-              </div>
-              <div class="col-lg-8 col-lg-offset-2">
-                  <form class="form-horizontal">
                      <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
                         <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
                           <i style="font-size: initial;"></i> {{Configuration du Préconditionnement}}
