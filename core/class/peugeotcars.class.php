@@ -417,7 +417,7 @@ class peugeotcars extends eqLogic {
         //log::add('peugeotcars','debug',"record_period:".$record_period);
 
         // Toutes les 10 mn => Réveil de la voiture si elle est en charge pour avoir une remontée des infos de charge courante
-        if (($minute%10 == 9) && ($rfh == 0)) {
+        if (($minute%10 == 8) && ($rfh == 0)) {
           $cmd = $this->getCmd(null, "charging_status");
           $charging_status = $cmd->execCmd();
           if (strtolower($charging_status) == "inprogress") {
@@ -595,7 +595,7 @@ class peugeotcars extends eqLogic {
           // Chargement batterie
           $cmd = $this->getCmd(null, "charging_plugged");
           $prev_charging_plugged = $cmd->execCmd();
-          $charging_plugged = $ret["charging_plugged"];
+          $charging_plugged = strval($ret["charging_plugged"]);
           $cmd->event($charging_plugged);
           $cmd = $this->getCmd(null, "charging_status");
           $charging_status = $ret["charging_status"];
@@ -620,11 +620,13 @@ class peugeotcars extends eqLogic {
           //$cmd->event($precond_status);
           $this->checkAndUpdateCmd($cmd, $precond_status);
           // gestion de l'arret de la charge si demandée
+          // ===========================================
           $cmd_batmax_val = $this->getCmd(null, 'charging_batmax_val');
           $batmax_val = intval($cmd_batmax_val->execCmd());
           if ((strtolower($charging_status) == "inprogress") && ($batmax_val < 100)) {
             if ($batt_level >= $batmax_val) {
               log::add('peugeotcars','info',"Interruption de la charge de la batterie. (Max level=".$batmax_val."% & Current level=".$batt_level."%)");
+              $imm_diff = $this->cfg_charging(1,0);  // stoppe charge en passant en mode charge différée
             }
           }
           // gestion de l'etat courant de la charge
@@ -636,32 +638,59 @@ class peugeotcars extends eqLogic {
           // Lorsque l'on détecte le branchement de la prise, on (re-)lance une configuration du mode immédiat/différé + heure de départ
           $cmd_cs = $this->getCmd(null, "charging_state");
           $charging_state = $cmd_cs->execCmd();
-          log::add('peugeotcars','debug',"charging_state:".$charging_state);
+          
           if ($charging_state == NULL)
             $new_charging_state = 0;
           if ($charging_plugged == '0') {
             $new_charging_state = 0;
           }
-          else if (($prev_charging_plugged == 0) && ($charging_plugged == 1)) {
+          else if (($prev_charging_plugged == '0') && ($charging_plugged == '1')) {
             // detection du branchement de la prise => lancement configuration du mode immédiat/différé + heure de départ
-            log::add('peugeotcars','debug',"Branchement de la prise de charge détecté");
-            $imm_diff = $this->cfg_charging();
-            if ($imm_diff == 0)
+            $imm_diff = $this->cfg_charging(0);
+            if ($imm_diff == 0) {
               $new_charging_state = 1;  // si mode différé
-            else
+              log::add('peugeotcars','info',"Branchement de la prise de charge détecté => attente de l'heure de départ");
+            }
+            else {
               $new_charging_state = 2;  // si mode immédiat
+              log::add('peugeotcars','info',"Branchement de la prise de charge détecté => démarrage immédiat de la charge");
+            }
+          }
+          else if ($charging_state == 0) {
+            if (strtolower($charging_status) == "inprogress")
+              $new_charging_state = 2;
+            else
+              $new_charging_state = $charging_state;
           }
           else if ($charging_state == 1) {
             // Attente de l'heure de charge
-            if (strtolower($charging_status) == "inprogress")
+            if (strtolower($charging_status) == "inprogress") {
               $new_charging_state = 2;
+              log::add('peugeotcars','info',"Heure de début de chargement atteint");
+            }
+            else
+              $new_charging_state = $charging_state;
           }
           else if ($charging_state == 2) {
             // charge en cours
-            if (strtolower($charging_status) == "finished")
+            if (strtolower($charging_status) == "finished") {
+              $new_charging_state = 3;
+              log::add('peugeotcars','info',"Fin du chargement");
+            }
+            else
+              $new_charging_state = $charging_state;
+          }
+          else if ($charging_state == 3) {
+            // charge en cours
+            if ($charging_plugged == '0') {
               $new_charging_state = 0;
+              log::add('peugeotcars','info',"Prise de charge débranchée");
+            }
+            else
+              $new_charging_state = $charging_state;
           }
           $cmd_cs->event($new_charging_state);
+          log::add('peugeotcars','debug',"charging_state:".$charging_state."/ new_charging_state:".$new_charging_state);
           
           // A minuit, mise à jour maintenance
 //          if (($heure==0) && ($minute==0)) {
@@ -752,11 +781,14 @@ class peugeotcars extends eqLogic {
   // =====================================================
   // Fonction de configuration des parametres de la charge
   // =====================================================
-  public function cfg_charging() {
+  public function cfg_charging($use_req, $req_imm_diff=0) {
     $cmd_imm_diff = $this->getCmd(null, 'charging_imdel_val');
     $cmd_del_hour = $this->getCmd(null, 'charging_del_hour');
     if ((is_object($cmd_imm_diff)) && (is_object($cmd_del_hour))) {
-      $imm_diff = $cmd_imm_diff->execCmd();
+      if ($use_req == 0)
+        $imm_diff = $cmd_imm_diff->execCmd();
+      else
+        $imm_diff = $req_imm_diff;
       $del_hour = $cmd_del_hour->execCmd();
       list($del_hr, $del_mn) = explode(":", $del_hour);
       log::add('peugeotcars','info',"Envoi requete paramètres de chargement => Imm_Diff / Heure = ".$imm_diff." / ".$del_hr.":".$del_mn);
@@ -823,9 +855,9 @@ class peugeotcarsCmd extends cmd
             $cmd_ass->event($new_batmax);
           }
           // for tests
-          $cmd_cs = $eqLogic->getCmd(null, 'charging_state');
-          $new_charging_state = (intval($_options['slider']) / 5)%5;
-          $cmd_cs->event($new_charging_state);
+          // $cmd_cs = $eqLogic->getCmd(null, 'charging_state');
+          // $new_charging_state = (intval($_options['slider']) / 5)%5;
+          // $cmd_cs->event($new_charging_state);
         }
         else if ($this->getLogicalId() == 'test_mqtt1') {
           $eqLogic = $this->getEqLogic();

@@ -72,17 +72,25 @@ function get_car_trips_gps($vin, $ts_start, $ts_end)
 
   // lecture des donnees
   $line = 0;
+  $line_all = 0;
   $cars_dt["gps"] = [];
   if ($fcar) {
     while (($buffer = fgets($fcar, 4096)) !== false) {
       // extrait les timestamps debut et fin du trajet
-      list($pts_ts, $pts_lat, $pts_lon, $pts_alt, $pts_batt, $pts_mlg, $pts_moving) = explode(",", $buffer);
-      $pts_tsi = intval($pts_ts);
-      // selectionne les trajets selon leur date depart&arrive
-      if (($pts_tsi>=$first_ts) && ($pts_tsi<=$last_ts)) {
-        $cars_dt["gps"][$line] = $buffer;
-        $line = $line + 1;
+      $tmp=explode(",", $buffer);
+      if (count($tmp) == 7) {
+        list($pts_ts, $pts_lat, $pts_lon, $pts_alt, $pts_batt, $pts_mlg, $pts_moving) = $tmp;
+        $pts_tsi = intval($pts_ts);
+        // selectionne les trajets selon leur date depart&arrive
+        if (($pts_tsi>=$first_ts) && ($pts_tsi<=$last_ts)) {
+          $cars_dt["gps"][$line] = $buffer;
+          $line = $line + 1;
+        }
       }
+      else {
+        log::add('peugeotcars', 'error', 'Ajax:get_car_trips: Erreur dans le fichier gps.log, à la ligne:'.$line_all);
+      }
+      $line_all = $line_all + 1;
     }
   }
   fclose($fcar);

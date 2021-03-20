@@ -403,7 +403,7 @@ class peugeotcars_api3 {
 
     $retf["batt_level"]   = $ret["result"]->energy[$elec_id]->level;
     $retf["batt_autonomy"]= $ret["result"]->energy[$elec_id]->autonomy;
-    $retf["charging_plugged"] = $ret["result"]->energy[$elec_id]->charging->plugged;
+    $retf["charging_plugged"] = intval($ret["result"]->energy[$elec_id]->charging->plugged);
     // status chargement batterie
     $ch_sts  = $ret["result"]->energy[$elec_id]->charging->status;
     $ch_rem_tm = $ret["result"]->energy[$elec_id]->charging->remainingTime;
