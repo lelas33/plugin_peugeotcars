@@ -1,0 +1,4 @@
+[submodule "3rdparty/psa_jeedom_daemon/psa_car_controller"]
+	path = 3rdparty/psa_jeedom_daemon/psa_car_controller
+	url = https://github.com/flobz/psa_car_controller.git
+	branch = master

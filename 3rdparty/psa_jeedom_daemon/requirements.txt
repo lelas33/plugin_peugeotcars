@@ -1,0 +1,12 @@
+paho-mqtt>=1.5.0
+cryptography>=3.0
+oauth2_client
+requests
+pytz
+argparse
+androguard
+pycryptodomex
+certifi >= 14.05.14
+six >= 1.10
+python_dateutil >= 2.5.3
+urllib3 >= 1.15.1
