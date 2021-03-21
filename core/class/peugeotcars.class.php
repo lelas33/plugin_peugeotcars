@@ -82,7 +82,7 @@ class peugeotcars extends eqLogic {
     // ===================================================
     public static function deamon_info() {
         $return = array();
-				$return['state'] = count(system::ps('3rdparty/psa_jeedom/jeedom_gateway.py')) > 0 ? 'ok' : 'nok';
+				$return['state'] = count(system::ps('3rdparty/psa_jeedom_daemon/jeedom_gateway.py')) > 0 ? 'ok' : 'nok';
         $return['launchable'] = 'ok';
         return $return;
     }
@@ -92,9 +92,15 @@ class peugeotcars extends eqLogic {
         log::add('peugeotcars', 'info', 'Starting daemon');
         $param = config::byKey('account', 'peugeotcars') . ',' . config::byKey('password', 'peugeotcars') . ',' . config::byKey('code_sms', 'peugeotcars') . ',' . config::byKey('code_pin', 'peugeotcars');
         $param = base64_encode ($param);
-				$cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom/jeedom_gateway.py';
+
+				// $cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom/jeedom_gateway.py';
+        // $cmd .= ' -m ' . $param;
+        // $cmd .= ' -b ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom';
+				// $cmd .= ' >> ' . log::getPathToLog('peugeotcars') . ' 2>&1 &';
+
+				$cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon/jeedom_gateway.py';
         $cmd .= ' -m ' . $param;
-        $cmd .= ' -b ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom';
+        $cmd .= ' -b ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon';
 				$cmd .= ' >> ' . log::getPathToLog('peugeotcars') . ' 2>&1 &';
 
         log::add('peugeotcars', 'info', $cmd);
@@ -116,8 +122,8 @@ class peugeotcars extends eqLogic {
 
     public static function deamon_stop() {
         log::add('peugeotcars', 'info', 'Stopping daemon');
-				if (count(system::ps('3rdparty/psa_jeedom/jeedom_gateway.py')) > 0) {
-					system::kill('3rdparty/psa_jeedom/jeedom_gateway.py', false);
+				if (count(system::ps('3rdparty/psa_jeedom_daemon/jeedom_gateway.py')) > 0) {
+					system::kill('3rdparty/psa_jeedom_daemon/jeedom_gateway.py', false);
 				}
     }
 
