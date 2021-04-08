@@ -2,8 +2,8 @@
 
 # 10/04/2021: Tag pgc_v0.6
 
-- Intégration de l'API psa_car_controller (Remote Control of PSA car) développée par Flobz: merci à lui
-  Cette API permet l'envoi de commande au véhicule
+- Intégration de l'API psa_car_controller (Remote Control of PSA car) développée par Flobz: merci à lui.<br>
+  Cette API permet l'envoi de commandes au véhicule
 - Ajout du controle du préconditionnement et des programmes associés
 - Ajout du controle d'une limite de la charge
 
