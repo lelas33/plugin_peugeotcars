@@ -3,13 +3,12 @@ __pycache__/
 .idea/
 
 data/V*/
+*.bak
+*.zip
 3rdparty/sample_lau.php
 3rdparty/psa_jeedom_daemon/config.json
 3rdparty/psa_jeedom_daemon/otp.bin
 3rdparty/psa_jeedom_daemon/*.log
 3rdparty/psa_jeedom_daemon/pycharm_readme.txt
-3rdparty/psa_jeedom/config.json
-3rdparty/psa_jeedom/otp.bin
-3rdparty/psa_jeedom/*.log
-3rdparty/psa_jeedom/pycharm_readme.txt
+
 

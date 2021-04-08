@@ -42,12 +42,12 @@ function mqtt_end_socket ($socket)
 {
 
   // Envoi message deconnection
-  $tab_param  = '';
-  $tab_param .= chr(0xff);
-  $tab_param .= chr(0x00);
-  $tab_param .= chr(0x00);
-  $tab_param .= chr(0xff);
-  socket_send ( $socket, $tab_param, 4, 0 ) ;
+  // $tab_param  = '';
+  // $tab_param .= chr(0xff);
+  // $tab_param .= chr(0x00);
+  // $tab_param .= chr(0x00);
+  // $tab_param .= chr(0xff);
+  // socket_send ( $socket, $tab_param, 4, 0 ) ;
 
   // Fermeture socket
   socket_shutdown($socket, 2) ;

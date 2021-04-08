@@ -1,8 +1,8 @@
 # Serveur vers le plugin Jeedom PeugeotCars
 
 import socket
-from MyLogger import my_logger
-from MyLogger import logger
+from psa_car_controller.MyLogger import my_logger
+from psa_car_controller.MyLogger import logger
 
 PORT = 65432
 # Port to listen on (non-privileged ports are > 1023)

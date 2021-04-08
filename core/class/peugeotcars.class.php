@@ -679,7 +679,7 @@ class peugeotcars extends eqLogic {
           }
           else if ($charging_state == 2) {
             // charge en cours
-            if (strtolower($charging_status) == "finished") {
+            if ((strtolower($charging_status) == "finished") || (strtolower($charging_status) == "stopped")) {
               $new_charging_state = 3;
               log::add('peugeotcars','info',"Fin du chargement");
             }
@@ -779,7 +779,6 @@ class peugeotcars extends eqLogic {
     $ack_nbp = $ack['nbp'];
     if ($ack['status'] != "OK")
       log::add('peugeotcars', 'error', "mqtt_submit: Erreur lors de l'envoi de la commande vers le serveur local");
-
     return;
   }
 
@@ -832,9 +831,12 @@ class peugeotcarsCmd extends cmd
           $eqLogic = $this->getEqLogic();
           $cmd_ret = $eqLogic->getCmd(null, 'charging_imdel_val');
           if (is_object($cmd_ret)) {
-            $value = $cmd_ret->execCmd();
+            $value = intval($cmd_ret->execCmd());
             $cmd_ret->setCollectDate('');
-            $cmd_ret->event($value xor 1);
+            $value = ($value == 0)?1:0;
+            $cmd_ret->event($value);
+            // Configuration du type de chargement vers le vehicule
+            $eqLogic->cfg_charging(1, $value );
           }
         }
         else if ($this->getLogicalId() == 'precond_start') {
@@ -872,6 +874,7 @@ class peugeotcarsCmd extends cmd
         else if ($this->getLogicalId() == 'test_mqtt2') {
           $eqLogic = $this->getEqLogic();
           peugeotcars::mqtt_submit(CMD_WAKEUP);
+          // $eqLogic->cfg_charging(1, 0);
         }
 
         
