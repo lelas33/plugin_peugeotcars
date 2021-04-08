@@ -33,7 +33,18 @@ Par source Github:
   * Branche : master
 * Aller dans le menu "plugins/objets connectés/Voitures Peugeot" de jeedom pour installer le nouveau plugin.
 
-Sur la page configuration du plugin, saisir vos identifiants de compte MyPeugeot, et cochez la case :"Afficher le panneau desktop". Cela donne accès à la page du "panel" de l'équipement.
+<p align="left">
+  <img src="../images/config_plugin.png" width="700" title="Configuration Plugin">
+</p>
+Sur la page configuration du plugin, réaliser les opérations suivantes dans l'ordre indiqué:
+* Saisir vos identifiants de compte MyPeugeot (Login + Password), puis Sauvegarder la section Configuration
+* Lancer l'installation des dépendances du plugin. (Attention, cette opération peut être assez longue.)
+* Lorsque cette installation des dépendances est terminée, une requête d'authentification est lancée sur le site PSA, et vous devrez recevoir un code par SMS (de STELLANTIS)
+  * Ce SMS est envoyé au téléphone associé au compte PSA identifié par le login.
+* Lorsque le SMS est reçu, saisissez ce code SMS, et le code PIN de l'application téléphone PSA dans les 2 champs correspondants, puis Sauvegarder à nouveau la section Configuration
+* cochez la case :"Afficher le panneau desktop", puis Sauvegarder la section Panel. Cela donne accès à la page du "panel" de l'équipement.
+* Démarrez le "Démon" en cliquant sur la flèche verte de la section Démon, le statut doit passer à OK (en vert)
+
 
 ## Configuration
 Une fois l'installation effectuée:
