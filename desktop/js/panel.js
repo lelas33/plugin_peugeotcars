@@ -172,7 +172,7 @@ function loadData(){
             car_dt = JSON.parse(data.result);
             //alert("getLogData:data nb="+nb_dt);
             veh_batt_cap = car_dt.cfg_batt_capacity;
-            // reopie les donnees recues (trajets et points GPS)
+            // recopie les donnees recues (trajets et points GPS)
             car_trips = [];
             for (p=0; p<car_dt.trips.length; p++) {
               car_trips[p] = car_dt.trips[p];

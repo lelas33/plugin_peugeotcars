@@ -309,6 +309,7 @@ class MyPSACC:
                     elif data["return_code"] == "400":
                         self.refresh_remote_token(force=True)
                         logger.error("retry last request, token was expired")
+                        self.resend_command = 1
                     else:
                         logger.error(f'{data["return_code"]} : {data["reason"]}')
                 else:
@@ -320,11 +321,11 @@ class MyPSACC:
                 if data["resp_data"]["charging_state"]['remaining_time'] != 0 \
                         and data["resp_data"]["charging_state"]['rate'] == 0:
                     charge_not_detected = True
-            if charge_not_detected:
+            # if charge_not_detected:
                 # fix a psa server bug where charge beginning without status api being properly updated
-                logger.info("charge begin")
-                sleep(60)
-                self.wakeup(data["vin"])
+                # logger.info("charge begin")
+                # sleep(60)
+                # self.wakeup(data["vin"])
         except:
             logger.error(traceback.format_exc())
 
