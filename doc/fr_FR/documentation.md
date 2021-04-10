@@ -40,7 +40,8 @@ Par source Github:
 
 Sur la page configuration du plugin, réaliser les opérations suivantes dans l'ordre indiqué:
 * Saisir vos identifiants de compte MyPeugeot (Login + Password), puis Sauvegarder la section Configuration
-* Lancer l'installation des dépendances du plugin. (Attention, cette opération peut être assez longue.)
+* Dans la section Démon, désactiver la "Gestion automatique". (elle pourra être réactivée ultérieurement, après une activation fonctionnelle)
+* Lancer l'installation des dépendances du plugin. (Attention, cette opération peut être assez longue: ~15 mn sur un Raspberry PI)
   * Il est possible de suivre cette phase dans le log dédié: "peugeotcars_update"
 * Lorsque cette installation des dépendances est terminée, une requête d'authentification est lancée sur le site PSA, et vous devrez recevoir un code par SMS de STELLANTIS
   * Ce SMS est envoyé au téléphone associé au compte PSA identifié par le login.

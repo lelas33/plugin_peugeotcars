@@ -156,14 +156,10 @@ print(f"\nYour vehicles: {res}")
 # request for OPT => SMS request, and remove existing "opt.bin" file
 print("Request for OTP: SMS shall be received (on the phone associated to the MyPeugeot account)")
 otp = psacc.get_sms_otp_code()
-os.remove("otp.bin")
-
-## Charge control
-# charge_controls = ChargeControls()
-# for vin, vehicle in res.items():
-    # chc = ChargeControl(None, vin, 100, [0, 0])
-    # charge_controls.list[vin] = chc
-# charge_controls.save_config(name="charge_config1.json")
+try:
+    os.remove("otp.bin")
+except:
+    print("No previous otp.bin")
 
 try:
     os.remove("private.pem")
