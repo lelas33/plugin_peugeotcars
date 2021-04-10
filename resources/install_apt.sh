@@ -43,14 +43,14 @@ echo 40 > ${PROGRESS_FILE}
 echo "============================================="
 echo "STEP4:Installation des librairies necessaires"
 echo "============================================="
-PYTHON_REQ=$BASEDIR/../3rdparty/psa_jeedom/requirements.txt
+PYTHON_REQ=$BASEDIR/../3rdparty/psa_jeedom_daemon/requirements.txt
 echo "python_req: $PYTHON_REQ"
 sudo python3 -m pip install -r $PYTHON_REQ
 echo 80 > ${PROGRESS_FILE}
 echo "========================="
 echo "STEP5:Configuration API  "
 echo "========================="
-PSA_JEEDOM_DIR=$BASEDIR/../3rdparty/psa_jeedom
+PSA_JEEDOM_DIR=$BASEDIR/../3rdparty/psa_jeedom_daemon
 cd $PSA_JEEDOM_DIR
 tar xvzf ./apk/myp -C ./apk > /dev/null
 APP_DECODER=./app_decoder.py
