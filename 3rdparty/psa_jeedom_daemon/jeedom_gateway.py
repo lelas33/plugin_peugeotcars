@@ -44,7 +44,7 @@ if __name__ == "__main__":
     # get configuration parameters
     param = args.param
     params = base64.b64decode(param).decode('utf-8')
-    logger.info("param:"+param)
+    #logger.info("param:"+param)
     #logger.info("params:"+params)
     param_set = params.split(",")
     #logger.info("account:" +param_set[0])
