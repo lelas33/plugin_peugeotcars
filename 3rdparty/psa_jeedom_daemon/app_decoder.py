@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import os
+import sys
 import traceback
 
 from androguard.core.bytecodes.apk import APK
@@ -11,7 +12,12 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import pkcs12
 from cryptography.hazmat.backends import default_backend
 
-from ChargeControl import ChargeControl, ChargeControls
+dossier = os.path.dirname(os.path.abspath(__file__))
+dossier = dossier+'/psa_car_controller'
+if dossier not in sys.path:
+    sys.path.append(dossier)
+
+# from ChargeControl import ChargeControl, ChargeControls
 from MyPSACC import MyPSACC
 from sys import argv
 import sys
@@ -146,18 +152,18 @@ psacc.save_config(name="config.json")
 res = psacc.get_vehicles()
 print(f"\nYour vehicles: {res}")
 
-## Manage OTP ans SMS procedure
+## Manage OTP and SMS procedure
 # request for OPT => SMS request, and remove existing "opt.bin" file
 print("Request for OTP: SMS shall be received (on the phone associated to the MyPeugeot account)")
 otp = psacc.get_sms_otp_code()
 os.remove("otp.bin")
 
 ## Charge control
-charge_controls = ChargeControls()
-for vin, vehicle in res.items():
-    chc = ChargeControl(None, vin, 100, [0, 0])
-    charge_controls.list[vin] = chc
-charge_controls.save_config(name="charge_config1.json")
+# charge_controls = ChargeControls()
+# for vin, vehicle in res.items():
+    # chc = ChargeControl(None, vin, 100, [0, 0])
+    # charge_controls.list[vin] = chc
+# charge_controls.save_config(name="charge_config1.json")
 
 try:
     os.remove("private.pem")

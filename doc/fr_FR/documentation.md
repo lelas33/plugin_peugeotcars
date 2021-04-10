@@ -31,7 +31,8 @@ Par source Github:
   * Utilisateur ou organisation du dépôt : lelas33
   * Nom du dépôt : plugin_peugeotcars
   * Branche : master
-* Aller dans le menu "plugins/objets connectés/Voitures Peugeot" de jeedom pour installer le nouveau plugin.
+* Lorsque l'installation est finie, faire un refresh de la page. Le plugin "Voitures Peugeot" doit apparaitre.
+* Sélectionner le plugin et l'activer.
 
 <p align="left">
   <img src="../images/config_plugin.png" width="700" title="Configuration Plugin">
@@ -40,6 +41,7 @@ Par source Github:
 Sur la page configuration du plugin, réaliser les opérations suivantes dans l'ordre indiqué:
 * Saisir vos identifiants de compte MyPeugeot (Login + Password), puis Sauvegarder la section Configuration
 * Lancer l'installation des dépendances du plugin. (Attention, cette opération peut être assez longue.)
+  * Il est possible de suivre cette phase dans le log dédié: "peugeotcars_update"
 * Lorsque cette installation des dépendances est terminée, une requête d'authentification est lancée sur le site PSA, et vous devrez recevoir un code par SMS de STELLANTIS
   * Ce SMS est envoyé au téléphone associé au compte PSA identifié par le login.
 * Lorsque le SMS est reçu, saisissez ce code SMS, et le code PIN de l'application téléphone PSA dans les 2 champs correspondants, puis Sauvegarder à nouveau la section Configuration
