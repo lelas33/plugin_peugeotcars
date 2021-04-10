@@ -53,8 +53,13 @@ Sur l'onglet "**Equipement**", choisissez l'objet parent, et notez le numéro VI
 Indiquez également la capacité de la batterie pour un véhicule électrique. (Cela permet d'évaluer la consommation sur un trajet) <br>
 Lors de la sauvegarde de l'équipement, quelques photos du véhicules sont téléchargées et rendues disponibles pour affichage sur le widget.
 <p align="left">
-  <img src="../images/config_equipement.png" width="700" title="Configuration équipement">
+  <img src="../images/config_equipement.png" width="800" title="Configuration équipement">
 </p>
+Il faut saisir ensuite quelques informations complémentaires:
+* La capacité de la batterie de votre véhicule (les valeurs proposées sont données en info-bulles)
+* La tension nominale de la batterie de votre véhicule (les valeurs proposées sont données en info-bulles)
+* Le prix du kWh pour les calculs de cout des trajets
+Pour le moment, la section "Configuration pour la charge" n'est pas utilisée. Ne rien remplir dans ces champs
 
 La page du panel à besoin de connaitre les coordonnées GPS de stationnement habituel de la voiture afin de centrer la carte pour l’affichage des trajets. <br>
 Pour cela, il faut renseigner ces coordonnées GPS dans la page de configuration de jeedom. <br>
@@ -75,9 +80,10 @@ Lorsque l'on clique sur la photo, on bascule sur la page "Panel" du plugin assoc
 
 ## Panel
 Une page de type "panel" est disponible pour le plugin dans le menu Acceuil de jeedom. <br>
-Cette page permet de consulter les informations suivantes sur 4 onglets différents:
+Cette page permet de consulter les informations suivantes sur 5 onglets différents:
 * Liste des trajets effectués par le véhicule
 * Statistiques sur l'utilisation et la consommation du véhicule. 
+* Configuration du véhicule
 * Quelques informations sur le véhicule
 * Informations sur les visites d'entretien du véhicule recommandées par Peugeot
 
@@ -97,6 +103,18 @@ Présentations sous forme de graphe de quelques statistiques d'utilisation du v�
 * Consommation du véhicule au 100 km
 * Energie consommée et coût estimé
 
+**Configuration véhicule:**
+Cette page permet de définir les programmes de gestion du préconditionnement. <br>
+Il y a en effet 4 programmes hebdomadaires possibles. Pour chaque programme, on peut choisir l'heure d'activation, ainsi que les jours d'application.<br>
+Il y a 4 actions possibles sur ces programmes.
+* "Charger local": Chargement des programmes depuis un fichier local de sauvegarde dans votre jeedom
+* "Sauvegarder local": Sauvegarde des programmes vers ce fichier local de sauvegarde dans votre jeedom
+* "Importer depuis véhicule": Chargement des programmes depuis le véhicule (Fait automatiquement lorsque l'on ouvre cette page)
+* "Envoyer vers véhicule": Envoie des programmes vers le véhicule
+
+<p align="left">
+  <img src="../images/panel4.png" width="600" title="Panel1">
+</p>
 
 **Informations sur le véhicule:**
 Quelques informations sont données sur le véhicule
@@ -113,12 +131,11 @@ Les opérations principales d'entretion sont données également. : plus fonctio
 </p>
 
 **Bugs connus:**
-Cette version 0.5 est encore draft. Il y a quelques bugs connus mais non pénalisants
+Cette version 0.6 est encore draft. Il y a quelques bugs connus mais non pénalisants
 * Javascript erreur : "ReferenceError: L is not defined" (affichée dans la barre de titre de jeedom) <br>
   => Corrigé
 * Affichage des trajets sur le pannel: On ne peut pas toujours sélectionner un trajet pour affichage sur la carte.
   => Corrigé
 
 **Suite prévue pour ce plugin:**
-* Ajouter le pilotage de la wallbox Evbox (si elle est connectée en Wifi) afin de gérer une durée de chargement, ainsi que le courant maxi de chargement.
-* Ajouter le pilotage du préconditionnement du véhicule.
+* ...
