@@ -18,11 +18,12 @@
       var lat = gps_pos[0];
       var lon = gps_pos[1];
       var alt = gps_pos[2];
+      var vin = gps_pos[3];
       // Fonction d'initialisation de la carte
       function initMap() {
           console.log("[jeedom.cmd.update map]: Init map");
           // Créer l'objet "macarte" et l'insèrer dans l'élément HTML qui a l'ID "map"
-          carte = L.map('macarte').setView([lat, lon], 16);
+          carte = L.map('macarte',{zoomControl: false}).setView([lat, lon], 16);
           // Leaflet ne récupère pas les cartes (tiles) sur un serveur par défaut. Nous devons lui préciser où nous souhaitons les récupérer. Ici, openstreetmap.fr
           L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
               // Il est toujours bien de laisser le lien vers la source des données
@@ -37,6 +38,10 @@
       if (marker != null)
         carte.removeLayer(marker);
       marker = L.marker([lat, lon]).addTo(carte);
+      carte.on('click', ClicOnMap);
+      function ClicOnMap(){
+          $('#md_modal').dialog({title: "Vue carte"}).load('index.php?v=d&plugin=peugeotcars&modal=modal.view_map&vin='+vin).dialog('open');
+      }
     }
     var carte = null;
     var marker = null;
