@@ -27,7 +27,7 @@ BRAND = {"com.psa.mym.myopel":     {"realm": "clientsB2COpel",     "brand_code":
          "com.psa.mym.mypeugeot":  {"realm": "clientsB2CPeugeot",  "brand_code": "AP", "app_name": "MyPeugeot"},
          "com.psa.mym.mycitroen":  {"realm": "clientsB2CCitroen",  "brand_code": "AC", "app_name": "MyCitroen"},
          "com.psa.mym.myds":       {"realm": "clientsB2CDS",       "brand_code": "AC", "app_name": "MyDS"},
-         "com.psa.mym.myvauxhall": {"realm": "clientsB2CVauxhall", "brand_code": "0V", "app_name": "MyVauxall"}
+         "com.psa.mym.myvauxhall": {"realm": "clientsB2CVauxhall", "brand_code": "0V", "app_name": "MyVauxhall"}
          }
 
 
@@ -144,7 +144,7 @@ except:
     exit(1)
 
 # Psacc
-psacc = MyPSACC(None, client_id, client_secret, remote_refresh_token, customer_id, BRAND[package_name]["realm"])
+psacc = MyPSACC(None, client_id, client_secret, remote_refresh_token, customer_id, BRAND[package_name]["realm"], country_code)
 psacc.connect(client_email, client_password)
 
 os.chdir(current_dir)
