@@ -159,7 +159,8 @@ function get_current_position($vin)
     }
   // Statut du véhicule
   $ret_sts = $session_peugeotcars->pg_api_vehicles_status();
-  $current_position["veh"]= ($ret_sts["gps_lat"]+(floatval(rand(0,100))/1000)).",".($ret_sts["gps_lon"]+(floatval(rand(0,100))/1000)).",".$ret_sts["gps_alt"];
+//  $current_position["veh"]= ($ret_sts["gps_lat"]+(floatval(rand(0,100))/1000)).",".($ret_sts["gps_lon"]+(floatval(rand(0,100))/1000)).",".$ret_sts["gps_alt"];
+  $current_position["veh"]= ($ret_sts["gps_lat"]).",".($ret_sts["gps_lon"]).",".$ret_sts["gps_alt"];
 
   // Ajoute les coordonnées du domicile pour utilisation par javascript
   $latitute=config::byKey("info::latitude");
