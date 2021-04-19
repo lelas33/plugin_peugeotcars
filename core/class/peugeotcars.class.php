@@ -146,9 +146,9 @@ class peugeotcars extends eqLogic {
                       "battery_voltage"      => array('Tension',             'info',  'numeric',   "V", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "battery_current"      => array('Courant',             'info',  'numeric',   "A", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "gps_position"         => array('Position GPS',        'info',  'string',     "", 0, 1, "GENERIC_INFO",   'peugeotcars::opensmap',   'peugeotcars::opensmap'),
-                      "gps_position_lat"     => array('Position GPS Lat.',   'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "gps_position_lon"     => array('Position GPS Lon.',   'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "gps_position_alt"     => array('Position GPS Alt.',   'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_position_lat"     => array('Position GPS Lat.',   'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_position_lon"     => array('Position GPS Lon.',   'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_position_alt"     => array('Position GPS Alt.',   'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "gps_dist_home"        => array('Distance maison',     'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::line', 'core::line'),
                       "conn_level"           => array('Niveau connection',   'info',  'numeric',    "", 1, 1, "GENERIC_INFO",   'peugeotcars::con_level',  'peugeotcars::con_level'),
                       "kinetic_moving"       => array('Voiture en mouvement','info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::veh_moving', 'peugeotcars::veh_moving'),
@@ -164,7 +164,7 @@ class peugeotcars extends eqLogic {
                       "charging_rate"        => array('Vitesse de charge',   'info',  'numeric',"km/h", 1, 1, "GENERIC_INFO",   'core::line', 'core::line'),
                       "charging_mode"        => array('Mode de charge',      'info',  'string',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_batmax_cmd"  => array('Charge batterie maxi','action','slider',     "", 0, 1, "GENERIC_ACTION", 'peugeotcars::SliderButton', 'peugeotcars::SliderButton'),
-                      "charging_batmax_val"  => array('Charge batterie maxi_','info', 'numeric',  "%", 1, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "charging_batmax_val"  => array('Charge batterie maxi_','info', 'numeric',   "%", 1, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "charging_state"       => array('Etat de la charge',   'info',  'numeric',    "", 1, 1, "GENERIC_INFO",   'peugeotcars::charging_state', 'peugeotcars::charging_state'),
                       "precond_status"       => array('Etat climatisation',  'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::clim', 'peugeotcars::clim'),
                       "precond_start"        => array('Start',               'action','other',      "", 0, 1, "GENERIC_ACTION", 'core::badge', 'core::badge'),
@@ -514,15 +514,15 @@ class peugeotcars extends eqLogic {
             $gps_pts_ok = true;
           if ($gps_pts_ok == true) {
             $gps_position = $ret["gps_lat"].",".$ret["gps_lon"].",".$ret["gps_alt"];
-            $previous_gps_position = $cmd_gps->execCmd();
+            //$previous_gps_position = $cmd_gps->execCmd();
             //log::add('peugeotcars','debug',"Refresh log previous_gps_position=".$previous_gps_position);
-            $cmd_gps->event($gps_position);
+            $cmd_gps->event($gps_position.",".$vin);
             $cmd_gpslat = $this->getCmd(null, "gps_position_lat");
-            $cmd_gpslat->event($ret["gps_lat"]);
+            $cmd_gpslat->event(floatval($ret["gps_lat"]));
             $cmd_gpslon = $this->getCmd(null, "gps_position_lon");
-            $cmd_gpslon->event($ret["gps_lon"]);
+            $cmd_gpslon->event(floatval($ret["gps_lon"]));
             $cmd_gpsalt = $this->getCmd(null, "gps_position_alt");
-            $cmd_gpsalt->event($ret["gps_alt"]);
+            $cmd_gpsalt->event(floatval($ret["gps_alt"]));
             // Calcul distance maison
             $lat_home = deg2rad(floatval(config::byKey("info::latitude")));
             $lon_home = deg2rad(floatval(config::byKey("info::longitude")));

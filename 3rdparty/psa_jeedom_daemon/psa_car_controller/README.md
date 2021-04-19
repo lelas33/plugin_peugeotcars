@@ -1,4 +1,5 @@
 # Remote Control of PSA car
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4b4b98fe6dc04956a1c9a07b97c46c06)](https://app.codacy.com/gh/flobz/psa_car_controller?utm_source=github.com&utm_medium=referral&utm_content=flobz/psa_car_controller&utm_campaign=Badge_Grade_Settings)
 ### This is a python program to control a psa car with connected_car v4 api. Using android app to retrieve credentials.
 I test it with a Peugeot e-208 but it works with others PSA vehicles (Citroen, Opel, Vauxhall, DS).
 
@@ -23,7 +24,7 @@ We will retrieve these informations:
  - client-id and client-secret  for the api
  - some url to login
 
-1.1 Download the app on your computer, the original MyPeugeot app can be downloaded [here](https://apkpure.com/fr/mypeugeot-app/com.psa.mym.mypeugeot) for example.
+1.1 Download the app on your computer, the original MyPeugeot app can be downloaded [here](https://apkpure.com/fr/mypeugeot-app/com.psa.mym.mypeugeot/download/2107-APK?from=versions%2Fversion) for example (please download version 1.27).
 
 1.2 Install requirements :
 
@@ -98,9 +99,16 @@ We will retrieve these informations:
     
      
 ![Screenshot_20210128_104519](https://user-images.githubusercontent.com/48728684/106119895-01c98d80-6156-11eb-8969-9e8bc24f3677.png)
-    You can add an api key for  https://home.openweathermap.org/ in your config file.
-    In the future version of the dashboard you will be able to see your consumption vs exterior temperature.  
-    
+    You have to add an api key from https://home.openweathermap.org/ in your config file, to be able to see your consumption vs exterior temperature.  
+## Connect your home automation system:
+- [Domoticz](docs/domoticz/Domoticz.md)
+- [HomeAssistant](https://github.com/Flodu31/HomeAssistant-PeugeotIntegration)
+- Jeedom (Anyone can share the procedure ?)
+
+## FAQ
+If you have a problem, or a question please check if the answer isn't in the [FAQ](FAQ.md). 
+## Connect to A better Route Planner
+You can connect the app to ABRP, see [this page](docs/abrp.md)
 ## API documentation
 The api documentation is described here : [api_spec.md](api_spec.md).
 You can use all functions from the doc, for example :

@@ -782,7 +782,7 @@ const DOW = [ "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam.", "Dim." ];
   for (prog=0; prog<4; prog++) {
     prg += '<div class="form-group">';
     prg += '<label style="margin-top:8px;" class="col-sm-2 control-label" >{{Programme:'+(prog+1)+'}}</label>';
-    prg += '<div class="col-md-3">';
+    prg += '<div class="col-md-4">';
     prg += '<input type="checkbox" class="eqLogicAttr" id="ck_pp'+prog+'"/>';
     prg += '<a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id="bt_pp'+prog+'_hp">{{h+}}</a>';
     prg += '<a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id="bt_pp'+prog+'_hm">{{h-}}</a>';

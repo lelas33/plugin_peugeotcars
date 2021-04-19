@@ -15,7 +15,7 @@ if dossier not in sys.path:
 
 from psa_car_controller.MyLogger import my_logger
 from psa_car_controller.MyLogger import logger
-from MyPSACC import MyPSACC
+from psa_car_controller.MyPSACC import MyPSACC
 
 import jeedom_server
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     #logger.info("password:"+param_set[1])
     #logger.info("sms code:"+param_set[2])
     #logger.info("pin code:"+param_set[3])
-    myp = MyPSACC.load_config()
+    myp = MyPSACC.load_config("config.json")
     myp.set_codes(param_set[2], param_set[3])
     atexit.register(myp.save_config)
     try:
@@ -63,15 +63,16 @@ if __name__ == "__main__":
             myp.connect(client_email, client_password)
         else:
             logger.error("Mail and Password undefined")
-    logger.info(myp.get_vehicles())
-    vin = myp.getVIN()
-    logger.info("VIN:"+vin[0])
+    my_veh_list = myp.get_vehicles()
+    logger.info(my_veh_list)
+    vin = my_veh_list[0].vin
+    logger.info("VIN:"+vin)
     logger.info("MQTT link start")
     myp.start_mqtt()
 
     # Start communication with Jeedom plugin using TCP socket (@localhost)
     logger.info("Jeedom link start")
-    js = jeedom_server.my_jeedom_server(myp, vin[0])
+    js = jeedom_server.my_jeedom_server(myp, vin)
     # run the main loop for jeedom link
     t1 = Thread(target=js.server_loop)
     t1.start()
@@ -81,15 +82,14 @@ if __name__ == "__main__":
     #  * Message not processed due to token expired
     while True:
         time.sleep(30)
+        if myp.resend_command == 1:
+            logger.info("Token expired error detected => Resend last command")
+            js.msg_resend_last_cmd()
+            myp.resend_command = 0
         if myp.fatal_error == 1:
             logger.info("Fatal error detected => Restart MQTT link")
             myp.mqtt_client.loop_stop()
             myp.start_mqtt()
             myp.fatal_error = 0
-        if myp.resend_command == 1:
-            logger.info("Token expired error detected => Resend last command")
-            js.msg_resend_last_cmd()
-            myp.resend_command = 0
-        
 
     myp.save_config()

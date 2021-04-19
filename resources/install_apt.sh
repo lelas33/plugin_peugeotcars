@@ -37,7 +37,7 @@ echo 30 > ${PROGRESS_FILE}
 echo "==============================================="
 echo "STEP3:Installation pip3 version pour python 3.7"
 echo "==============================================="
-# sudo python3 -m pip install pip -U
+sudo python3 -m pip install pip -U
 sudo python3 -m pip -V
 echo 40 > ${PROGRESS_FILE}
 echo "============================================="

@@ -109,6 +109,67 @@ function get_car_trips_gps($vin, $ts_start, $ts_end)
 }
 
 
+// ========================================================
+// Fonction de capture de la position copurante du vehicule
+// ========================================================
+function get_current_position($vin)
+{
+  $eq = eqLogic::byLogicalId($vin, "peugeotcars");
+  if ($eq->getIsEnable()) {
+    $cmd_record_period = $eq->getCmd(null, "record_period");
+    $record_period = $cmd_record_period->execCmd();
+  }
+  else {
+    return;
+  }
+  $current_position = [];
+  $current_position["status"] == "OK";
+
+  // Login to API
+  $last_login_token = $cmd_record_period->getConfiguration('save_auth');
+  if ((!isset($last_login_token)) || ($last_login_token == ""))
+    $last_login_token = NULL;
+  $session_peugeotcars = new peugeotcars_api3();
+  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), $last_login_token);
+  if ($last_login_token == NULL) {
+    $login_token = $session_peugeotcars->pg_api_login();   // Authentification
+    if ($login_token["status"] != "OK") {
+      log::add('peugeotcars','error',"Erreur Login API PSA");
+      return;  // Erreur de login API PSA
+    }
+    $cmd_record_period->setConfiguration ('save_auth', $login_token);
+    $cmd_record_period->save();
+    log::add('peugeotcars','debug',"Pas de session en cours => New login");
+  }
+  else if ($session_peugeotcars->state_login() == 0) {
+    $login_token = $session_peugeotcars->pg_api_login();   // Authentification
+    if ($login_token["status"] != "OK") {
+      log::add('peugeotcars','error',"Erreur Login API PSA");
+      return;  // Erreur de login API PSA
+    }
+    $cmd_record_period->setConfiguration ('save_auth', $login_token);
+    $cmd_record_period->save();
+    log::add('peugeotcars','debug',"Session expirée => New login");
+  }
+  // Capture du statut du vehicule
+  $ret = $session_peugeotcars->pg_api_vehicles($vin);
+  if ($ret["success"] == "KO") {
+    log::add('peugeotcars','error',"Erreur Login API PSA");
+    return;  // Erreur de login API PSA
+    }
+  // Statut du véhicule
+  $ret_sts = $session_peugeotcars->pg_api_vehicles_status();
+  $current_position["veh"]= ($ret_sts["gps_lat"]+(floatval(rand(0,100))/1000)).",".($ret_sts["gps_lon"]+(floatval(rand(0,100))/1000)).",".$ret_sts["gps_alt"];
+
+  // Ajoute les coordonnées du domicile pour utilisation par javascript
+  $latitute=config::byKey("info::latitude");
+  $longitude=config::byKey("info::longitude");
+  $current_position["home"] = $latitute.",".$longitude;
+  // Statut
+  if (($ret_sts["gps_lat"] == 0) && ($ret_sts["gps_lon"] == 0))
+    $current_position["status"] == "KO";
+  return ($current_position);
+}
 // ===========================================================
 // Fourniture des statistiques sur l'ensemble des trajets
 // ===========================================================
@@ -478,6 +539,14 @@ try {
     log::add('peugeotcars', 'info', 'Ajax:setPreconProgs=>'.$pp_to);
     $res = precond_set_programs($vin, $pp_to, $progs);
     ajax::success($res);
+    }
+    
+  else if (init('action') == 'getCurrentPosition') {
+    $vin = init('eqLogic_id');
+    log::add('peugeotcars', 'info', 'Ajax:getCurrentPosition');
+    $current_position = get_current_position($vin);
+    $ret_json = json_encode ($current_position);
+    ajax::success($ret_json);
     }
 
     throw new Exception(__('Aucune methode correspondante à : ', __FILE__) . init('action'));
