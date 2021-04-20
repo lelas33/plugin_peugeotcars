@@ -177,7 +177,7 @@ class peugeotcars extends eqLogic {
                       "info_libre2"          => array('Libre2',              'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       // Informations complémentaires pour vehicule hybride                               
-                      "fuel_level"           => array('Niveau carburant',    'info',  'numeric',   "%", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "fuel_level"           => array('Niveau carburant',    'info',  'numeric',   "%", 1, 1, 'peugeotcars::battery_status_mmi', 'peugeotcars::battery_status_mmi'),
                       "fuel_autonomy"        => array('Autonomie carburant', 'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "fuel_ready"           => array('Véhicule Actif',      'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge')
                       

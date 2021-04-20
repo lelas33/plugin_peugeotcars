@@ -123,7 +123,7 @@ function get_current_position($vin)
     return;
   }
   $current_position = [];
-  $current_position["status"] == "OK";
+  $current_position["status"] = "OK";
 
   // Login to API
   $last_login_token = $cmd_record_period->getConfiguration('save_auth');
@@ -168,7 +168,7 @@ function get_current_position($vin)
   $current_position["home"] = $latitute.",".$longitude;
   // Statut
   if (($ret_sts["gps_lat"] == 0) && ($ret_sts["gps_lon"] == 0))
-    $current_position["status"] == "KO";
+    $current_position["status"] = "KO";
   return ($current_position);
 }
 // ===========================================================
