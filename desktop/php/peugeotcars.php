@@ -117,7 +117,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
                         <div class="form-group">
                             <label class="col-lg-2 control-label">{{Capacité de la batterie (kWh)}}</label>
                             <div class="col-lg-3">
-                                <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="batt_capacity" title="{{50 kWh pour une peugeot e-208 ou e-2008, 13.2 kWh pour une peugeot 3008 Hybride}}"/>
+                                <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="batt_capacity" title="{{46 kWh utiles pour une peugeot e-208 ou e-2008, 10.8 kWh pour une peugeot 3008 Hybride}}"/>
                             </div>
                         </div>
                         <div class="form-group">
