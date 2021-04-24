@@ -172,6 +172,7 @@ class MyPSACC:
         self.config_file = DEFAULT_CONFIG_FILENAME
         self.resend_command = 0
         self.fatal_error = 0
+        self.last_state = []
 
     def get_app_name(self):
         return realm_info[self.realm]['app_name']
@@ -334,6 +335,8 @@ class MyPSACC:
             data = json.loads(msg.payload)
             charge_info = None
             if msg.topic.startswith(MQTT_RESP_TOPIC):
+                if msg.topic.endswith("/VehicleState"):
+                    self.last_state = data
                 if "return_code" not in data:
                     logger.debug("mqtt msg hasn't return code")
                 elif data["return_code"] == "400":

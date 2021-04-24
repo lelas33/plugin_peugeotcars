@@ -16,6 +16,7 @@ define("CMD_PRECOND_PROGS", 0x11);
 define("CMD_CHARGING",      0x20);
 define("CMD_WAKEUP",        0x30);
 define("CMD_GET_STATE",     0x40);
+define("CMD_GET_STATE_RD",  0x41);
 
 // Open socket
 // -----------
@@ -79,7 +80,7 @@ function mqtt_message_send($socket, $msg, &$ack)
   // Envoi du message
   socket_send ( $socket, $tab_param, $lg_mess, 0) ;
 
-  // Attente de l'acquittement: message de 128 octets également
+  // Attente de l'acquittement: message de 128 octets Ã©galement
   $lg = socket_recv ($socket, $tab_param, 128, MSG_WAITALL) ;
 
   // Mise en forme du message de retour
@@ -98,6 +99,53 @@ function mqtt_message_send($socket, $msg, &$ack)
     $ack['status'] = "KO";
  }
 
+// Send message using TCP/IP com
+// -----------------------------
+function mqtt_message_send2($socket, $cmd, $cmd_param, &$cmd_ack)
+{
+  
+  // Message a envoyer transforme en json
+  $msg_json = json_encode($cmd_param);
+  $msg_len =  strlen($msg_json);
+
+  // Entete du message: taille fixe de 8 octets
+  // 0xff,0xf0, cmd(MSB),cmd(LSB), msg_payload_len(MSB),msg_payload_len(LSB), 0x0f,0xff
+  $tab_param = str_repeat(chr(0xff), 8);
+  $tab_param[1] = chr(0xf0);
+  $tab_param[2] = chr((($cmd) & 0xff00) >> 8);
+  $tab_param[3] = chr(( $cmd) & 0x00ff);
+  $tab_param[4] = chr((($msg_len) & 0xff00) >> 8);
+  $tab_param[5] = chr(( $msg_len) & 0x00ff);
+  $tab_param[6] = chr(0x0f);
+
+  // Envoi de l'entete du message
+  socket_send ( $socket, $tab_param, 8, 0) ;
+
+  // envoi du corps du message avec les parametres
+  socket_send ( $socket, $msg_json, $msg_len, 0) ;
+
+  // Attente de l'acquittement: entete du message de retour de 8 octets egalement
+  $lg = socket_recv ($socket, $tab_param, 8, MSG_WAITALL) ;
+
+  if (($lg == 8) && (ord($tab_param[2]) == (($cmd & 0xff00) >> 8)) && (ord($tab_param[3]) == ($cmd & 0x00ff)) &&
+     (ord($tab_param[0]) == 0xff) && (ord($tab_param[1]) == 0xf0) && (ord($tab_param[6]) == 0x0f) && (ord($tab_param[7]) == 0xff)) {
+     // entete de retour correct
+     $ack_len = (ord($tab_param[4]) << 8) | (ord($tab_param[5]));
+     }
+   else {
+     return (0);  // Erreur entete message retour incorrect
+     }
+
+  // corps du message de retour
+  $tab_param = "";
+  $lg = socket_recv ($socket, $tab_param, $ack_len, MSG_WAITALL);
+  log::add('peugeotcars','info',"Retour mqtt:".$tab_param);
+  $cmd_ack = json_decode($tab_param);
+  if ($lg == $ack_len)
+    return (1);
+  else
+    return (0);  // Erreur longueur message retour incorrecte
+}
 
 
 ?>
