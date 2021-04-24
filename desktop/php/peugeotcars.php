@@ -168,6 +168,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
                                 <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="cost_kwh" title="{{0.1630 € TTC (9-24kVA Option base EDF 2021)}}"/>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label" >{{Détection alternative des trajets}}</label>
+                            <div class="col-lg-3">
+                                <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="alternate_trips" title="{{A activer si vous n'avez pas d'accès aux infos GPS et Kinetics}}"/>
+                            </div>
+                        </div>
                     </fieldset>
                 </form>
 			</div>
