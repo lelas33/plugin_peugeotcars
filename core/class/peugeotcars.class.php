@@ -480,9 +480,7 @@ class peugeotcars extends eqLogic {
             $alt_signal_quality = intval($mqtt_ret->resp_data->signal_quality)*2;
             $alt_reason         = intval($mqtt_ret->resp_data->reason);
             $alt_sev_state      = intval($mqtt_ret->resp_data->sev_state);
-            log::add('peugeotcars', 'info', "mqtt_return: signal_quality:".$alt_signal_quality);
-            log::add('peugeotcars', 'info', "mqtt_return: reason:".$alt_reason);
-            log::add('peugeotcars', 'info', "mqtt_return: sev_state:".$alt_sev_state);
+            log::add('peugeotcars', 'debug', "mqtt_return: signal_quality:".$alt_signal_quality." / reason:".$alt_reason." / sev_state:".$alt_sev_state);
           }
 
           // Traitement des informations retournees
@@ -779,7 +777,6 @@ class peugeotcars extends eqLogic {
     foreach ($params as $param) {
       $msg['param'][$nb_param++] = $param;
     }
-    log::add('peugeotcars', 'info', "mqtt_submit: nb_param=".$nb_param);
 
     // Envoi du message de commande
     //mqtt_message_send ($socket, $msg, $ack);
