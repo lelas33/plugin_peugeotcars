@@ -173,6 +173,7 @@ class MyPSACC:
         self.resend_command = 0
         self.fatal_error = 0
         self.last_state = []
+        self.flog_mqtt = None
 
     def get_app_name(self):
         return realm_info[self.realm]['app_name']
@@ -332,6 +333,10 @@ class MyPSACC:
     def on_mqtt_message(self, client, userdata, msg):
         try:
             logger.info("mqtt msg %s %s", msg.topic, msg.payload)
+            now = datetime.now()
+            str_dt = now.strftime("%d/%m/%Y %H:%M:%S")
+            log_txt = "%s|%s|%s\n" % (str_dt, msg.topic, msg.payload)
+            self.flog_mqtt.write(log_txt)
             data = json.loads(msg.payload)
             charge_info = None
             if msg.topic.startswith(MQTT_RESP_TOPIC):

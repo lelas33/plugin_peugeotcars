@@ -434,7 +434,7 @@ class peugeotcars extends eqLogic {
         }
         // Toutes les 5 mn en mode trajet alternatifs, recuperation des infos d'etat par le serveur MQTT
         if (($minute%5 == 4) && ($alternate_trips == 1)) {
-          $mqtt_ret = $this->mqtt_submit(CMD_GET_STATE);
+          // $mqtt_ret = $this->mqtt_submit(CMD_GET_STATE);
           // $debug_export = var_export($mqtt_ret, true);
           // log::add('peugeotcars', 'info', "mqtt_return: debug:".$debug_export);
         }
