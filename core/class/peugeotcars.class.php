@@ -177,7 +177,7 @@ class peugeotcars extends eqLogic {
                       "info_libre2"          => array('Libre2',              'info',  'string',     "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "num_photo"            => array('Numéro photo',        'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       // Informations complémentaires pour vehicule hybride                               
-                      "fuel_level"           => array('Niveau carburant',    'info',  'numeric',   "%", 1, 1, 'peugeotcars::battery_status_mmi', 'peugeotcars::battery_status_mmi'),
+                      "fuel_level"           => array('Niveau carburant',    'info',  'numeric',   "%", 1, 1, "GENERIC_INFO",   'peugeotcars::battery_status_mmi', 'peugeotcars::battery_status_mmi'),
                       "fuel_autonomy"        => array('Autonomie carburant', 'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "fuel_ready"           => array('Véhicule Actif',      'info',  'binary',     "", 1, 1, "GENERIC_INFO",   'core::badge', 'core::badge')
                       
@@ -290,11 +290,11 @@ class peugeotcars extends eqLogic {
           }
           $cmd->setSubType($subtype);
           $cmd->setUnite($unit);
-          $cmd->setIsHistorized($hist);
-          $cmd->setIsVisible($visible);
+          // $cmd->setIsHistorized($hist);
+          // $cmd->setIsVisible($visible);
           $cmd->setDisplay('generic_type', $generic_type);
-          $cmd->setTemplate('dashboard', $template_dashboard);
-          $cmd->setTemplate('mobile', $template_mobile);
+          // $cmd->setTemplate('dashboard', $template_dashboard);
+          // $cmd->setTemplate('mobile', $template_mobile);
           if ($id == "veh_type") {
             $cmd->save();
             $cmd->event($ret_sts["service_type"]);
@@ -391,7 +391,7 @@ class peugeotcars extends eqLogic {
     public function preRemove() {
     }
 
-    // Fonction appelée au rythme de 1 mn (recupeartion des informations courantes de la voiture)
+    // Fonction appelée au rythme de 1 mn (recuperation des informations courantes de la voiture)
     // ==========================================================================================
     public static function pull() {
       if (config::byKey('account', 'peugeotcars') != "" || config::byKey('password', 'peugeotcars') != "" ) {
@@ -400,7 +400,7 @@ class peugeotcars extends eqLogic {
         }
       }
     }
-    // Lecture des statut du vehicule connecté
+    // Lecture des statuts du vehicule connecté
     public function periodic_state($rfh) {
       if ($rfh == 1)
         log::add('peugeotcars','debug','Mise à jour manuelle');

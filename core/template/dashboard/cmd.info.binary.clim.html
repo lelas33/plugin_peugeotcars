@@ -4,11 +4,14 @@
         <span style="font-size: 3.5em;" class="iconCmd#uid#"></span>
     </center>
     <script>
+      jeedom.cmd.update['#id#'] = function(_options) {
         $('.iconCmd#uid#').empty();
-        if ('#state#' == '1') {
+        if (_options.display_value == '1') {
             $('.iconCmd#uid#').append('<i class="icon techno-electric9"></i>');
         } else {
             $('.iconCmd#uid#').append('<i class="fas fa-times"></i>');
         }
+      }
+      jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
     </script>
 </div>

@@ -4,9 +4,10 @@
         <span style="font-size: 3.5em;" class="iconCmd#uid#"></span>
     </center>
     <script>
+      jeedom.cmd.update['#id#'] = function(_options) {
         $('.iconCmd#uid#').empty();
-        tmp = parseFloat('#state#');
-        if (('#state#' === 'undefined') || (tmp == 0)) {
+        tmp = parseFloat(_options.display_value);
+        if ((_options.display_value === 'undefined') || (tmp == 0)) {
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal0"></i>');
         } else if  (tmp <= 2){
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal1"></i>');
@@ -19,5 +20,7 @@
         } else {
             $('.iconCmd#uid#').append('<i class="icon jeedom2-fdp1-signal5"></i>');
         }
+      }
+      jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
     </script>
 </div>
