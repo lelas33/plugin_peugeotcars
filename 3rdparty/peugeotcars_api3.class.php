@@ -324,8 +324,8 @@ class peugeotcars_api3 {
     $hours   = substr($duration['hours'], 0, -1);
     $minutes = substr($duration['minutes'], 0, -1);
     $seconds = substr($duration['seconds'], 0, -1);
-    $toltalSeconds = ($hours * 60 * 60) + ($minutes * 60) + $seconds;
-    return $toltalSeconds;
+    $totalSeconds = ($hours * 60 * 60) + ($minutes * 60) + $seconds;
+    return $totalSeconds;
   }
   
   // convertion format date

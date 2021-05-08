@@ -148,7 +148,7 @@ class peugeotcars extends eqLogic {
                       "gps_position"         => array('Position GPS',        'info',  'string',     "", 0, 1, "GENERIC_INFO",   'peugeotcars::opensmap',   'peugeotcars::opensmap'),
                       "gps_position_lat"     => array('Position GPS Lat.',   'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "gps_position_lon"     => array('Position GPS Lon.',   'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
-                      "gps_position_alt"     => array('Position GPS Alt.',   'info',  'numeric',    "", 0, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
+                      "gps_position_alt"     => array('Position GPS Alt.',   'info',  'numeric',   "m", 1, 0, "GENERIC_INFO",   'core::badge', 'core::badge'),
                       "gps_dist_home"        => array('Distance maison',     'info',  'numeric',  "km", 1, 1, "GENERIC_INFO",   'core::line', 'core::line'),
                       "conn_level"           => array('Niveau connection',   'info',  'numeric',    "", 1, 1, "GENERIC_INFO",   'peugeotcars::con_level',  'peugeotcars::con_level'),
                       "kinetic_moving"       => array('Voiture en mouvement','info',  'binary',     "", 1, 1, "GENERIC_INFO",   'peugeotcars::veh_moving', 'peugeotcars::veh_moving'),
@@ -428,18 +428,31 @@ class peugeotcars extends eqLogic {
         if (($minute%10 == 8) && ($rfh == 0)) {
           $cmd = $this->getCmd(null, "charging_status");
           $charging_status = $cmd->execCmd();
-          if (strtolower($charging_status) == "inprogress") {
+          $charging_status = strtolower($charging_status);
+          if ($charging_status == "inprogress") {
             $this->mqtt_submit(CMD_WAKEUP);
           }
         }
+        
+        // Toutes les mn en mode trajet alternatifs, recuperation des dernières infos d'etat depuis le serveur MQTT
+        if ($alternate_trips == 1) {
+          $mqtt_ret = $this->mqtt_submit(CMD_GET_STATE_ALT);
+          $alt_kinetic        = intval($mqtt_ret->trip_in_progress);
+          $alt_signal_quality = intval($mqtt_ret->signal_quality)*2;
+          $alt_reason         = intval($mqtt_ret->reason);
+          $alt_sev_state      = intval($mqtt_ret->sev_state);
+        }
+        
         // Toutes les 5 mn en mode trajet alternatifs, recuperation des infos d'etat par le serveur MQTT
-        if (($minute%5 == 4) && ($alternate_trips == 1)) {
-          // $mqtt_ret = $this->mqtt_submit(CMD_GET_STATE);
+        // if (($minute%5 == 4) && ($alternate_trips == 1)) {
+          // if ($charging_status != "inprogress") {
+            // $mqtt_ret = $this->mqtt_submit(CMD_GET_STATE);
+          // }
           // $debug_export = var_export($mqtt_ret, true);
           // log::add('peugeotcars', 'info', "mqtt_return: debug:".$debug_export);
-        }
+        // }
         // Toutes les 5 mn => Mise à jour des informations de la voiture
-        if ((($record_period == 0) && ($minute%5 == 0)) || ($record_period > 0) || ($rfh == 1)) {
+        if ((($record_period == 0) && ($minute%5 == 0)) || ($record_period > 0) || ($rfh == 1) || (($alternate_trips == 1) && ($alt_kinetic == 1))) {
           // Login a l'API PSA
           $last_login_token = $cmd_record_period->getConfiguration('save_auth');
           if ((!isset($last_login_token)) || ($last_login_token == "") || ($rfh==1))
@@ -475,13 +488,13 @@ class peugeotcars extends eqLogic {
           $ret = $session_peugeotcars->pg_api_vehicles_status();
           
           // Capture des infos complementaires depuis le serveur MQTT
-          if ($alternate_trips == 1) {
-            $mqtt_ret = $this->mqtt_submit(CMD_GET_STATE_RD);
-            $alt_signal_quality = intval($mqtt_ret->resp_data->signal_quality)*2;
-            $alt_reason         = intval($mqtt_ret->resp_data->reason);
-            $alt_sev_state      = intval($mqtt_ret->resp_data->sev_state);
-            log::add('peugeotcars', 'debug', "mqtt_return: signal_quality:".$alt_signal_quality." / reason:".$alt_reason." / sev_state:".$alt_sev_state);
-          }
+          // if (($alternate_trips == 1) && ($charging_status != "inprogress"))  {
+            // $mqtt_ret = $this->mqtt_submit(CMD_GET_STATE_RD);
+            // $alt_signal_quality = intval($mqtt_ret->resp_data->signal_quality)*2;
+            // $alt_reason         = intval($mqtt_ret->resp_data->reason);
+            // $alt_sev_state      = intval($mqtt_ret->resp_data->sev_state);
+            // log::add('peugeotcars', 'debug', "mqtt_return: signal_quality:".$alt_signal_quality." / reason:".$alt_reason." / sev_state:".$alt_sev_state);
+          // }
 
           // Traitement des informations retournees
           $batt_nominal_voltage = $this->getConfiguration("batt_nominal_voltage");
@@ -557,7 +570,7 @@ class peugeotcars extends eqLogic {
           $conn_level = ($alternate_trips == 0) ? $ret["conn_level"] : $alt_signal_quality;
           $cmd->event($conn_level);            
           $cmd = $this->getCmd(null, "kinetic_moving");
-          $kinetic_moving = intval($ret["kinetic_moving"],10);
+          $kinetic_moving = ($alternate_trips == 0) ? intval($ret["kinetic_moving"],10) : $alt_kinetic;
           $cmd->event($kinetic_moving);
           if ($alternate_trips == 1) {
             $cmd = $this->getCmd(null, "reason");
@@ -767,7 +780,7 @@ class peugeotcars extends eqLogic {
       log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
       return;
     }    
-    log::add('peugeotcars', 'info', "mqtt_submit: Envoi de la commmande (".dechex($command).") vers le serveur local");
+    log::add('peugeotcars', 'debug', "mqtt_submit: Envoi de la commmande (".dechex($command).") vers le serveur local");
 
     // Creation d'une liaison TCP/IP avec le serveur MQTT
     $socket = mqtt_start_socket ();

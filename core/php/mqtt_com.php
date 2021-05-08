@@ -17,6 +17,7 @@ define("CMD_CHARGING",      0x20);
 define("CMD_WAKEUP",        0x30);
 define("CMD_GET_STATE",     0x40);
 define("CMD_GET_STATE_RD",  0x41);
+define("CMD_GET_STATE_ALT", 0x42);   // Etat du vehicule a partir des infos issues du serveur MQTT
 
 // Open socket
 // -----------
@@ -139,7 +140,7 @@ function mqtt_message_send2($socket, $cmd, $cmd_param, &$cmd_ack)
   // corps du message de retour
   $tab_param = "";
   $lg = socket_recv ($socket, $tab_param, $ack_len, MSG_WAITALL);
-  log::add('peugeotcars','info',"Retour mqtt:".$tab_param);
+  log::add('peugeotcars','debug',"Retour mqtt:".$tab_param);
   $cmd_ack = json_decode($tab_param);
   if ($lg == $ack_len)
     return (1);

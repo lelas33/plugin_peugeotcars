@@ -21,9 +21,9 @@ echo "BASEDIR: $BASEDIR"
 touch ${PROGRESS_FILE}
 echo 0 > ${PROGRESS_FILE}
 echo "Installation des dépendances"
-echo "============="
-echo "STEP1:Upadate"
-echo "============="
+echo "============"
+echo "STEP1:Update"
+echo "============"
 # sudo apt update
 echo 10 > ${PROGRESS_FILE}
 echo "======================================"
