@@ -17,6 +17,7 @@ CMD_CHARGING      = 0x0020   # Recharge de la batterie
 CMD_WAKEUP        = 0x0030   # Reveil du vehicule
 CMD_GET_STATE     = 0x0040   # Etat du vehicule
 CMD_GET_STATE_RD  = 0x0041   # Etat du vehicule (retour donnees uniquement)
+CMD_GET_STATE_ALT = 0x0042   # Etat du vehicule a partir des infos issues du serveur MQTT
 
 
 
@@ -46,7 +47,7 @@ class my_jeedom_server:
             while True:
                 (conn, addr) = s.accept()
                 with conn:
-                    print('Connected by', addr)
+                    # print('Connected by', addr)
                     # reception entete
                     # print('Get message header')
                     self.cmd_hdr = conn.recv(MSG_HEADER_SIZE)
@@ -80,10 +81,11 @@ class my_jeedom_server:
         self.cmd_params = json.loads(self.cmd_msg)
         try:
             self.cmd_nbp = len(self.cmd_params["param"])
-            # memorise command si besoin de retry
-            self.last_cmd = self.cmd
-            self.last_nbp = self.cmd_nbp
-            self.last_params = self.cmd_params
+            # memorise command si besoin de retry (mais sauf la commande CMD_GET_STATE_ALT)
+            if (self.cmd != CMD_GET_STATE_ALT):
+                self.last_cmd = self.cmd
+                self.last_nbp = self.cmd_nbp
+                self.last_params = self.cmd_params
         except:
             self.cmd_nbp = 0
             # memorise command si besoin de retry
@@ -94,7 +96,7 @@ class my_jeedom_server:
         return 1
 
     def msg_execute_cmd(self, mc_cmd, mc_nbp, mc_param):
-        self.ack_params = []
+        self.ack_params = {}
         # traitement commande
         if (mc_cmd == CMD_PRECOND): # préconditionnement du véhicule
             if (mc_param["param"][0] == 1):
@@ -127,6 +129,15 @@ class my_jeedom_server:
         elif (mc_cmd == CMD_GET_STATE_RD): # Etat du vehicule (retour donnees uniquement)
             self.ack_params = self.myp.last_state
 
+        elif (mc_cmd == CMD_GET_STATE_ALT): # Etat du vehicule Alternatif
+            self.ack_params["trip_in_progress"] = self.myp.trip_in_progress
+            self.ack_params["signal_quality"] = self.myp.mem_state["signal_quality"]
+            self.ack_params["reason"] = self.myp.mem_state["reason"]
+            self.ack_params["sev_state"] = self.myp.mem_state["sev_state"]
+            # logger.info("trip_in_progress: %d", self.ack_params["trip_in_progress"])
+            # logger.info("signal_quality:   %s", self.ack_params["signal_quality"])
+            # logger.info("reason:           %s", self.ack_params["reason"])
+            # logger.info("sev_state:        %s", self.ack_params["sev_state"])
 
     def msg_generate_ack(self):
         # genere ack entete et corps message

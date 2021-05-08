@@ -6,6 +6,7 @@ import uuid
 from copy import copy
 
 from datetime import datetime
+import time
 from http import HTTPStatus
 from json import JSONEncoder
 from hashlib import md5
@@ -172,8 +173,12 @@ class MyPSACC:
         self.config_file = DEFAULT_CONFIG_FILENAME
         self.resend_command = 0
         self.fatal_error = 0
-        self.last_state = []
+        self.last_state = {}
+        self.mem_state = {"signal_quality": 0, "reason": 0, "sev_state": 0}
         self.flog_mqtt = None
+        self.trip_in_progress = 0
+        self.veh_last_stop_date = 0
+        self.prev_etat_res_elec = 0
 
     def get_app_name(self):
         return realm_info[self.realm]['app_name']
@@ -324,8 +329,8 @@ class MyPSACC:
 
     def on_mqtt_disconnect(self, client, userdata, rc):
         logger.warning("Disconnected with result code %d", rc)
-        if rc == 1:
-            self.fatal_error = 1
+        if rc == 1 or rc == 5:
+#            self.fatal_error = 1
             self.refresh_remote_token(force=True)
         else:
             logger.warning(mqtt.error_string(rc))
@@ -349,7 +354,7 @@ class MyPSACC:
                     logger.error("retry last request, token was expired")
                     self.resend_command = 1
                 elif data["return_code"] == "300":
-                    logger.error('%d', data["return_code"])
+                    logger.error('%s', data["return_code"])
                 elif data["return_code"] != "0":
                     logger.error('%s : %s', data["return_code"], data["reason"])
                     if msg.topic.endswith("/VehicleState"):
@@ -357,6 +362,7 @@ class MyPSACC:
                         self.precond_programs[data["vin"]] = data["resp_data"]["precond_state"]["programs"]
             elif msg.topic.startswith(MQTT_EVENT_TOPIC):
                 charge_info = data["charging_state"]
+            self.message_analysis (msg.topic, data)
 #            if charge_info is not None and charge_info['remaining_time'] != 0 and charge_info['rate'] == 0:
 #                # fix a psa server bug where charge beginning without status api being properly updated
 #                logger.warning("charge begin but API isn't updated")
@@ -524,6 +530,36 @@ class MyPSACC:
             psacc = MyPSACC(**config)
             psacc.config_file = name
             return psacc
+
+
+    def message_analysis (self, topic, data):
+        if topic.startswith(MQTT_EVENT_TOPIC):
+            # logger.info("Message analysis: %s", topic)
+            now_timestamp = time.time()
+            utc_offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+            cur_date = utc_offset+datetime.fromisoformat(data["date"].replace("Z", "+00:00"))
+            cur_etat_res_elec = data["etat_res_elec"]
+            cur_last_stop_date = utc_offset+datetime.fromisoformat(data["sev_stop_date"].replace("Z", "+00:00"))
+            # logger.info("Message analysis: cur_date:%s", cur_date.strftime("%m/%d/%Y, %H:%M:%S"))
+            # logger.info("Message analysis: cur_etat_res_elec:%d", cur_etat_res_elec)
+            # logger.info("Message analysis: cur_last_stop_date:%s", cur_last_stop_date.strftime("%m/%d/%Y, %H:%M:%S"))
+            # start of trip detection: transition from (0 or 1) to (3 or 5) for parameter "etat_res_elec"
+            if ((self.prev_etat_res_elec == 0) or (self.prev_etat_res_elec == 1)) and ((cur_etat_res_elec == 3) or (cur_etat_res_elec == 3)):
+                logger.info("Message analysis: Start of trip detection, at:%s", cur_date.strftime("%m/%d/%Y, %H:%M:%S"))
+                self.trip_in_progress = 1
+            # End of trip detection: change value for "sev_stop_date"
+            if (self.veh_last_stop_date != cur_last_stop_date):
+                logger.info("Message analysis: End of trip detection, at:%s", cur_date.strftime("%m/%d/%Y, %H:%M:%S"))
+                self.trip_in_progress = 0
+                self.veh_last_stop_date = cur_last_stop_date
+            self.prev_etat_res_elec = cur_etat_res_elec
+            # logger.info("signal_quality:   %s", data["signal_quality"])
+            # logger.info("reason:           %s", data["reason"])
+            # logger.info("sev_state:        %s", data["sev_state"])
+            self.mem_state["signal_quality"] = data["signal_quality"]
+            self.mem_state["reason"] = data["reason"]
+            self.mem_state["sev_state"] = data["sev_state"]
+
 
 #    def set_record(self, value: bool):
 #        self._record_enabled = value
