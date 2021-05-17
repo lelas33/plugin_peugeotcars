@@ -347,26 +347,27 @@ function precond_set_programs($vin, $pp_to, $progs)
     // Creation d'une liaison TCP/IP avec le serveur MQTT
     $socket = mqtt_start_socket ();
     // Construction du message
-    $prog = json_decode($progs);
-    $msg = [];
-    $ack = [];
-    $msg['cmd'] = CMD_PRECOND_PROGS;
-    $msg['nbp'] = 40;
-    $msg['param'] = array_fill (0, 40, 0);
-    $msg['param'][ 0] = $prog->program1->on; $msg['param'][ 1] = $prog->program1->hour; $msg['param'][ 2] = $prog->program1->minute;
-    $msg['param'][10] = $prog->program2->on; $msg['param'][11] = $prog->program2->hour; $msg['param'][12] = $prog->program2->minute;
-    $msg['param'][20] = $prog->program3->on; $msg['param'][21] = $prog->program3->hour; $msg['param'][22] = $prog->program3->minute;
-    $msg['param'][30] = $prog->program4->on; $msg['param'][31] = $prog->program4->hour; $msg['param'][32] = $prog->program4->minute;
-    for ($day=0; $day<7; $day++) {
-      $msg['param'][ 3+$day] = $prog->program1->day[$day];
-      $msg['param'][13+$day] = $prog->program2->day[$day];
-      $msg['param'][23+$day] = $prog->program3->day[$day];
-      $msg['param'][33+$day] = $prog->program4->day[$day];      
-    }
+    // $prog = json_decode($progs);
+    // $msg = [];
+    // $ack = [];
+    // $msg['cmd'] = CMD_PRECOND_PROGS;
+    // $msg['nbp'] = 40;
+    // $msg['param'] = array_fill (0, 40, 0);
+    // $msg['param'][ 0] = $prog->program1->on; $msg['param'][ 1] = $prog->program1->hour; $msg['param'][ 2] = $prog->program1->minute;
+    // $msg['param'][10] = $prog->program2->on; $msg['param'][11] = $prog->program2->hour; $msg['param'][12] = $prog->program2->minute;
+    // $msg['param'][20] = $prog->program3->on; $msg['param'][21] = $prog->program3->hour; $msg['param'][22] = $prog->program3->minute;
+    // $msg['param'][30] = $prog->program4->on; $msg['param'][31] = $prog->program4->hour; $msg['param'][32] = $prog->program4->minute;
+    // for ($day=0; $day<7; $day++) {
+      // $msg['param'][ 3+$day] = $prog->program1->day[$day];
+      // $msg['param'][13+$day] = $prog->program2->day[$day];
+      // $msg['param'][23+$day] = $prog->program3->day[$day];
+      // $msg['param'][33+$day] = $prog->program4->day[$day];      
+    // }
     // Envoi du message de commande
-    mqtt_message_send ($socket, $msg, $ack);
+    $cr = mqtt_message_send2($socket, CMD_PRECOND_PROGS, $progs, $ack);
     // Fermeture du socket TCP/IP
     mqtt_end_socket ($socket);
+    return("OK");
   }
 }
 

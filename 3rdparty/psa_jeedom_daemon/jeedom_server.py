@@ -110,8 +110,8 @@ class my_jeedom_server:
             self.myp.preconditioning(self.vin, precond)
 
         elif (mc_cmd == CMD_PRECOND_PROGS):  # Programmes de préconditionnement
-            progs = {}
-            #self.myp.preconditioning_progs(self.vin, progs)
+            progs = self.cmd_params            
+            self.myp.preconditioning_progs(self.vin, progs)
 
         elif (mc_cmd == CMD_CHARGING):  # Recharge de la batterie
             charge_type = "immediate" if (mc_param["param"][0] == 1) else "delayed"

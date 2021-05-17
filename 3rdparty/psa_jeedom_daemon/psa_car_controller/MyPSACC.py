@@ -6,6 +6,7 @@ import uuid
 from copy import copy
 
 from datetime import datetime
+from datetime import timedelta
 import time
 from http import HTTPStatus
 from json import JSONEncoder
@@ -179,6 +180,7 @@ class MyPSACC:
         self.trip_in_progress = 0
         self.veh_last_stop_date = 0
         self.prev_etat_res_elec = 0
+        self.last_stopped_state = time.time()
 
     def get_app_name(self):
         return realm_info[self.realm]['app_name']
@@ -544,7 +546,7 @@ class MyPSACC:
             # logger.info("Message analysis: cur_etat_res_elec:%d", cur_etat_res_elec)
             # logger.info("Message analysis: cur_last_stop_date:%s", cur_last_stop_date.strftime("%m/%d/%Y, %H:%M:%S"))
             # start of trip detection: transition from (0 or 1) to (3 or 5) for parameter "etat_res_elec"
-            if ((self.prev_etat_res_elec == 0) or (self.prev_etat_res_elec == 1)) and ((cur_etat_res_elec == 3) or (cur_etat_res_elec == 3)):
+            if ((self.prev_etat_res_elec == 0) or (self.prev_etat_res_elec == 1)) and ((cur_etat_res_elec == 3) or (cur_etat_res_elec == 5)) and (self.last_stopped_state <= cur_date) and (cur_date > (self.veh_last_stop_date+timedelta(seconds=10))):
                 logger.info("Message analysis: Start of trip detection, at:%s", cur_date.strftime("%m/%d/%Y, %H:%M:%S"))
                 self.trip_in_progress = 1
             # End of trip detection: change value for "sev_stop_date"
@@ -553,6 +555,8 @@ class MyPSACC:
                 self.trip_in_progress = 0
                 self.veh_last_stop_date = cur_last_stop_date
             self.prev_etat_res_elec = cur_etat_res_elec
+            if ((cur_etat_res_elec == 0) or (cur_etat_res_elec == 1)):
+                self.last_stopped_state = cur_date  # stores the date of last stopped state
             # logger.info("signal_quality:   %s", data["signal_quality"])
             # logger.info("reason:           %s", data["reason"])
             # logger.info("sev_state:        %s", data["sev_state"])
