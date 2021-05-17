@@ -102,11 +102,9 @@ function mqtt_message_send($socket, $msg, &$ack)
 
 // Send message using TCP/IP com
 // -----------------------------
-function mqtt_message_send2($socket, $cmd, $cmd_param, &$cmd_ack)
+function mqtt_message_send2($socket, $cmd, $msg_json, &$cmd_ack)
 {
-  
-  // Message a envoyer transforme en json
-  $msg_json = json_encode($cmd_param);
+  // Longueur du Message a envoyer
   $msg_len =  strlen($msg_json);
 
   // Entete du message: taille fixe de 8 octets
