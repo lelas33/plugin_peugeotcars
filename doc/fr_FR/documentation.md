@@ -51,18 +51,20 @@ Sur la page configuration du plugin, réaliser les opérations suivantes dans l'
 
 
 ## Configuration
-Une fois l'installation effectuée:
-Sur l'onglet "**Equipement**", choisissez l'objet parent, et notez le numéro VIN du véhicule (voir sur la carte grise)
+Une fois l'installation effectuée:<br>
+Sur l'onglet "**Equipement**", choisissez l'objet parent, et notez le numéro VIN du véhicule (voir sur la carte grise)<br>
 Indiquez également la capacité de la batterie pour un véhicule électrique. (Cela permet d'évaluer la consommation sur un trajet) <br>
-Lors de la sauvegarde de l'équipement, quelques photos du véhicules sont téléchargées et rendues disponibles pour affichage sur le widget.
+Lors de la sauvegarde de l'équipement, quelques photos du véhicules sont téléchargées et rendues disponibles pour affichage sur le widget.<br>
 <p align="left">
   <img src="../images/config_equipement.png" width="800" title="Configuration équipement">
 </p>
+
 Il faut saisir ensuite quelques informations complémentaires:
 * La capacité de la batterie de votre véhicule (les valeurs proposées sont données en info-bulles)
 * La tension nominale de la batterie de votre véhicule (les valeurs proposées sont données en info-bulles)
 * Le prix du kWh pour les calculs de cout des trajets
-Pour le moment, la section "Configuration pour la charge" n'est pas utilisée. Ne rien remplir dans ces champs
+* Sélectionner la case "Détection alternative des trajets" si l'API ne fourni plus d'information de position GPS et de véhicule en mouvement. Cette option permet de détecter les trajets par un autre moyen.<br>
+Pour le moment, la section "Configuration pour la charge" n'est pas utilisée. Ne rien remplir dans ces champs<br>
 
 La page du panel à besoin de connaitre les coordonnées GPS de stationnement habituel de la voiture afin de centrer la carte pour l’affichage des trajets. <br>
 Pour cela, il faut renseigner ces coordonnées GPS dans la page de configuration de jeedom. <br>
@@ -134,11 +136,7 @@ Les opérations principales d'entretion sont données également. : plus fonctio
 </p>
 
 **Bugs connus:**
-Cette version 0.6 est encore draft. Il y a quelques bugs connus mais non pénalisants
-* Javascript erreur : "ReferenceError: L is not defined" (affichée dans la barre de titre de jeedom) <br>
-  => Corrigé
-* Affichage des trajets sur le pannel: On ne peut pas toujours sélectionner un trajet pour affichage sur la carte.
-  => Corrigé
+..
 
 **Suite prévue pour ce plugin:**
-* ...
+* Ajouter d'autres types de véhicules du groupe PSA
