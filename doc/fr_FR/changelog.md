@@ -1,5 +1,11 @@
 # Changelog plugin PeugeotCars
 
+# 18/05/2021: Tag pgc_v0.7
+
+- Ajout d'une détection alternative des trajets en cas de perte définitive des Infos GPS
+- Amélioration de la configuration pour la charge en mode différé.
+- Correction de bugs
+
 # 10/04/2021: Tag pgc_v0.6
 
 - Intégration de l'API psa_car_controller (Remote Control of PSA car) développée par Flobz: merci à lui.<br>
