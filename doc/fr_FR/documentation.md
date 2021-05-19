@@ -64,6 +64,7 @@ Il faut saisir ensuite quelques informations complémentaires:
 * La tension nominale de la batterie de votre véhicule (les valeurs proposées sont données en info-bulles)
 * Le prix du kWh pour les calculs de cout des trajets
 * Sélectionner la case "Détection alternative des trajets" si l'API ne fourni plus d'information de position GPS et de véhicule en mouvement. Cette option permet de détecter les trajets par un autre moyen.<br>
+
 Pour le moment, la section "Configuration pour la charge" n'est pas utilisée. Ne rien remplir dans ces champs<br>
 
 La page du panel à besoin de connaitre les coordonnées GPS de stationnement habituel de la voiture afin de centrer la carte pour l’affichage des trajets. <br>
