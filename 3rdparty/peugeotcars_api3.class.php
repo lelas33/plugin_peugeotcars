@@ -6,17 +6,38 @@ class peugeotcars_api3 {
 
   // Constantes pour la classe
   protected $url_api_psa_oauth1        = 'https://id-dcr.peugeot.com/';
-  protected $url_api_psa_oauth2        = 'https://idpcvs.peugeot.com/am/oauth2/';
+  protected $url_api_psa_oauth2 = array (
+    "AP" => "https://idpcvs.peugeot.com/am/oauth2/",    // Peugeot
+    "AC" => "https://idpcvs.citroen.com/am/oauth2/",    // Citroën
+    "DS" => "https://idpcvs.driveds.com/am/oauth2/",    // Citroën-DS
+    "OP" => "https://idpcvs.opel.com/am/oauth2/",       // Opel
+    "VX" => "https://idpcvs.vauxhall.co.uk/am/oauth2/"  // Vauxhall
+  );
   protected $url_api_psa_conn_car      = 'https://api.groupe-psa.com/connectedcar/v4/';
   protected $url_api_psa_mym_sgp       = 'https://ap-mym.servicesgp.mpsa.com/api/v1/';
   protected $url_api_sw                = 'https://api.groupe-psa.com/applications/majesticf/v1/';
 
 
-  protected $client_id_b64     = "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw";
-  protected $client_secret_b64 = "VDV0UDdpUzBjTzhzQzBsQTJpRTJhUjdnSzZ1RTVyRjNsSjhwQzNuTzFwUjd0TDh2VTE=";
+
+  protected $client_id_b64 = array (
+    "AP" => "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw",   // Peugeot
+    "AC" => "NTM2NGRlZmMtODBlNi00NDdiLWJlYzYtNGFmOGQxNTQyY2Fl",   // Citroën
+    "DS" => "Y2JmNzRlZTctYTMwMy00YzNkLWFiYTMtMjlmNTk5NGUyZGZh",   // Citroën-DS
+    "OP" => "MDczNjQ2NTUtOTNjYi00MTk0LTgxNTgtNmIwMzVhYzJjMjRj",   // Opel
+    "VX" => "MTIyZjM1MTEtNGY3NC00YTBjLWJjZGEtYWYyZjNiMmUzYTY1"    // Vauxhall
+  );
+
+  protected $client_secret_b64 = array (
+    "AP" => "VDV0UDdpUzBjTzhzQzBsQTJpRTJhUjdnSzZ1RTVyRjNsSjhwQzNuTzFwUjd0TDh2VTE=",   // Peugeot
+    "AC" => "aUUwY0Q4YkIweUowZFM2ck8zbk4xaEkyd1U3dUE1eFI0Z1A3bEQ2dk0wb0gwblM4ZE4=",   // Citroën
+    "DS" => "WDZiRTZ5UTN0SDFjRzVvQTZhVzRmUzZoSzBjUjBhSzV5TjJ3RTRoUDh2TDhvVzVnVTM=",   // Citroën-DS
+    "OP" => "RjJrSzdsQzVrRjVxTjd0TTB3VDhrRTNjVzFkUDB3QzVwSTZ2QzBzUTVpUDVjTjhjSjg=",   // Opel
+    "VX" => "TjFpWTNqTzRqSTFzRjJ5UzZ5SjNyRzd4UTRrTDRrSzFkTzN4VDV1WDZkRjNrVzhnSTY="    // Vauxhall
+  );
 
   protected $username;
   protected $password;
+  protected $brand_id;
   protected $client_id;
   protected $client_secret;
   protected $access_token = [];
@@ -31,13 +52,14 @@ class peugeotcars_api3 {
   // ==============================
   // General function : login
   // ==============================
-  function login($username, $password, $token)
+  function login($username, $password, $brand_id, $token)
   {
     $this->username = $username;
     $this->password = $password;
+    $this->brand_id = $brand_id;
     $this->access_token = $token;  // Etat des token des appels précédents
-    $this->client_id     = base64_decode ($this->client_id_b64);
-    $this->client_secret = base64_decode ($this->client_secret_b64);
+    $this->client_id     = base64_decode ($this->client_id_b64[$brand_id]);
+    $this->client_secret = base64_decode ($this->client_secret_b64[$brand_id]);
     $this->debug_api = false;
   }
 
@@ -102,8 +124,8 @@ class peugeotcars_api3 {
   private function post_api_psa_auth2($param, $fields = null)
   {
     $session = curl_init();
-
-    curl_setopt($session, CURLOPT_URL, $this->url_api_psa_oauth2.$param);
+    $url = $this->url_api_psa_oauth2[$this->brand_id];
+    curl_setopt($session, CURLOPT_URL, $url.$param);
     curl_setopt($session, CURLOPT_HTTPHEADER, array(
        'Content-Type: application/x-www-form-urlencoded',
        'Authorization: Basic '.base64_encode($this->client_id.":".$this->client_secret),

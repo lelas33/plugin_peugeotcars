@@ -1,6 +1,5 @@
 import json
 import threading
-import traceback
 from copy import copy
 from datetime import datetime, timedelta
 from hashlib import md5
@@ -8,8 +7,8 @@ from time import sleep
 
 import pytz
 
-from MyPSACC import MyPSACC
-from MyLogger import logger
+from my_psacc import MyPSACC
+from mylogger import logger
 
 DISCONNECTED = "Disconnected"
 INPROGRESS = "InProgress"
@@ -91,10 +90,10 @@ class ChargeControl:
                 if self._next_stop_hour is not None and self._next_stop_hour < now:
                     self._next_stop_hour += timedelta(days=1)
                 self.retry_count = 0
-        except AttributeError:
-            logger.error("Probably can't retrieve all information from API: %s", traceback.format_exc())
-        except:
-            logger.error(traceback.format_exc())
+        except (AttributeError, ValueError):
+            logger.exception("Probably can't retrieve all information from API:")
+        except: # pylint: disable=bare-except
+            logger.exception("Charge control:")
 
     def get_dict(self):
         chd = copy(self.__dict__)
@@ -125,12 +124,12 @@ class ChargeControls(dict):
 
     @staticmethod
     def load_config(psacc: MyPSACC, name="charge_config.json"):
-        with open(name, "r") as f:
-            config_str = f.read()
+        with open(name, "r") as file:
+            config_str = file.read()
             chd = json.loads(config_str)
             charge_control_list = ChargeControls(name)
-            for vin, el in chd.items():
-                charge_control_list[vin] = ChargeControl(psacc, vin, **el)
+            for vin, params in chd.items():
+                charge_control_list[vin] = ChargeControl(psacc, vin, **params)
             return charge_control_list
 
     def get(self, vin) -> ChargeControl:
@@ -138,6 +137,7 @@ class ChargeControls(dict):
             return self[vin]
         except KeyError:
             pass
+        return None
 
     def init(self):
         for charge_control in self.values():

@@ -1,11 +1,11 @@
 import json
 from copy import copy
 
-from MyLogger import logger
+from mylogger import logger
 from libs.car_model import CarModel
 from libs.car_status import CarStatus
 
-
+# pylint: disable=too-many-instance-attributes,too-many-arguments
 class Car:
     def __init__(self, vin, vehicle_id, brand, label=None, battery_power=None, fuel_capacity=None,
                  max_elec_consumption=None, max_fuel_consumption=None, abrp_name=None):
@@ -38,11 +38,17 @@ class Car:
     def is_hybrid(self) -> bool:
         return self.fuel_capacity > 0 and self.battery_power > 0
 
+    def has_battery(self):
+        return self.battery_power > 0
+
+    def has_fuel(self):
+        return self.fuel_capacity > 0
+
     def get_status(self):
         if self.status is not None:
             return self.status
         logger.error("status of %s is None", self.vin)
-        raise ValueError("status of %s is None")
+        raise ValueError("status of {} is None".format(self.vin))
 
     @classmethod
     def from_json(cls, data: dict):
@@ -71,6 +77,12 @@ class Car:
         if self._status is not None and self.status.__class__ != CarStatus:
             self._status.__class__ = CarStatus
             self._status.correct()
+
+    def get_charge_speed(self, diff_elvel, duration_in_sec) -> float:
+        duration_in_hour = duration_in_sec / 3600
+        charged_kw = self.battery_power * diff_elvel / 100
+        kw_hour = charged_kw / duration_in_hour
+        return kw_hour
 
 
 class Cars(list):
@@ -106,20 +118,20 @@ class Cars(list):
         if name is None:
             name = self.config_filename
         config_str = json.dumps(self, default=lambda car: car.to_dict(), sort_keys=True, indent=4)
-        with open(name, "w") as f:
-            f.write(config_str)
+        with open(name, "w") as file:
+            file.write(config_str)
 
     @staticmethod
     def load_cars(name=None):
         if name is None:
             name = Cars().config_filename
         try:
-            with open(name, "r") as f:
-                json_str = f.read()
+            with open(name, "r") as file:
+                json_str = file.read()
                 cars = Cars.from_json(json.loads(json_str))
                 cars.config_filename = name
                 cars.save_cars()
                 return cars
-        except (FileNotFoundError, TypeError) as e:
-            logger.debug(e)
+        except (FileNotFoundError, TypeError) as ex:
+            logger.debug(ex)
             return Cars()
