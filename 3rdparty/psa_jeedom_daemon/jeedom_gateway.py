@@ -13,9 +13,9 @@ dossier = dossier+'/psa_car_controller'
 if dossier not in sys.path:
     sys.path.append(dossier)
 
-from psa_car_controller.MyLogger import my_logger
-from psa_car_controller.MyLogger import logger
-from psa_car_controller.MyPSACC import MyPSACC
+from psa_car_controller.mylogger import my_logger
+from psa_car_controller.mylogger import logger
+from psa_car_controller.my_psacc import MyPSACC
 
 import jeedom_server
 

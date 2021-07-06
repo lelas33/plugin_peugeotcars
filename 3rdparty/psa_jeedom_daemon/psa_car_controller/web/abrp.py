@@ -1,11 +1,10 @@
 import json
-import traceback
 from datetime import datetime
 
 import requests
 
-from Car import Car
-from MyLogger import logger
+from libs.car import Car
+from mylogger import logger
 
 
 class Abrp:
@@ -22,7 +21,7 @@ class Abrp:
     def call(self, car: Car, ext_temp: float = None):
         try:
             if self.token is None or len(self.token) == 0:
-                logger.error("No token provided")
+                logger.debug("No abrp token provided")
             elif car.vin in self.abrp_enable_vin:
                 energy = car.status.get_energy('Electric')
                 tlm = {"utc": int(datetime.timestamp(energy.updated_at)),
@@ -43,7 +42,7 @@ class Abrp:
                 logger.debug(response.text)
                 return response.json()["status"] == "ok"
         except (AttributeError, IndexError, ValueError):
-            logger.error(traceback.format_exc())
+            logger.exception("abrp:")
         return False
 
     def __iter__(self):

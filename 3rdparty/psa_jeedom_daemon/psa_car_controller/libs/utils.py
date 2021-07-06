@@ -1,11 +1,11 @@
-import traceback
 from functools import wraps
 from threading import Semaphore, Timer
-
-import requests
 import socket
 
-from MyLogger import logger
+import requests
+from typing import List
+
+from mylogger import logger
 
 
 def get_temp(latitude: str, longitude: str, api_key: str) -> float:
@@ -20,21 +20,21 @@ def get_temp(latitude: str, longitude: str, api_key: str) -> float:
             logger.debug("Temperature :%fc", temp)
             return temp
     except ConnectionError:
-        logger.error("Can't connect to openweathermap :%s", traceback.format_exc())
+        logger.error("Can't connect to openweathermap :", exc_info=True)
     except KeyError:
-        logger.error("Unable to get temperature from openweathermap :%s", traceback.format_exc())
+        logger.error("Unable to get temperature from openweathermap :", exc_info=True)
     return None
 
 
 def rate_limit(limit, every):
-    def limit_decorator(fn):
+    def limit_decorator(func):
         semaphore = Semaphore(limit)
 
-        @wraps(fn)
+        @wraps(func)
         def wrapper(*args, **kwargs):
             semaphore.acquire()
             try:
-                return fn(*args, **kwargs)
+                return func(*args, **kwargs)
             finally:  # don't catch but ensure semaphore release
                 timer = Timer(every, semaphore.release)
                 timer.setDaemon(True)  # allows the timer to be canceled on exit
@@ -48,3 +48,21 @@ def rate_limit(limit, every):
 def is_port_in_use(ip, port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex((ip, port)) == 0
+
+
+def parse_hour(s):
+    s = s[2:]
+    separators = ("H", "M", "S")
+    res: List[int] = []
+    for sep in separators:
+        if sep in s:
+            n, s = s.split(sep)
+        else:
+            n = 0
+        res.append(int(n))
+        if s.isnumeric():
+            res.append(int(s))
+            break
+    if len(res) == 2:
+        res.append(0)
+    return res
