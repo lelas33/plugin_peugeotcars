@@ -18,6 +18,13 @@ class peugeotcars_api3 {
   protected $url_api_sw                = 'https://api.groupe-psa.com/applications/majesticf/v1/';
 
 
+  protected $realm = array (
+    "AP" => "clientsB2CPeugeot",    // Peugeot
+    "AC" => "clientsB2CCitroen",    // Citroën
+    "DS" => "clientsB2CDS",         // Citroën-DS
+    "OP" => "clientsB2COpel",       // Opel
+    "VX" => "clientsB2CVauxhall"    // Vauxhall
+  );
 
   protected $client_id_b64 = array (
     "AP" => "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw",   // Peugeot
@@ -162,7 +169,7 @@ class peugeotcars_api3 {
     curl_setopt($session, CURLOPT_HTTPHEADER, array(
       'Accept: application/hal+json',
       'Authorization: Bearer ' . $this->access_token["access_token"],
-      'x-introspect-realm: clientsB2CPeugeot'));
+      'x-introspect-realm: ' . $this->realm[$this->brand_id]));
     curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
     if (isset($fields)) {
       curl_setopt($session, CURLOPT_POSTFIELDS, $fields);
@@ -190,7 +197,7 @@ class peugeotcars_api3 {
     curl_setopt($session, CURLOPT_HTTPHEADER, array(
       'Accept: application/hal+json',
       'Authorization: Bearer ' . $this->access_token["access_token"],
-      'x-introspect-realm: clientsB2CPeugeot'));
+      'x-introspect-realm: ' . $this->realm[$this->brand_id]));
     curl_setopt($session, CURLOPT_POST, true);
     curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
     if (isset($fields)) {
@@ -287,7 +294,7 @@ class peugeotcars_api3 {
   // Login pour l'API: authentification
   function pg_api_login()
   {
-    $form = "grant_type=password&username=".urlencode($this->username)."&password=".urlencode($this->password)."&scope=openid profile&realm=clientsB2CPeugeot";
+    $form = "grant_type=password&username=".urlencode($this->username)."&password=".urlencode($this->password)."&scope=openid profile&realm=".urlencode($this->realm[$this->brand_id]);
     $param = "access_token";
     $ret = $this->post_api_psa_auth2($param, $form);
     //var_dump($ret["info"]);
@@ -311,9 +318,10 @@ class peugeotcars_api3 {
   {
     $param = "user/vehicles?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
-    //var_dump($ret["info"]);
-    if ($this->debug_api)
+    if ($this->debug_api) {
+      var_dump($ret["info"]);
       var_dump($ret["result"]);
+    }
     $retf = [];
     $retf["success"] = "KO";
     if (isset($ret["result"]->total)) {
@@ -373,9 +381,10 @@ class peugeotcars_api3 {
   {
     $param = "user/vehicles/".$this->vehicle_id."/status?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
-    //var_dump($ret["info"]);
-    if ($this->debug_api)
+    if ($this->debug_api) {
+      var_dump($ret["info"]);
       var_dump($ret["result"]);
+    }
     // For trace analysis
     // $fn_log_sts = "/var/www/html/plugins/peugeotcars/data/car_log.txt";
     // $date = date("Y-m-d H:i:s");

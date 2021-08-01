@@ -89,8 +89,10 @@ if __name__ == "__main__":
             myp.resend_command = 0
         if myp.fatal_error == 1:
             logger.info("Fatal error detected => Restart MQTT link")
-            myp.mqtt_client.loop_stop()
-            myp.start_mqtt()
-            myp.fatal_error = 0
+            # exit demon, in order to be restarted by Jeedom monitoring
+            sys.exit("Restart after fatal error")
+            # myp.mqtt_client.loop_stop()
+            # myp.start_mqtt()
+            # myp.fatal_error = 0
 
     myp.save_config()

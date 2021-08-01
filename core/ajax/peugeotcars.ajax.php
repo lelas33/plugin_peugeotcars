@@ -129,8 +129,9 @@ function get_current_position($vin)
   $last_login_token = $cmd_record_period->getConfiguration('save_auth');
   if ((!isset($last_login_token)) || ($last_login_token == ""))
     $last_login_token = NULL;
+  $brandid = $eq->getConfiguration("brandId");
   $session_peugeotcars = new peugeotcars_api3();
-  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), $last_login_token);
+  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), $brandid, $last_login_token);
   if ($last_login_token == NULL) {
     $login_token = $session_peugeotcars->pg_api_login();   // Authentification
     if ($login_token["status"] != "OK") {
