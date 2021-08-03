@@ -56,22 +56,27 @@ cd $PSA_JEEDOM_DIR
 if ["$4" = "AP"]
 then
     echo "Appli Peugeot"
+    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myp
     tar xvzf ./apk/myp -C ./apk > /dev/null
     MYP_APP=./apk/myp.apk
 elif ["$4" = "AC"]
     echo "Appli Citroën"
+    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myc
     tar xvzf ./apk/myc -C ./apk > /dev/null
     MYP_APP=./apk/myc.apk
 elif ["$4" = "DS"]
     echo "Appli Citroën-DS"
+    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myd
     tar xvzf ./apk/myd -C ./apk > /dev/null
     MYP_APP=./apk/myd.apk
 elif ["$4" = "OP"]
     echo "Appli Opel"
+    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myo
     tar xvzf ./apk/myo -C ./apk > /dev/null
     MYP_APP=./apk/myo.apk
 elif ["$4" = "VX"]
     echo "Appli Vauxhall"
+    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myv
     tar xvzf ./apk/myv -C ./apk > /dev/null
     MYP_APP=./apk/myv.apk
 else
