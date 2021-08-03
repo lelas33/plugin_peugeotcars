@@ -26,10 +26,9 @@ import re
 BRAND = {"com.psa.mym.myopel":     {"realm": "clientsB2COpel",     "brand_code": "OP", "app_name": "MyOpel"},
          "com.psa.mym.mypeugeot":  {"realm": "clientsB2CPeugeot",  "brand_code": "AP", "app_name": "MyPeugeot"},
          "com.psa.mym.mycitroen":  {"realm": "clientsB2CCitroen",  "brand_code": "AC", "app_name": "MyCitroen"},
-         "com.psa.mym.myds":       {"realm": "clientsB2CDS",       "brand_code": "AC", "app_name": "MyDS"},
-         "com.psa.mym.myvauxhall": {"realm": "clientsB2CVauxhall", "brand_code": "0V", "app_name": "MyVauxhall"}
+         "com.psa.mym.myds":       {"realm": "clientsB2CDS",       "brand_code": "DS", "app_name": "MyDS"},
+         "com.psa.mym.myvauxhall": {"realm": "clientsB2CVauxhall", "brand_code": "VX", "app_name": "MyVauxhall"}
          }
-
 
 def getxmlvalue(root, name):
     for child in root.findall("*[@name='" + name + "']"):
@@ -155,11 +154,11 @@ print(f"\nYour vehicles: {res}")
 ## Manage OTP and SMS procedure
 # request for OPT => SMS request, and remove existing "opt.bin" file
 print("Request for OTP: SMS shall be received (on the phone associated to the MyPeugeot account)")
-otp = psacc.get_sms_otp_code()
-try:
-    os.remove("otp.bin")
-except:
-    print("No previous otp.bin")
+# otp = psacc.get_sms_otp_code()
+# try:
+    # os.remove("otp.bin")
+# except:
+    # print("No previous otp.bin")
 
 try:
     os.remove("private.pem")

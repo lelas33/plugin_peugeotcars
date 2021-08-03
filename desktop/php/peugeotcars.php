@@ -75,18 +75,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-lg-2 control-label">{{Marque du véhicule}}</label>
-                            <div class="col-lg-3">
-                                <select class="form-control eqLogicAttr" data-l1key="configuration" data-l2key="brandId">
-                                    <option value="AP">{{Peugeot}}</option>
-                                    <option value="AC">{{Citroën}}</option>
-                                    <option value="DS">{{Citroën-DS}}</option>
-                                    <option value="OP">{{Opel}}</option>
-                                    <option value="VX">{{Vauxhall}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="col-lg-2 control-label" >{{Objet parent}}</label>
                             <div class="col-lg-3">
                                 <select class="form-control eqLogicAttr" data-l1key="object_id">

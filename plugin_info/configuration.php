@@ -24,19 +24,31 @@ if (!isConnect('admin')) {
 
 <form class="form-horizontal" id="config">
     <div class="form-group">
-        <label class="col-lg-4 control-label">{{Login compte Peugeot}}</label>
+        <label class="col-lg-4 control-label">{{Marque du véhicule}}</label>
+        <div class="col-lg-3">
+            <select class="configKey form-control" data-l1key="brandid">
+                <option value="AP">{{Peugeot}}</option>
+                <option value="AC">{{Citroën}}</option>
+                <option value="DS">{{Citroën-DS}}</option>
+                <option value="OP">{{Opel}}</option>
+                <option value="VX">{{Vauxhall}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-4 control-label">{{Login compte PSA}}</label>
         <div class="col-lg-3">
             <input class="configKey form-control" data-l1key="account"/>
         </div>
     </div>
     <div class="form-group">
-        <label class="col-lg-4 control-label">{{Password compte Peugeot}}</label>
+        <label class="col-lg-4 control-label">{{Password compte PSA}}</label>
         <div class="col-lg-3">
             <input class="configKey form-control" data-l1key="password" type="password"/>
         </div>
     </div>
     <div class="form-group">
-        <label class="col-lg-4 control-label">{{Code PIN Appli Peugeot}}</label>
+        <label class="col-lg-4 control-label">{{Code PIN Appli PSA}}</label>
         <div class="col-lg-3">
             <input class="configKey form-control" data-l1key="code_pin" type="password"/>
         </div>
