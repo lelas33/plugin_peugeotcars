@@ -18,7 +18,7 @@ if dossier not in sys.path:
     sys.path.append(dossier)
 
 # from ChargeControl import ChargeControl, ChargeControls
-from MyPSACC import MyPSACC
+from psa_car_controller.my_psacc import MyPSACC
 from sys import argv
 import sys
 import re
