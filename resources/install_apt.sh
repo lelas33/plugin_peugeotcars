@@ -53,42 +53,47 @@ echo "STEP5:Configuration API  "
 echo "========================="
 PSA_JEEDOM_DIR=$BASEDIR/../3rdparty/psa_jeedom_daemon
 cd $PSA_JEEDOM_DIR
-if ["$4" = "AP"]
+if [ "$4" = "AP" ]
 then
     echo "Appli Peugeot"
-    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myp
-    tar xvzf ./apk/myp -C ./apk > /dev/null
-    MYP_APP=./apk/myp.apk
-elif ["$4" = "AC"]
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myp
+    tar xvzf ./myp > /dev/null
+    MY_APP=./myp.apk
+    MY=./myp
+elif [ "$4" = "AC" ]
 then
     echo "Appli Citroën"
-    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myc
-    tar xvzf ./apk/myc -C ./apk > /dev/null
-    MYP_APP=./apk/myc.apk
-elif ["$4" = "DS"]
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myc
+    tar xvzf ./myc > /dev/null
+    MY_APP=./myc.apk
+    MY=./myc
+elif [ "$4" = "DS" ]
 then
     echo "Appli Citroën-DS"
-    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myd
-    tar xvzf ./apk/myd -C ./apk > /dev/null
-    MYP_APP=./apk/myd.apk
-elif ["$4" = "OP"]
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myd
+    tar xvzf ./myd > /dev/null
+    MY_APP=./myd.apk
+    MY=./myd
+elif [ "$4" = "OP" ]
 then
     echo "Appli Opel"
-    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myo
-    tar xvzf ./apk/myo -C ./apk > /dev/null
-    MYP_APP=./apk/myo.apk
-elif ["$4" = "VX"]
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myo
+    tar xvzf ./myo > /dev/null
+    MY_APP=./myo.apk
+    MY=./myo
+elif [ "$4" = "VX" ]
 then
     echo "Appli Vauxhall"
-    wget https://github.com/lelas33/plugin_db/raw/master/psa_apk/myv
-    tar xvzf ./apk/myv -C ./apk > /dev/null
-    MYP_APP=./apk/myv.apk
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myv
+    tar xvzf ./myv > /dev/null
+    MY_APP=./myv.apk
+    MY=./myv
 else
     echo "Erreur sur le parametre BRAND"
 fi
 APP_DECODER=./app_decoder.py
-sudo python3 $APP_DECODER $MYP_APP $2 $3
-rm $MYP_APP
+sudo python3 $APP_DECODER $MY_APP $2 $3
+rm $MY_APP $MY
 
 echo 100 > ${PROGRESS_FILE}
 echo "======================================="
