@@ -154,11 +154,11 @@ print(f"\nYour vehicles: {res}")
 ## Manage OTP and SMS procedure
 # request for OPT => SMS request, and remove existing "opt.bin" file
 print("Request for OTP: SMS shall be received (on the phone associated to the MyPeugeot account)")
-# otp = psacc.get_sms_otp_code()
-# try:
-    # os.remove("otp.bin")
-# except:
-    # print("No previous otp.bin")
+otp = psacc.get_sms_otp_code()
+try:
+    os.remove("otp.bin")
+except:
+    print("No previous otp.bin")
 
 try:
     os.remove("private.pem")
