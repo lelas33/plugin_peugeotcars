@@ -73,7 +73,7 @@ class peugeotcars extends eqLogic {
     
     public static function dependancy_install() {
       log::remove(__CLASS__ . '_update');
-      $add_params = " " . config::byKey('account', 'peugeotcars') . " " . config::byKey('password', 'peugeotcars');
+      $add_params = " " . config::byKey('account', 'peugeotcars') . " " . config::byKey('password', 'peugeotcars') . " " . config::byKey('brandid', 'peugeotcars');
       log::add('peugeotcars', 'info', 'dependancy_install:'.$add_params);
       return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('peugeotcars') . '/dependance' . $add_params, 'log' => log::getPathToLog(__CLASS__ . '_update'));
     }
@@ -196,10 +196,8 @@ class peugeotcars extends eqLogic {
         return;
 
       // Login API
-      $brandid = $this->getConfiguration("brandId");
-      // log::add('peugeotcars','info',"brandId:".$brandid);
       $session_peugeotcars = new peugeotcars_api3();
-      $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), $brandid, NULL);
+      $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), config::byKey('brandid', 'peugeotcars'), NULL);
       $login_token = $session_peugeotcars->pg_api_login();   // Authentification
       if ($login_token["status"] == "KO") {
         log::add('peugeotcars','error',"Erreur Login API PSA");
@@ -451,12 +449,11 @@ class peugeotcars extends eqLogic {
         // =============================================================
         if ((($record_period == 0) && ($minute%5 == 0)) || ($record_period > 0) || ($rfh == 1) || (($alternate_trips == 1) && ($alt_kinetic == 1))) {
           // Login a l'API PSA
-          $brandid = $this->getConfiguration("brandId");
           $last_login_token = $cmd_record_period->getConfiguration('save_auth');
           if ((!isset($last_login_token)) || ($last_login_token == "") || ($rfh==1))
             $last_login_token = NULL;
           $session_peugeotcars = new peugeotcars_api3();
-          $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), $brandid, $last_login_token);
+          $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), config::byKey('brandid', 'peugeotcars'), $last_login_token);
           if ($last_login_token == NULL) {
             $login_token = $session_peugeotcars->pg_api_login();   // Authentification
             if ($login_token["status"] != "OK") {

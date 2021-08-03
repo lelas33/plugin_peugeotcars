@@ -14,9 +14,10 @@ if [ ! -z $1 ]; then
 fi
 BASEDIR=$(dirname "$0")
 echo "BASEDIR: $BASEDIR"
-#echo "ADD_PARAM1: $1"
-#echo "ADD_PARAM2: $2"
-#echo "ADD_PARAM3: $3"
+#echo "ADD_PARAM1: $1"  # progress file
+#echo "ADD_PARAM2: $2"  # email
+#echo "ADD_PARAM3: $3"  # password
+#echo "ADD_PARAM4: $4"  # brand code
 
 touch ${PROGRESS_FILE}
 echo 0 > ${PROGRESS_FILE}
@@ -52,11 +53,33 @@ echo "STEP5:Configuration API  "
 echo "========================="
 PSA_JEEDOM_DIR=$BASEDIR/../3rdparty/psa_jeedom_daemon
 cd $PSA_JEEDOM_DIR
-tar xvzf ./apk/myp -C ./apk > /dev/null
+if ["$4" = "AP"]
+then
+    echo "Appli Peugeot"
+    tar xvzf ./apk/myp -C ./apk > /dev/null
+    MYP_APP=./apk/myp.apk
+elif ["$4" = "AC"]
+    echo "Appli Citroën"
+    tar xvzf ./apk/myc -C ./apk > /dev/null
+    MYP_APP=./apk/myc.apk
+elif ["$4" = "DS"]
+    echo "Appli Citroën-DS"
+    tar xvzf ./apk/myd -C ./apk > /dev/null
+    MYP_APP=./apk/myd.apk
+elif ["$4" = "OP"]
+    echo "Appli Opel"
+    tar xvzf ./apk/myo -C ./apk > /dev/null
+    MYP_APP=./apk/myo.apk
+elif ["$4" = "VX"]
+    echo "Appli Vauxhall"
+    tar xvzf ./apk/myv -C ./apk > /dev/null
+    MYP_APP=./apk/myv.apk
+else
+    echo "Erreur sur le parametre BRAND"
+fi
 APP_DECODER=./app_decoder.py
-MYP_APP=./apk/myp.apk
 sudo python3 $APP_DECODER $MYP_APP $2 $3
-rm ./apk/myp.apk
+rm $MYP_APP
 
 echo 100 > ${PROGRESS_FILE}
 echo "======================================="
