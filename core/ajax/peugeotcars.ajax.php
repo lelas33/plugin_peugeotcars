@@ -244,7 +244,7 @@ function get_car_trips_stats($vin)
 function get_car_infos($vin)
 {
   $session_peugeotcars = new peugeotcars_api3();
-  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
+  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), config::byKey('brandid', 'peugeotcars'), NULL);
   // $login_ctr = $session_peugeotcars->pg_api_mym_login();   // Authentification
   // $info = [];
   // if ($login_ctr == "OK") {
@@ -384,7 +384,7 @@ function precond_get_programs($vin, $pp_from)
 
     // Login a l'API PSA
     $session_peugeotcars = new peugeotcars_api3();
-    $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
+    $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), config::byKey('brandid', 'peugeotcars'), NULL);
     $login_token = $session_peugeotcars->pg_api_login();   // Authentification
     if ($login_token["status"] != "OK") {
       log::add('peugeotcars','error',"Erreur Login API PSA");
@@ -429,7 +429,7 @@ function precond_get_programs($vin, $pp_from)
 function get_car_maint($vin)
 {
   $session_peugeotcars = new peugeotcars_api3();
-  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
+  $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), config::byKey('brandid', 'peugeotcars'), NULL);
   $login_ctr = $session_peugeotcars->pg_api_mym_login();   // Authentification
   $maint = [];
   if ($login_ctr == "OK") {
