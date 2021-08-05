@@ -4,7 +4,7 @@ oauth2_client
 requests
 pytz
 argparse
-reverse_geocode
+#reverse_geocode
 androguard
 pycryptodomex
 certifi >= 14.05.14
