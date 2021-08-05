@@ -21,7 +21,7 @@ import psa_connectedcar as psac
 from libs.car import Cars, Car
 #from libs.charging import Charging
 from libs.oauth import OpenIdCredentialManager, Oauth2PSACCApiConfig, OauthAPIClient
-from ecomix import Ecomix
+# from ecomix import Ecomix
 from otp.otp import load_otp, new_otp_session, save_otp, ConfigException, Otp
 from psa_connectedcar.rest import ApiException
 from mylogger import logger
@@ -118,7 +118,7 @@ class MyPSACC:
             self.abrp: Abrp = Abrp(**abrp)
         self.set_proxies(proxies)
         self.config_file = DEFAULT_CONFIG_FILENAME
-        Ecomix.co2_signal_key = co2_signal_api
+        # Ecomix.co2_signal_key = co2_signal_api
         self.refresh_thread = None
         self.resend_command = 0
         self.fatal_error = 0
@@ -575,6 +575,7 @@ class MyPeugeotEncoder(JSONEncoder):
                "client_secret": mp.service_information.client_secret, "abrp": dict(mp.abrp)}
         for param in ["client_id", "realm", "remote_refresh_token", "customer_id", "weather_api", "country_code"]:
             mpd[param] = data[param]
-        mpd["co2_signal_api"] = Ecomix.co2_signal_key
+        # mpd["co2_signal_api"] = Ecomix.co2_signal_key
+        mpd["co2_signal_api"] = None
         return mpd
 
