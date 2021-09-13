@@ -125,9 +125,8 @@ class my_jeedom_server:
         elif (mc_cmd == CMD_WAKEUP):    # Reveil du vehicule
             self.myp.wakeup(self.vin)
 
-        # elif (mc_cmd == CMD_GET_STATE): # Etat du vehicule
-            # self.myp.get_state(self.vin)
-            # self.ack_params = self.myp.last_state
+        elif (mc_cmd == CMD_GET_STATE): # Etat du vehicule
+            self.myp.fatal_error = 1
             
         elif (mc_cmd == CMD_GET_STATE_RD): # Etat du vehicule (retour donnees uniquement)
             self.ack_params = self.myp.last_state

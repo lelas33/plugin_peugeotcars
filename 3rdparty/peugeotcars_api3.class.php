@@ -454,8 +454,12 @@ class peugeotcars_api3 {
     $retf["charging_mode"] = $ret["result"]->energy[$elec_id]->charging->chargingMode;
 
     // Retours energie carburant si vehicule hybride
-    $retf["fuel_level"]   = $ret["result"]->energy[$fuel_id]->level;
-    $retf["fuel_autonomy"]= $ret["result"]->energy[$fuel_id]->autonomy;
+    $retf["fuel_level"]   = 0;
+    $retf["fuel_autonomy"]= 0;
+    if (isset($ret["result"]->energy[$fuel_id]->level))
+      $retf["fuel_level"]   = $ret["result"]->energy[$fuel_id]->level;
+    if (isset($ret["result"]->energy[$fuel_id]->autonomy))
+      $retf["fuel_autonomy"]= $ret["result"]->energy[$fuel_id]->autonomy;
 
     return $retf;
   }

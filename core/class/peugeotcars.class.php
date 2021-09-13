@@ -717,6 +717,11 @@ class peugeotcars extends eqLogic {
               $new_charging_state = 0;
               log::add('peugeotcars','info',"Prise de charge débranchée");
             }
+            // Redemarrage de la charge après un arret
+            elseif (strtolower($charging_status) == "inprogress") {
+              $new_charging_state = 2;
+              log::add('peugeotcars','info',"Reprise de la charge");
+            }
             else
               $new_charging_state = $charging_state;
           }
