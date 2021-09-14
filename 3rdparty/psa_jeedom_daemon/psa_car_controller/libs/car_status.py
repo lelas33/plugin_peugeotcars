@@ -1,7 +1,8 @@
-from MyLogger import logger
+from mylogger import logger
 from psa_connectedcar import Position, Geometry, PositionProperties, Kinetic, Energy, EnergyCharging, Status
 
 
+# pylint: disable=too-many-arguments
 class CarStatus(Status):
     def __init__(self, embedded=None, links=None, battery=None, doors_state=None, energy=None, environment=None,
                  ignition=None, kinetic=None, last_position=None, preconditionning=None, privacy=None, safety=None,
@@ -22,6 +23,9 @@ class CarStatus(Status):
                                           properties=PositionProperties(updated_at=None))
         if self.kinetic is None:
             self.kinetic = Kinetic()
+        # always put electric energy first
+        if len(self._energy) == 2 and self._energy[0].type != 'Electric':
+            self._energy = self._energy[::-1]
 
     def is_moving(self):
         try:

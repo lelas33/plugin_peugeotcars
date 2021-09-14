@@ -73,7 +73,7 @@ class peugeotcars extends eqLogic {
     
     public static function dependancy_install() {
       log::remove(__CLASS__ . '_update');
-      $add_params = " " . config::byKey('account', 'peugeotcars') . " " . config::byKey('password', 'peugeotcars');
+      $add_params = " " . config::byKey('account', 'peugeotcars') . " " . config::byKey('password', 'peugeotcars') . " " . config::byKey('brandid', 'peugeotcars');
       log::add('peugeotcars', 'info', 'dependancy_install:'.$add_params);
       return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('peugeotcars') . '/dependance' . $add_params, 'log' => log::getPathToLog(__CLASS__ . '_update'));
     }
@@ -197,7 +197,7 @@ class peugeotcars extends eqLogic {
 
       // Login API
       $session_peugeotcars = new peugeotcars_api3();
-      $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), NULL);
+      $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), config::byKey('brandid', 'peugeotcars'), NULL);
       $login_token = $session_peugeotcars->pg_api_login();   // Authentification
       if ($login_token["status"] == "KO") {
         log::add('peugeotcars','error',"Erreur Login API PSA");
@@ -453,7 +453,7 @@ class peugeotcars extends eqLogic {
           if ((!isset($last_login_token)) || ($last_login_token == "") || ($rfh==1))
             $last_login_token = NULL;
           $session_peugeotcars = new peugeotcars_api3();
-          $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), $last_login_token);
+          $session_peugeotcars->login(config::byKey('account', 'peugeotcars'), config::byKey('password', 'peugeotcars'), config::byKey('brandid', 'peugeotcars'), $last_login_token);
           if ($last_login_token == NULL) {
             $login_token = $session_peugeotcars->pg_api_login();   // Authentification
             if ($login_token["status"] != "OK") {
@@ -716,6 +716,11 @@ class peugeotcars extends eqLogic {
             if ($charging_plugged == '0') {
               $new_charging_state = 0;
               log::add('peugeotcars','info',"Prise de charge débranchée");
+            }
+            // Redemarrage de la charge après un arret
+            elseif (strtolower($charging_status) == "inprogress") {
+              $new_charging_state = 2;
+              log::add('peugeotcars','info',"Reprise de la charge");
             }
             else
               $new_charging_state = $charging_state;

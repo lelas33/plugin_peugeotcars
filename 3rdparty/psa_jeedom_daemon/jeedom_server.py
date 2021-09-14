@@ -2,8 +2,8 @@
 
 import socket
 import json
-from psa_car_controller.MyLogger import my_logger
-from psa_car_controller.MyLogger import logger
+from psa_car_controller.mylogger import my_logger
+from psa_car_controller.mylogger import logger
 
 PORT = 65432
 # Port to listen on (non-privileged ports are > 1023)
@@ -60,8 +60,11 @@ class my_jeedom_server:
                         # print('Get message payload')
                         self.cmd_msg = conn.recv(self.msg_size)
                         # print('message received:', self.cmd,' and payload received:', self.cmd_msg)
+                        # logger.info("Analyse commande: %x", self.cmd)
                         ctr_msg = self.msg_analyze_msg()
+                        # logger.info("Traite commande: %x", self.cmd)
                         ctr_pro = self.msg_execute_cmd(self.cmd, self.cmd_nbp, self.cmd_params)
+                        # logger.info("Renvoi ACK: %x", self.cmd)
                         ctr_ack = self.msg_generate_ack()
                         # envoi entete message retour
                         conn.sendall(bytes(self.ack_hdr))
@@ -123,8 +126,7 @@ class my_jeedom_server:
             self.myp.wakeup(self.vin)
 
         elif (mc_cmd == CMD_GET_STATE): # Etat du vehicule
-            self.myp.get_state(self.vin)
-            self.ack_params = self.myp.last_state
+            self.myp.fatal_error = 1
             
         elif (mc_cmd == CMD_GET_STATE_RD): # Etat du vehicule (retour donnees uniquement)
             self.ack_params = self.myp.last_state
@@ -153,6 +155,7 @@ class my_jeedom_server:
 
     def msg_resend_last_cmd(self):
         # renvoi de la derniere commande
+        logger.info("Relance la commande: %x", self.last_cmd)
         self.msg_execute_cmd(self.last_cmd, self.last_nbp, self.last_params)
 
 # =======================================================================

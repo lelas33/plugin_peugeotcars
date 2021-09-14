@@ -15,10 +15,14 @@
       // Position GPS de la voiture
       hist = _options.display_value;    
       gps_pos = hist.split(',');
-      var lat = gps_pos[0];
-      var lon = gps_pos[1];
-      var alt = gps_pos[2];
+      var lat = parseFloat(gps_pos[0]);
+      var lon = parseFloat(gps_pos[1]);
+      var alt = parseFloat(gps_pos[2]);
       var vin = gps_pos[3];
+      if (isNaN(lat) || isNaN(lon)) {
+        lat = 48.858370;  // surprise
+        lon = 2.294481;
+      }
       // Fonction d'initialisation de la carte
       function initMap() {
           console.log("[jeedom.cmd.update map]: Init map");
