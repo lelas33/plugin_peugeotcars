@@ -14,9 +14,10 @@ if [ ! -z $1 ]; then
 fi
 BASEDIR=$(dirname "$0")
 echo "BASEDIR: $BASEDIR"
-#echo "ADD_PARAM1: $1"
-#echo "ADD_PARAM2: $2"
-#echo "ADD_PARAM3: $3"
+#echo "ADD_PARAM1: $1"  # progress file
+#echo "ADD_PARAM2: $2"  # email
+#echo "ADD_PARAM3: $3"  # password
+#echo "ADD_PARAM4: $4"  # brand code
 
 touch ${PROGRESS_FILE}
 echo 0 > ${PROGRESS_FILE}
@@ -52,11 +53,47 @@ echo "STEP5:Configuration API  "
 echo "========================="
 PSA_JEEDOM_DIR=$BASEDIR/../3rdparty/psa_jeedom_daemon
 cd $PSA_JEEDOM_DIR
-tar xvzf ./apk/myp -C ./apk > /dev/null
+if [ "$4" = "AP" ]
+then
+    echo "Appli Peugeot"
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myp
+    tar xvzf ./myp > /dev/null
+    MY_APP=./myp.apk
+    MY=./myp
+elif [ "$4" = "AC" ]
+then
+    echo "Appli Citroën"
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myc
+    tar xvzf ./myc > /dev/null
+    MY_APP=./myc.apk
+    MY=./myc
+elif [ "$4" = "DS" ]
+then
+    echo "Appli Citroën-DS"
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myd
+    tar xvzf ./myd > /dev/null
+    MY_APP=./myd.apk
+    MY=./myd
+elif [ "$4" = "OP" ]
+then
+    echo "Appli Opel"
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myo
+    tar xvzf ./myo > /dev/null
+    MY_APP=./myo.apk
+    MY=./myo
+elif [ "$4" = "VX" ]
+then
+    echo "Appli Vauxhall"
+    wget -nv https://github.com/lelas33/plugin_db/raw/master/psa_apk/myv
+    tar xvzf ./myv > /dev/null
+    MY_APP=./myv.apk
+    MY=./myv
+else
+    echo "Erreur sur le parametre BRAND"
+fi
 APP_DECODER=./app_decoder.py
-MYP_APP=./apk/myp.apk
-sudo python3 $APP_DECODER $MYP_APP $2 $3
-rm ./apk/myp.apk
+sudo python3 $APP_DECODER $MY_APP $2 $3
+rm $MY_APP $MY
 
 echo 100 > ${PROGRESS_FILE}
 echo "======================================="

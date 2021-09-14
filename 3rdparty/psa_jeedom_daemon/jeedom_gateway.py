@@ -13,9 +13,9 @@ dossier = dossier+'/psa_car_controller'
 if dossier not in sys.path:
     sys.path.append(dossier)
 
-from psa_car_controller.MyLogger import my_logger
-from psa_car_controller.MyLogger import logger
-from psa_car_controller.MyPSACC import MyPSACC
+from psa_car_controller.mylogger import my_logger
+from psa_car_controller.mylogger import logger
+from psa_car_controller.my_psacc import MyPSACC
 
 import jeedom_server
 
@@ -87,10 +87,12 @@ if __name__ == "__main__":
             logger.info("Token expired error detected => Resend last command")
             js.msg_resend_last_cmd()
             myp.resend_command = 0
-        if myp.fatal_error == 1:
-            logger.info("Fatal error detected => Restart MQTT link")
-            myp.mqtt_client.loop_stop()
-            myp.start_mqtt()
-            myp.fatal_error = 0
+        #if myp.fatal_error == 1:
+            # logger.info("Fatal error detected => Restart MQTT link")
+            # exit demon, in order to be restarted by Jeedom monitoring
+            # sys.exit(1)
+            # myp.mqtt_client.loop_stop()
+            # myp.start_mqtt()
+            # myp.fatal_error = 0
 
     myp.save_config()

@@ -6,17 +6,45 @@ class peugeotcars_api3 {
 
   // Constantes pour la classe
   protected $url_api_psa_oauth1        = 'https://id-dcr.peugeot.com/';
-  protected $url_api_psa_oauth2        = 'https://idpcvs.peugeot.com/am/oauth2/';
+  protected $url_api_psa_oauth2 = array (
+    "AP" => "https://idpcvs.peugeot.com/am/oauth2/",    // Peugeot
+    "AC" => "https://idpcvs.citroen.com/am/oauth2/",    // Citroën
+    "DS" => "https://idpcvs.driveds.com/am/oauth2/",    // Citroën-DS
+    "OP" => "https://idpcvs.opel.com/am/oauth2/",       // Opel
+    "VX" => "https://idpcvs.vauxhall.co.uk/am/oauth2/"  // Vauxhall
+  );
   protected $url_api_psa_conn_car      = 'https://api.groupe-psa.com/connectedcar/v4/';
   protected $url_api_psa_mym_sgp       = 'https://ap-mym.servicesgp.mpsa.com/api/v1/';
   protected $url_api_sw                = 'https://api.groupe-psa.com/applications/majesticf/v1/';
 
 
-  protected $client_id_b64     = "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw";
-  protected $client_secret_b64 = "VDV0UDdpUzBjTzhzQzBsQTJpRTJhUjdnSzZ1RTVyRjNsSjhwQzNuTzFwUjd0TDh2VTE=";
+  protected $realm = array (
+    "AP" => "clientsB2CPeugeot",    // Peugeot
+    "AC" => "clientsB2CCitroen",    // Citroën
+    "DS" => "clientsB2CDS",         // Citroën-DS
+    "OP" => "clientsB2COpel",       // Opel
+    "VX" => "clientsB2CVauxhall"    // Vauxhall
+  );
+
+  protected $client_id_b64 = array (
+    "AP" => "MWVlYmMyZDUtNWRmMy00NTliLWE2MjQtMjBhYmZjZjgyNTMw",   // Peugeot
+    "AC" => "NTM2NGRlZmMtODBlNi00NDdiLWJlYzYtNGFmOGQxNTQyY2Fl",   // Citroën
+    "DS" => "Y2JmNzRlZTctYTMwMy00YzNkLWFiYTMtMjlmNTk5NGUyZGZh",   // Citroën-DS
+    "OP" => "MDczNjQ2NTUtOTNjYi00MTk0LTgxNTgtNmIwMzVhYzJjMjRj",   // Opel
+    "VX" => "MTIyZjM1MTEtNGY3NC00YTBjLWJjZGEtYWYyZjNiMmUzYTY1"    // Vauxhall
+  );
+
+  protected $client_secret_b64 = array (
+    "AP" => "VDV0UDdpUzBjTzhzQzBsQTJpRTJhUjdnSzZ1RTVyRjNsSjhwQzNuTzFwUjd0TDh2VTE=",   // Peugeot
+    "AC" => "aUUwY0Q4YkIweUowZFM2ck8zbk4xaEkyd1U3dUE1eFI0Z1A3bEQ2dk0wb0gwblM4ZE4=",   // Citroën
+    "DS" => "WDZiRTZ5UTN0SDFjRzVvQTZhVzRmUzZoSzBjUjBhSzV5TjJ3RTRoUDh2TDhvVzVnVTM=",   // Citroën-DS
+    "OP" => "RjJrSzdsQzVrRjVxTjd0TTB3VDhrRTNjVzFkUDB3QzVwSTZ2QzBzUTVpUDVjTjhjSjg=",   // Opel
+    "VX" => "TjFpWTNqTzRqSTFzRjJ5UzZ5SjNyRzd4UTRrTDRrSzFkTzN4VDV1WDZkRjNrVzhnSTY="    // Vauxhall
+  );
 
   protected $username;
   protected $password;
+  protected $brand_id;
   protected $client_id;
   protected $client_secret;
   protected $access_token = [];
@@ -31,13 +59,14 @@ class peugeotcars_api3 {
   // ==============================
   // General function : login
   // ==============================
-  function login($username, $password, $token)
+  function login($username, $password, $brand_id, $token)
   {
     $this->username = $username;
     $this->password = $password;
+    $this->brand_id = $brand_id;
     $this->access_token = $token;  // Etat des token des appels précédents
-    $this->client_id     = base64_decode ($this->client_id_b64);
-    $this->client_secret = base64_decode ($this->client_secret_b64);
+    $this->client_id     = base64_decode ($this->client_id_b64[$brand_id]);
+    $this->client_secret = base64_decode ($this->client_secret_b64[$brand_id]);
     $this->debug_api = false;
   }
 
@@ -102,8 +131,8 @@ class peugeotcars_api3 {
   private function post_api_psa_auth2($param, $fields = null)
   {
     $session = curl_init();
-
-    curl_setopt($session, CURLOPT_URL, $this->url_api_psa_oauth2.$param);
+    $url = $this->url_api_psa_oauth2[$this->brand_id];
+    curl_setopt($session, CURLOPT_URL, $url.$param);
     curl_setopt($session, CURLOPT_HTTPHEADER, array(
        'Content-Type: application/x-www-form-urlencoded',
        'Authorization: Basic '.base64_encode($this->client_id.":".$this->client_secret),
@@ -140,7 +169,7 @@ class peugeotcars_api3 {
     curl_setopt($session, CURLOPT_HTTPHEADER, array(
       'Accept: application/hal+json',
       'Authorization: Bearer ' . $this->access_token["access_token"],
-      'x-introspect-realm: clientsB2CPeugeot'));
+      'x-introspect-realm: ' . $this->realm[$this->brand_id]));
     curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
     if (isset($fields)) {
       curl_setopt($session, CURLOPT_POSTFIELDS, $fields);
@@ -168,7 +197,7 @@ class peugeotcars_api3 {
     curl_setopt($session, CURLOPT_HTTPHEADER, array(
       'Accept: application/hal+json',
       'Authorization: Bearer ' . $this->access_token["access_token"],
-      'x-introspect-realm: clientsB2CPeugeot'));
+      'x-introspect-realm: ' . $this->realm[$this->brand_id]));
     curl_setopt($session, CURLOPT_POST, true);
     curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
     if (isset($fields)) {
@@ -265,7 +294,7 @@ class peugeotcars_api3 {
   // Login pour l'API: authentification
   function pg_api_login()
   {
-    $form = "grant_type=password&username=".urlencode($this->username)."&password=".urlencode($this->password)."&scope=openid profile&realm=clientsB2CPeugeot";
+    $form = "grant_type=password&username=".urlencode($this->username)."&password=".urlencode($this->password)."&scope=openid profile&realm=".urlencode($this->realm[$this->brand_id]);
     $param = "access_token";
     $ret = $this->post_api_psa_auth2($param, $form);
     //var_dump($ret["info"]);
@@ -289,9 +318,10 @@ class peugeotcars_api3 {
   {
     $param = "user/vehicles?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
-    //var_dump($ret["info"]);
-    if ($this->debug_api)
+    if ($this->debug_api) {
+      var_dump($ret["info"]);
       var_dump($ret["result"]);
+    }
     $retf = [];
     $retf["success"] = "KO";
     if (isset($ret["result"]->total)) {
@@ -351,9 +381,10 @@ class peugeotcars_api3 {
   {
     $param = "user/vehicles/".$this->vehicle_id."/status?client_id=".$this->client_id;
     $ret = $this->get_api_psa_conn_car($param);
-    //var_dump($ret["info"]);
-    if ($this->debug_api)
+    if ($this->debug_api) {
+      var_dump($ret["info"]);
       var_dump($ret["result"]);
+    }
     // For trace analysis
     // $fn_log_sts = "/var/www/html/plugins/peugeotcars/data/car_log.txt";
     // $date = date("Y-m-d H:i:s");
@@ -423,8 +454,12 @@ class peugeotcars_api3 {
     $retf["charging_mode"] = $ret["result"]->energy[$elec_id]->charging->chargingMode;
 
     // Retours energie carburant si vehicule hybride
-    $retf["fuel_level"]   = $ret["result"]->energy[$fuel_id]->level;
-    $retf["fuel_autonomy"]= $ret["result"]->energy[$fuel_id]->autonomy;
+    $retf["fuel_level"]   = 0;
+    $retf["fuel_autonomy"]= 0;
+    if (isset($ret["result"]->energy[$fuel_id]->level))
+      $retf["fuel_level"]   = $ret["result"]->energy[$fuel_id]->level;
+    if (isset($ret["result"]->energy[$fuel_id]->autonomy))
+      $retf["fuel_autonomy"]= $ret["result"]->energy[$fuel_id]->autonomy;
 
     return $retf;
   }

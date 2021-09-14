@@ -1,9 +1,10 @@
 paho-mqtt>=1.5.0
-cryptography>=3.0
+cryptography>=2.6
 oauth2_client
 requests
 pytz
 argparse
+#reverse_geocode
 androguard
 pycryptodomex
 certifi >= 14.05.14

@@ -2,7 +2,7 @@
 
 ## Fonctions
 
-Ce plugin permet d'accèder aux informations de votre voiture connectée Peugeot, ainsi qu'à la position GPS courante du véhicule.
+Ce plugin permet d'accèder aux informations de votre voiture connectée Peugeot ou véhicule PSA, ainsi qu'à la position GPS courante du véhicule.
 Il détermine ainsi les trajets réalisés et enregistre ces trajets dans une base de données.
 
 Les informations disponibles dans le widgets sont:
@@ -11,10 +11,13 @@ Les informations disponibles dans le widgets sont:
 * Nombre de jours et kilomètres jusqu'au prochain entretien du véhicule
 * Situation du véhicule sur une carte (Position GPS), distance au domicile, et information si le véhicule se déplace.
 
+Note: La position GPS n'est plus accessible depuis plusieurs mois pour une bonne partie des véhicules.<br>
+
 Ce plugin a été développé et testé avec un véhicule Peugeot 208 électrique. <br>
 Il a été testé également sur d'autres 208 électrique, et sur un SUV 3008 hybride. <br>
 Il semble qu'il ne fonctionne pas pour les véhicules thermiques. <br>
-(Il serait intéressant toutefois de le tester sur une voiture 208 thermique de dernière génération)<br>
+
+Il peut également fonctionner sur les autres véhicules électriques ou hybrides du groupe PSA (Citroën, Citroën-DS, Opel, Vauxhall)<br>
 
 <p align="left">
   <img src="../images/widget.png" width="400" title="Widget dashboard">
@@ -39,6 +42,7 @@ Par source Github:
 </p>
 
 Sur la page configuration du plugin, réaliser les opérations suivantes dans l'ordre indiqué:
+* Sélectionner la marque de votre véhicule PSA (Peugeot, Citroën, Citroën-DS, Opel, Vauxhall)
 * Saisir vos identifiants de compte MyPeugeot (Login + Password), puis Sauvegarder la section Configuration
 * Dans la section Démon, désactiver la "Gestion automatique". (elle pourra être réactivée ultérieurement, après une activation fonctionnelle)
 * Lancer l'installation des dépendances du plugin. (Attention, cette opération peut être assez longue: ~15 mn sur un Raspberry PI)
@@ -140,4 +144,4 @@ Les opérations principales d'entretion sont données également. : plus fonctio
 ..
 
 **Suite prévue pour ce plugin:**
-* Ajouter d'autres types de véhicules du groupe PSA
+* Maintenance
