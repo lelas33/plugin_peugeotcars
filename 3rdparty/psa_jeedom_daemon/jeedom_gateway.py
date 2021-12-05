@@ -53,7 +53,7 @@ if __name__ == "__main__":
     #logger.info("pin code:"+param_set[3])
     myp = MyPSACC.load_config("config.json")
     myp.set_codes(param_set[2], param_set[3])
-    myp.flog_mqtt = open("log_mqtt.log", "a")
+    #myp.flog_mqtt = open("log_mqtt.log", "a")
     atexit.register(myp.save_config)
     try:
         myp.manager._refresh_token()

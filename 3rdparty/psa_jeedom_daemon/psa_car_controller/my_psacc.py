@@ -128,7 +128,7 @@ class MyPSACC:
         self.fatal_error = 0
         self.last_state = {}
         self.mem_state = {"signal_quality": 0, "reason": 0, "sev_state": 0}
-        self.flog_mqtt = None
+        #self.flog_mqtt = None
         self.trip_in_progress = 0
         self.veh_last_stop_date = 0
         self.prev_etat_res_elec = 0
@@ -334,8 +334,8 @@ class MyPSACC:
             logger.info("mqtt msg received: %s %s", msg.topic, msg.payload)
             now = datetime.now()
             str_dt = now.strftime("%d/%m/%Y %H:%M:%S")
-            log_txt = "%s|%s|%s\n" % (str_dt, msg.topic, msg.payload)
-            self.flog_mqtt.write(log_txt)
+            #log_txt = "%s|%s|%s\n" % (str_dt, msg.topic, msg.payload)
+            #self.flog_mqtt.write(log_txt)
             data = json.loads(msg.payload)
             charge_info = None
             if msg.topic.startswith(MQTT_RESP_TOPIC):
