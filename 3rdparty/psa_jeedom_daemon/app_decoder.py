@@ -30,6 +30,8 @@ BRAND = {"com.psa.mym.myopel":     {"realm": "clientsB2COpel",     "brand_code":
          "com.psa.mym.myvauxhall": {"realm": "clientsB2CVauxhall", "brand_code": "VX", "app_name": "MyVauxhall"}
          }
 
+APP_VERSION = "1.33.0"
+
 def getxmlvalue(root, name):
     for child in root.findall("*[@name='" + name + "']"):
         return child.text
@@ -58,9 +60,8 @@ def find_preferences_xml():
 
 
 def save_key_to_pem(pfx_data, pfx_password):
-    private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(pfx_data,
-                                                                                         bytes.fromhex(pfx_password),
-                                                                                         default_backend())
+    private_key, certificate = pkcs12.load_key_and_certificates(pfx_data,
+                                                                pfx_password, default_backend())[:2]
     with open("public.pem", "wb") as f:
         f.write(certificate.public_bytes(encoding=serialization.Encoding.PEM))
 
@@ -86,8 +87,7 @@ resources = a.get_android_resources()  # .get_strings_resources()
 client_id = resources.get_string(package_name, "PSA_API_CLIENT_ID_PROD")[1]
 client_secret = resources.get_string(package_name, "PSA_API_CLIENT_SECRET_PROD")[1]
 HOST_BRANDID_PROD = resources.get_string(package_name, "HOST_BRANDID_PROD")[1]
-pfx_cert = a.get_file("assets/MWPMYMA1.pfx")
-remote_refresh_token = None
+REMOTE_REFRESH_TOKEN = None
 print("APK loaded !")
 
 client_email = argv[2]
@@ -96,6 +96,8 @@ country_code = "FR"
 
 ## Get Customer id
 site_code = BRAND[package_name]["brand_code"] + "_" + country_code + "_ESP"
+pfx_cert = a.get_file("assets/MWPMYMA1.pfx")
+save_key_to_pem(pfx_cert, b"y5Y2my5B")
 try:
     res = requests.post(HOST_BRANDID_PROD + "/GetAccessToken",
                         headers={
@@ -106,8 +108,9 @@ try:
                         params={"jsonRequest": json.dumps(
                             {"siteCode": site_code, "culture": "fr-FR", "action": "authenticate",
                              "fields": {"USR_EMAIL": {"value": client_email},
-                                        "USR_PASSWORD": {"value": client_password}}})
-                        }
+                                        "USR_PASSWORD": {"value": client_password}}
+                            }
+                        )}
                         )
 
     token = res.json()["accessToken"]
@@ -117,11 +120,14 @@ except:
     print(res.text)
     exit(1)
 
-save_key_to_pem(pfx_cert, "")
-
 try:
     res2 = requests.post(
-        f"https://mw-{BRAND[package_name]['brand_code'].lower()}-m2c.mym.awsmpsa.com/api/v1/user?culture=fr_FR&width=1080&v=1.27.0",
+        f"https://mw-{BRAND[package_name]['brand_code'].lower()}-m2c.mym.awsmpsa.com/api/v1/user",
+        params={
+            "culture": "fr-FR",
+            "width": 1080,
+            "version": APP_VERSION
+        },
         data=json.dumps({"site_code": site_code, "ticket": token}),
         headers={
             "Connection": "Keep-Alive",
@@ -129,7 +135,7 @@ try:
             "Source-Agent": "App-Android",
             "Token": token,
             "User-Agent": "okhttp/4.8.0",
-            "Version": "1.27.0"
+            "Version": APP_VERSION
         },
         cert=("public.pem", "private.pem"),
     )
@@ -143,7 +149,7 @@ except:
     exit(1)
 
 # Psacc
-psacc = MyPSACC(None, client_id, client_secret, remote_refresh_token, customer_id, BRAND[package_name]["realm"], country_code)
+psacc = MyPSACC(None, client_id, client_secret, REMOTE_REFRESH_TOKEN, customer_id, BRAND[package_name]["realm"], country_code)
 psacc.connect(client_email, client_password)
 
 os.chdir(current_dir)

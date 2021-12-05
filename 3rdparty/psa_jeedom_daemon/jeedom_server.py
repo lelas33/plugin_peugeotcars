@@ -2,6 +2,7 @@
 
 import socket
 import json
+import time
 from psa_car_controller.mylogger import my_logger
 from psa_car_controller.mylogger import logger
 
@@ -38,6 +39,7 @@ class my_jeedom_server:
         self.last_cmd    = 0
         self.last_nbp    = 0
         self.last_params = []
+        self.last_ts = 0
 
     def server_loop(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -85,15 +87,19 @@ class my_jeedom_server:
         try:
             self.cmd_nbp = len(self.cmd_params["param"])
             # memorise command si besoin de retry
-            self.last_cmd = self.cmd
-            self.last_nbp = self.cmd_nbp
-            self.last_params = self.cmd_params
+            if (self.cmd != CMD_GET_STATE_ALT):
+                self.last_cmd = self.cmd
+                self.last_nbp = self.cmd_nbp
+                self.last_params = self.cmd_params
+                self.last_ts = time.time()
         except:
             self.cmd_nbp = 0
             # memorise command si besoin de retry
-            self.last_cmd = self.cmd
-            self.last_nbp = 0
-            self.last_params = []
+            if (self.cmd != CMD_GET_STATE_ALT):
+                self.last_cmd = self.cmd
+                self.last_nbp = 0
+                self.last_params = []
+                self.last_ts = time.time()
         # print('Nb Params received', self.cmd_nbp)
         return 1
 
@@ -153,73 +159,8 @@ class my_jeedom_server:
         self.ack_hdr[6] = 0x0f
 
     def msg_resend_last_cmd(self):
-        # renvoi de la derniere commande (si pas CMD_GET_STATE_ALT)
-        if (self.cmd != CMD_GET_STATE_ALT):
+        # renvoi de la derniere commande (si pas CMD_GET_STATE_ALT, et si pas plus vielle que 15 mn)
+        cmd_age = int(time.time() - self.last_ts);
+        if (self.last_cmd != CMD_GET_STATE_ALT) and (cmd_age < 15*60):
             logger.info("Relance la commande: %x", self.last_cmd)
             self.msg_execute_cmd(self.last_cmd, self.last_nbp, self.last_params)
-
-# =======================================================================
-#               OLD
-# =======================================================================
-    def msg_analyze_cmd2(self):
-        params = [0]*MSG_MAX_SIZE
-        # Analyse message reçu
-        mc_cmd = self.cmd_msg[0] + 256*self.cmd_msg[1]
-        mc_nbp = self.cmd_msg[2] + 256*self.cmd_msg[3]
-        if mc_nbp>MSG_MAX_SIZE:
-            mc_nbp = MSG_MAX_SIZE
-        for id in range(mc_nbp):
-            params[id] = self.cmd_msg[id+4]
-
-        logger.info("Commande reçue:"+hex(mc_cmd))
-        # traitement commande
-        self.msg_execute_cmd(mc_cmd, mc_nbp, params)
-
-        # genere message ack
-        ma_cmd = mc_cmd | 0x8000
-        ma_nbp = 1
-        self.ack_msg = [0] * MSG_PAYLOAD_SIZE
-        self.ack_msg[0] = ma_cmd & 0xff
-        self.ack_msg[1] = (ma_cmd >> 8) & 0xff
-        self.ack_msg[2] = ma_nbp & 0xff
-        self.ack_msg[3] = (ma_nbp >> 8) & 0xff
-        self.ack_msg[4] = self.cmd_msg[4]
-        
-        # memorise command si besoin de retry
-        self.last_mc_cmd = mc_cmd
-        self.last_mc_nbp = mc_nbp
-        self.last_params = params
-
-    def msg_execute_cmd2(self, mc_cmd, mc_nbp, params):
-        # traitement commande
-        if (mc_cmd == CMD_PRECOND): # préconditionnement du véhicule
-            if (params[0] == 1):
-                # activation préconditionnement
-                logger.info("Activation préconditionnement")
-                precond = True
-            else:
-                # arret préconditionnement
-                logger.info("Arrêt préconditionnement")
-                precond = False
-            self.myp.preconditioning(self.vin, precond)
-
-        elif (mc_cmd == CMD_PRECOND_PROGS):  # Programmes de préconditionnement
-            progs = { 
-                "program1": {"day": [params[ 3], params[ 4], params[ 5], params[ 6], params[ 7], params[ 8], params[ 9]], "hour": params[ 1], "minute": params[ 2], "on": params[ 0]},
-                "program2": {"day": [params[13], params[14], params[15], params[16], params[17], params[18], params[19]], "hour": params[11], "minute": params[12], "on": params[10]},
-                "program3": {"day": [params[23], params[24], params[25], params[26], params[27], params[28], params[29]], "hour": params[21], "minute": params[22], "on": params[20]},
-                "program4": {"day": [params[33], params[34], params[35], params[36], params[37], params[38], params[39]], "hour": params[31], "minute": params[32], "on": params[30]}}
-            self.myp.preconditioning_progs(self.vin, progs)
-
-        elif (mc_cmd == CMD_CHARGING):  # Recharge de la batterie
-            charge_type = "immediate" if (params[0] == 1) else "delayed"
-            hour   = params[1] % 24
-            minute = params[2] % 60
-            self.myp.veh_charge_request(self.vin, hour, minute, charge_type)
-
-        elif (mc_cmd == CMD_WAKEUP):    # Reveil du vehicule
-            self.myp.wakeup(self.vin)
-
-        elif (mc_cmd == CMD_GET_STATE): # Etat du vehicule
-            self.myp.get_state(self.vin)
-

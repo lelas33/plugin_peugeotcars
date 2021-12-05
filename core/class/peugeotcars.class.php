@@ -23,7 +23,6 @@ require_once dirname(__FILE__) . '/../php/mqtt_com.php';
 
 define("CARS_FILES_DIR_CL", "/../../data/");
 
-
 // 2 fichiers pour enregistrer les trajets en détails
 // car_trips.log: liste des trajets
 //  * TRIP_STS: Start Timestamp 
@@ -432,6 +431,7 @@ class peugeotcars extends eqLogic {
           $charging_status = $cmd->execCmd();
           $charging_status = strtolower($charging_status);
           if ($charging_status == "inprogress") {
+            log::add('peugeotcars','debug',"periodic_state-> Send wakeup");
             $this->mqtt_submit(CMD_WAKEUP);
           }
         }

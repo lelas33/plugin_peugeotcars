@@ -30,6 +30,10 @@ from libs.utils import rate_limit, parse_hour
 from web.abrp import Abrp
 #from web.db import Database
 
+DELAYED_CHARGE = "delayed"
+
+IMMEDIATE_CHARGE = "immediate"
+
 PSA_CORRELATION_DATE_FORMAT = "%Y%m%d%H%M%S%f"
 PSA_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
@@ -133,14 +137,15 @@ class MyPSACC:
     def get_app_name(self):
         return realm_info[self.realm]['app_name']
 
+    @rate_limit(6, 1800)
     def refresh_token(self):
         try:
             # pylint: disable=protected-access
             self.manager._refresh_token()
             self.save_config()
+            return True
         except RequestException as e:
             logger.error("Can't refresh token %s", e)
-            sleep(60)
 
     def api(self) -> psac.VehiclesApi:
         self.api_config.access_token = self.manager.access_token
@@ -180,12 +185,15 @@ class MyPSACC:
     def __refresh_vehicle_info(self):
         if self.info_refresh_rate is not None:
             while True:
+                try:
+                    logger.debug("refresh_vehicle_info")
+                    for car in self.vehicles_list:
+                        self.get_vehicle_info(car.vin)
+                    for callback in self.info_callback:
+                        callback()
+                except:  # pylint: disable=bare-except
+                    logger.exception("refresh_vehicle_info: ")
                 sleep(self.info_refresh_rate)
-                logger.debug("refresh_vehicle_info")
-                for car in self.vehicles_list:
-                    self.get_vehicle_info(car.vin)
-                for callback in self.info_callback:
-                    callback()
 
     def start_refresh_thread(self):
         if self.refresh_thread is None:
@@ -260,30 +268,35 @@ class MyPSACC:
             sleep(60)
         return None
 
-    def refresh_remote_token(self, force=False):
-        if not force and self.remote_token_last_update is not None:
+    def _refresh_remote_token(self, force=False):
+        bad_remote_token = self.remote_refresh_token is None
+        res = None
+        if not force and not bad_remote_token and self.remote_token_last_update:
             last_update: datetime = self.remote_token_last_update
             if (datetime.now() - last_update).total_seconds() < MQTT_TOKEN_TTL:
-                return None
+                return res
         self.refresh_token()
         try:
-            if self.remote_refresh_token is None:
+            if bad_remote_token:
                 logger.error("remote_refresh_token isn't defined")
-                return None
-            res = self.manager.post(REMOTE_URL + self.client_id,
-                                    json={"grant_type": "refresh_token", "refresh_token": self.remote_refresh_token},
-                                    headers=self.headers)
-            data = res.json()
-            logger.debug("refresh_remote_token: %s", data)
-            if "access_token" in data:
-                self.remote_access_token = data["access_token"]
-                self.remote_refresh_token = data["refresh_token"]
-                self.remote_token_last_update = datetime.now()
             else:
-                logger.error("can't refresh_remote_token: %s\n Create a new one", data)
-                self.remote_token_last_update = datetime.now()
+                res = self.manager.post(REMOTE_URL + self.client_id,
+                                        json={"grant_type": "refresh_token",
+                                              "refresh_token": self.remote_refresh_token},
+                                        headers=self.headers)
+                data = res.json()
+                logger.debug("refresh_remote_token: %s", data)
+                if "access_token" in data:
+                    self.remote_access_token = data["access_token"]
+                    self.remote_refresh_token = data["refresh_token"]
+                    bad_remote_token = False
+                else:
+                    logger.error("can't refresh_remote_token: %s\n Create a new one", data)
+                    bad_remote_token = True
+            if bad_remote_token:
                 otp_code = self.get_otp_code()
                 res = self.get_remote_access_token(otp_code)
+            self.remote_token_last_update = datetime.now()
             self.mqtt_client.username_pw_set("IMA_OAUTH_ACCESS_TOKEN", self.remote_access_token)
             self.save_config()
             return res
@@ -311,14 +324,14 @@ class MyPSACC:
         logger.warning("Disconnected with result code %d", result_code)
         if result_code == 1:
             self.fatal_error = 1
-            self.refresh_remote_token(force=True)
+            self._refresh_remote_token(force=True)
         else:
             logger.warning(mqtt.error_string(result_code))
 
     # pylint: disable=unused-argument
     def __on_mqtt_message(self, client, userdata, msg):
         try:
-            logger.info("mqtt msg %s %s", msg.topic, msg.payload)
+            logger.info("mqtt msg received: %s %s", msg.topic, msg.payload)
             now = datetime.now()
             str_dt = now.strftime("%d/%m/%Y %H:%M:%S")
             log_txt = "%s|%s|%s\n" % (str_dt, msg.topic, msg.payload)
@@ -331,7 +344,7 @@ class MyPSACC:
                 if "return_code" not in data:
                     logger.debug("mqtt msg hasn't return code")
                 elif data["return_code"] == "400":
-                    self.refresh_remote_token(force=True)
+                    self._refresh_remote_token(force=True)
                     logger.error("retry last request, token was expired")
                     self.resend_command = 1
                 elif data["return_code"] == "300":
@@ -358,7 +371,7 @@ class MyPSACC:
         self.mqtt_client = mqtt.Client(clean_session=True, protocol=mqtt.MQTTv311)
         if environ.get("MQTT_LOG", "0") == "1":
             self.mqtt_client.enable_logger(logger=logger)
-        if self.refresh_remote_token():
+        if self._refresh_remote_token():
             self.mqtt_client.tls_set_context()
             self.mqtt_client.on_connect = self.__on_mqtt_connect
             self.mqtt_client.on_message = self.__on_mqtt_message
@@ -400,22 +413,24 @@ class MyPSACC:
         status = data.get_energy('Electric').charging.status
         return status
 
-    def veh_charge_request(self, vin, hour, minute, charge_type):
+    def __veh_charge_request(self, vin, hour, minute, charge_type):
         msg = self.mqtt_request(vin, {"program": {"hour": hour, "minute": minute}, "type": charge_type})
-        logger.info(msg)
+        logger.info("veh_charge_request: %s", msg)
         self.mqtt_client.publish(MQTT_REQ_TOPIC + self.__get_mqtt_customer_id() + "/VehCharge", msg)
+        return msg
 
     def change_charge_hour(self, vin, hour, miinute):
-        self.veh_charge_request(vin, hour, miinute, "delayed")
+        self.__veh_charge_request(vin, hour, miinute, DELAYED_CHARGE)
         return True
 
     def charge_now(self, vin, now):
         if now:
-            charge_type = "immediate"
+            charge_type = IMMEDIATE_CHARGE
         else:
-            charge_type = "delayed"
+            charge_type = DELAYED_CHARGE
         hour, minute = self.__get_charge_hour(vin)
-        self.veh_charge_request(vin, hour, minute, charge_type)
+        res = self.__veh_charge_request(vin, hour, minute, charge_type)
+        logger.info("charge_now: %s", res)
         return True
 
     def horn(self, vin, count):
