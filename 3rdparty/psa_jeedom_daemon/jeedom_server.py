@@ -125,7 +125,7 @@ class my_jeedom_server:
             charge_type = "immediate" if (mc_param["param"][0] == 1) else "delayed"
             hour   = mc_param["param"][1] % 24
             minute = mc_param["param"][2] % 60
-            self.myp.veh_charge_request(self.vin, hour, minute, charge_type)
+            self.myp.__veh_charge_request(self.vin, hour, minute, charge_type)
 
         elif (mc_cmd == CMD_WAKEUP):    # Reveil du vehicule
             self.myp.wakeup(self.vin)
