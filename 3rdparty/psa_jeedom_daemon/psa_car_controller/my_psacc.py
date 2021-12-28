@@ -413,14 +413,14 @@ class MyPSACC:
         status = data.get_energy('Electric').charging.status
         return status
 
-    def __veh_charge_request(self, vin, hour, minute, charge_type):
+    def _veh_charge_request(self, vin, hour, minute, charge_type):
         msg = self.mqtt_request(vin, {"program": {"hour": hour, "minute": minute}, "type": charge_type})
         logger.info("veh_charge_request: %s", msg)
         self.mqtt_client.publish(MQTT_REQ_TOPIC + self.__get_mqtt_customer_id() + "/VehCharge", msg)
         return msg
 
     def change_charge_hour(self, vin, hour, miinute):
-        self.__veh_charge_request(vin, hour, miinute, DELAYED_CHARGE)
+        self._veh_charge_request(vin, hour, miinute, DELAYED_CHARGE)
         return True
 
     def charge_now(self, vin, now):
@@ -429,7 +429,7 @@ class MyPSACC:
         else:
             charge_type = DELAYED_CHARGE
         hour, minute = self.__get_charge_hour(vin)
-        res = self.__veh_charge_request(vin, hour, minute, charge_type)
+        res = self._veh_charge_request(vin, hour, minute, charge_type)
         logger.info("charge_now: %s", res)
         return True
 

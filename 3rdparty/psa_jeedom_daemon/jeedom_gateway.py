@@ -81,12 +81,12 @@ if __name__ == "__main__":
     # Monitoring for MQTT server: (1 check every 0.5 minute)
     #  * "fatal error" of MQTT server, in order to restart it if necessary 
     #  * Message not processed due to token expired
-    while True:
-        time.sleep(30)
-        if myp.resend_command == 1:
-            logger.info("Token expired error detected => Resend last command")
-            js.msg_resend_last_cmd()
-            myp.resend_command = 0
+    # while True:
+        # time.sleep(30)
+        # if myp.resend_command == 1:
+            # logger.info("Token expired error detected => Resend last command")
+            # js.msg_resend_last_cmd()
+            # myp.resend_command = 0
         #if myp.fatal_error == 1:
             # logger.info("Fatal error detected => Restart MQTT link")
             # exit demon, in order to be restarted by Jeedom monitoring
