@@ -604,8 +604,7 @@ class peugeotcars extends eqLogic {
             }
           }
           // Log position courante vers GPS log file (pas si vehicule à l'arrêt "à la maison" et pas si "trajets alternatifs")
-          // if (($gps_pts_ok == true) && ($alternate_trips == 0) && (($dist_home > 0.050) || ($kinetic_moving == 1))) {
-          if (($gps_pts_ok == true) && (($dist_home > 0.050) || ($kinetic_moving == 1))) {
+          if (($gps_pts_ok == true) && ($alternate_trips == 0) && (($dist_home > 0.050) || ($kinetic_moving == 1))) {
             $gps_log_dt = $ctime.",".$gps_position.",".$batt_level.",".$mileage.",".$kinetic_moving."\n";
             log::add('peugeotcars','debug',"Refresh->recording Gps_dt=".$gps_log_dt);
             file_put_contents($fn_car_gps, $gps_log_dt, FILE_APPEND | LOCK_EX);
@@ -801,7 +800,6 @@ class peugeotcars extends eqLogic {
   // =====================================================
   // Fonction de configuration des parametres de la charge
   // =====================================================
-  // req_imm_diff = 1:Immediat / 0:Differe
   public function cfg_charging($use_req, $req_imm_diff=0) {
     $cmd_imm_diff = $this->getCmd(null, 'charging_imdel_val');
     $cmd_del_hour = $this->getCmd(null, 'charging_del_hour');
