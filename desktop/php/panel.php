@@ -14,7 +14,17 @@ $date = array(
 sendVarToJS('eqType', 'peugeotcars');
 sendVarToJs('object_id', init('object_id'));
 $eqLogics = eqLogic::byType('peugeotcars');
-$eqLogic = $eqLogics[0];
+if (isset($_GET["eq_id"])) {
+  $eq_id   = $_GET["eq_id"];
+  foreach ($eqLogics as $eql) {
+    if ($eq_id == $eql->getId())
+      $eqLogic = $eql;
+  }
+}
+else {
+  $eqLogic = $eqLogics[0];
+  $eq_id = $eqLogic->getId();
+}
 if (isset($_GET["car"]))
   $vin = $_GET["car"];
 else
@@ -26,7 +36,7 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
 
 <div class="row" id="div_peugeotcars">
     <div class="row">
-        <div class="col-lg-8 col-lg-offset-2" style="height: 250px;padding-top:10px">
+        <div class="col-lg-10 col-lg-offset-1" style="height: 260px;padding-top:10px">
             <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 0px 5px;background-color:#f8f8f8">
               <div class="pull-left" style="padding-top:10px;padding-left:24px;color: #333;font-size: 1.5em;"> <span id="spanTitreResume">Sélection parmis vos véhicules</span>
                 <select id="eqlogic_select" onchange="ChangeCarImage()" style="color:#555;font-size: 15px;border-radius: 3px;border:1px solid #ccc;">
@@ -48,7 +58,7 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
     </div>
     <div>
       <div class="row">
-      <div class="col-lg-8 col-lg-offset-2" style="padding-top:10px">
+      <div class="col-lg-10 col-lg-offset-1" style="padding-top:10px">
         <ul class="nav nav-tabs" role="tablist">
           <li role="presentation" class="active"><a href="#car_trips_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Trajets}}</a></li>
           <li role="presentation"><a href="#car_stat_tab" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-tachometer"></i> {{Statistiques}}</a></li>
@@ -62,7 +72,7 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
       <div class="tab-content" style="height:1200px;">
         <div role="tabpanel" class="tab-pane" id="car_trips_tab">
           <div class="row">
-            <div class="col-lg-8 col-lg-offset-2" style="height: 150px;padding-top:10px;">
+            <div class="col-lg-10 col-lg-offset-1" style="height: 150px;padding-top:10px;">
               <form class="form-horizontal">
                 <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 0px 5px;background-color:#f8f8f8">
                   <div style="min-height: 10px;">
@@ -95,7 +105,7 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
             </div>
           </div>
           <div class="row">
-              <div class="col-lg-8 col-lg-offset-2">
+              <div class="col-lg-10 col-lg-offset-1">
                   <form class="form-horizontal">
                        <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
                            <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
@@ -108,17 +118,17 @@ log::add('peugeotcars', 'debug', 'Pannel: VIN:'.$vin);
                        <div style="min-height: 10px;"></div>
                    </form>
               </div>
-              <div class="col-lg-8 col-lg-offset-2">
-                <div id="trips_list" style="float:left;width:45%">
+              <div class="col-lg-10 col-lg-offset-1">
+                <div id="trips_list" style="float:left;width:35%">
                   <div id='div_hist_liste' style="font-size: 1.2em;"></div>
-                  <div id='div_graph_alti'  style="padding-top:10px;min-height:200px;"></div>
+                  <div id='div_graph_alti'  style="padding-top:10px;min-height:200px;display: none;"></div>
                   <div id='div_hist_liste2' style="font-size: 1.2em;">
                     <table id="trip_liste" class="display compact" width="100%"></table>
                   </div>
                 </div>
-                <div id="trips_separ" style="margin-left:45%;width:1%">
+                <div id="trips_separ" style="margin-left:35%;width:1%">
                 </div>
-                <div id="trips_map" style="margin-left:46%;width:54%">
+                <div id="trips_map" style="margin-left:36%;width:64%">
                 </div>
               </div>
           </div>
