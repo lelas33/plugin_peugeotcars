@@ -5,8 +5,8 @@ requests
 pytz
 argparse
 #reverse_geocode
-androguard
-pycryptodomex
+androguard >= 3.3.5
+pycryptodomex >= 3.9.0
 certifi >= 14.05.14
 six >= 1.10
 python_dateutil >= 2.5.3

@@ -553,7 +553,8 @@ class peugeotcars extends eqLogic {
           }
           // Autres infos
           $cmd = $this->getCmd(null, "conn_level");
-          $conn_level = ($alternate_trips == 0) ? $ret["conn_level"] : $alt_signal_quality;
+          // $conn_level = ($alternate_trips == 0) ? $ret["conn_level"] : $alt_signal_quality;
+          $conn_level = $ret["conn_level"];
           $cmd->event($conn_level);            
           $cmd = $this->getCmd(null, "kinetic_moving");
           $kinetic_moving = ($alternate_trips == 0) ? intval($ret["kinetic_moving"],10) : $alt_kinetic;
