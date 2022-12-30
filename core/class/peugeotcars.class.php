@@ -89,17 +89,12 @@ class peugeotcars extends eqLogic {
     public static function deamon_start($_debug = false) {
 				self::deamon_stop();
         log::add('peugeotcars', 'info', 'Starting daemon');
-        $param = config::byKey('account', 'peugeotcars') . ',' . config::byKey('password', 'peugeotcars') . ',' . config::byKey('code_sms', 'peugeotcars') . ',' . config::byKey('code_pin', 'peugeotcars');
-        $param = base64_encode ($param);
-
-				// $cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom/jeedom_gateway.py';
-        // $cmd .= ' -m ' . $param;
-        // $cmd .= ' -b ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom';
-				// $cmd .= ' >> ' . log::getPathToLog('peugeotcars') . ' 2>&1 &';
+        // $param = config::byKey('account', 'peugeotcars') . ',' . config::byKey('password', 'peugeotcars') . ',' . config::byKey('code_sms', 'peugeotcars') . ',' . config::byKey('code_pin', 'peugeotcars');
+        // $param = base64_encode ($param);
 
 				$cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon/jeedom_gateway.py';
-        $cmd .= ' -m ' . $param;
-        $cmd .= ' -b ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon';
+        $cmd .= ' -m ' . config::byKey('account', 'peugeotcars');
+        $cmd .= ' -P ' . config::byKey('password', 'peugeotcars');
 				$cmd .= ' >> ' . log::getPathToLog('peugeotcars') . ' 2>&1 &';
 
         log::add('peugeotcars', 'info', $cmd);
@@ -769,10 +764,10 @@ class peugeotcars extends eqLogic {
 
     // Test si deamon OK
     $deamon_info = self::deamon_info();
-    if ($deamon_info['state'] == 'nok') {
-      log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
-      return;
-    }    
+    // if ($deamon_info['state'] == 'nok') {
+      // log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
+      // return;
+    // }    
     log::add('peugeotcars', 'debug', "mqtt_submit: Envoi de la commmande (".dechex($command).") vers le serveur local");
 
     // Creation d'une liaison TCP/IP avec le serveur MQTT

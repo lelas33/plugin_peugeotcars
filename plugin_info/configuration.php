@@ -48,16 +48,101 @@ if (!isConnect('admin')) {
         </div>
     </div>
     <div class="form-group">
+        <label class="col-lg-4 control-label">{{Code du pays}}</label>
+        <div class="col-lg-3">
+            <select class="configKey form-control" data-l1key="country">
+                <option value="FR">{{France}}</option>
+                <option value="GB">{{Great Britain}}</option>
+                <option value="BE">{{Belgian}}</option>
+                <option value="CH">{{Swiss}}</option>
+                <option value="DE">{{German}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
         <label class="col-lg-4 control-label">{{Code PIN Appli PSA}}</label>
         <div class="col-lg-3">
             <input class="configKey form-control" data-l1key="code_pin" type="password"/>
         </div>
     </div>
-    <div class="form-group">
-        <label class="col-lg-4 control-label">{{Code reçu par SMS}}</label>
-        <div class="col-lg-3">
-            <input class="configKey form-control" data-l1key="code_sms"/>
-        </div>
-    </div>
-</form>
+		<div class="form-group">
+			<label class="col-lg-4 control-label">{{Code OTP}}</label>
+			<div class="col-lg-1">
+				<a class="btn btn-warning" id="bt_sms0"><i class="fas fa-sync"></i> {{Préparation}}</a>
+			</div>
+			<div class="col-lg-1">
+				<a class="btn btn-warning" id="bt_sms1"><i class="fas fa-sync"></i> {{Requête SMS}}</a>
+			</div>
+      <label class="col-lg-2 control-label">{{==> Code reçu par SMS:}}</label>
+      <div class="col-lg-1">
+          <input class="configKey form-control" data-l1key="code_sms"/>
+      </div>
+      <label class="col-lg-1 control-label">{{==>}}</label>
+			<div class="col-lg-1">
+				<a class="btn btn-warning" id="bt_sms2"><i class="fas fa-sync"></i> {{Finalisation code OTP}}</a>
+			</div>
+		</div>
+ </form>
 <?php include_file('desktop', 'peugeotcars', 'js', 'peugeotcars'); ?>
+<script>
+$('#bt_sms0').on('click', function () {
+	$.ajax({
+		type: "POST",
+		url: "plugins/peugeotcars/core/ajax/peugeotcars.ajax.php",
+		data: {
+			action: "OTP_Prepare",
+		},
+		dataType: 'json',
+		error: function (request, status, error) {
+			handleAjaxError(request, status, error);
+		},
+		success: function (data) {
+			if (data.state != 'ok') {
+				$('#div_alert').showAlert({message: data.result, level: 'danger'});
+				return;
+			}
+			$('#div_alert').showAlert({message: '{{Préparation code OTP correcte}}', level: 'success'});
+		}
+	});
+});
+$('#bt_sms1').on('click', function () {
+	$.ajax({
+		type: "POST",
+		url: "plugins/peugeotcars/core/ajax/peugeotcars.ajax.php",
+		data: {
+			action: "OTP_ReqSMS",
+		},
+		dataType: 'json',
+		error: function (request, status, error) {
+			handleAjaxError(request, status, error);
+		},
+		success: function (data) {
+			if (data.state != 'ok') {
+				$('#div_alert').showAlert({message: data.result, level: 'danger'});
+				return;
+			}
+			$('#div_alert').showAlert({message: '{{Requête pour le SMS envoyée}}', level: 'success'});
+		}
+	});
+});
+$('#bt_sms2').on('click', function () {
+	$.ajax({
+		type: "POST",
+		url: "plugins/peugeotcars/core/ajax/peugeotcars.ajax.php",
+		data: {
+			action: "OTP_Finalize",
+		},
+		dataType: 'json',
+		error: function (request, status, error) {
+			handleAjaxError(request, status, error);
+		},
+		success: function (data) {
+			if (data.state != 'ok') {
+				$('#div_alert').showAlert({message: data.result, level: 'danger'});
+				return;
+			}
+			$('#div_alert').showAlert({message: '{{Génération du code OTP réussie}}', level: 'success'});
+		}
+	});
+});
+</script>

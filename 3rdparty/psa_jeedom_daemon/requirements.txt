@@ -1,13 +1,27 @@
 paho-mqtt>=1.5.0
+dash>=2
+dash_daq>=0.5.0
+plotly>=5
 cryptography>=2.6
-oauth2_client
-requests
-pytz
-argparse
-#reverse_geocode
-androguard >= 3.3.5
-pycryptodomex >= 3.9.0
+Werkzeug>=1.0.0
+pandas>=0.23
+oauth2-client>=1.2.1
+requests>=2.27.1
+pytz>=2021.0
+typing
+argparse>=1.4.0
+flask
+dash_bootstrap_components
+ConfigUpdater>=3.0
+geojson>=2.5.0
+reverse-geocode>=1.4.1
+androguard>=3.3.5
+pycryptodomex>=3.9.0
+ruamel.yaml>=0.15.0
+pydantic>=1.9.0
+#swagger req
 certifi >= 14.05.14
 six >= 1.10
-python_dateutil >= 2.5.3
+python-dateutil >= 2.5.3
 urllib3 >= 1.15.1
+single-source>=0.3.0

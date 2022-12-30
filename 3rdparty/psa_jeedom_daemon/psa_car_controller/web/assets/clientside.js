@@ -44,7 +44,7 @@ function addLocaleDate (data, dateKey) {
   const dateOption = [undefined, { hour: 'numeric', minute: 'numeric' }]
   function dateToLocale (row, key) {
     const date = new Date(row[key])
-    row[key] = date
+    row[key] = date.getTime()
     row[key + '_str'] = date.toLocaleDateString(...dateOption)
   }
   let datasetName, dataset
@@ -70,9 +70,9 @@ function filterDataset (data, range) {
   return res
 }
 
-function filterShortTrip (data) {
+function filterShortTrip (data, minimumLength) {
   const longTrips = {
-    trips: data.trips.filter(line => line.distance > 10),
+    trips: data.trips.filter(line => line.distance > minimumLength),
     chargings: data.chargings
   }
   console.log('long trips:', longTrips)
@@ -87,37 +87,11 @@ function updateFigures (data, oldFigure, x, y) {
     const xLabel = x[i]
     const figure = Object.assign({}, oldFigure[i])
     i++
-    // console.log(oldFigure[i]);
-    // var unique_y_label = y[i].filter((v, i, a) => a.indexOf(v) === i);
-    // var data_nonnull = trips
-    // unique_y_label.forEach(function(label) {
-    //     data_nonnull = data_nonnull.filter(line => line[label]);
-    // });
-    if ('mapbox' in figure.layout) {
-      figure.data[0].lat = []
-      figure.data[0].lon = []
-      figure.data[0].hovertext = []
-      let trip = null
-      for (trip of trips) {
-        const xPos = trip.positions[xLabel]
-        figure.data[0].lat.push(...xPos, null)
-        figure.data[0].lon.push(...trip.positions[yLabel[0]])
-        figure.data[0].hovertext.push(...Array(xPos.length).fill(trip[yLabel[1]]), null)
-      }
-      if (trip) {
-        const lastPos = trip.positions[yLabel[0]].length - 1
-        figure.layout.mapbox.center.lat = trip.positions[xLabel][lastPos]
-        figure.layout.mapbox.center.lon = trip.positions[yLabel[0]][lastPos]
-        figure.data[1].lat = [figure.layout.mapbox.center.lat]
-        figure.data[1].lon = [figure.layout.mapbox.center.lon]
-      }
-    } else {
-      const xValues = trips.map(a => a[xLabel])
-      // for each y label
-      for (let j = 0; j < yLabel.length; j++) {
-        figure.data[j].y = trips.map(a => a[yLabel[j]])
-        figure.data[j].x = xValues
-      }
+    const xValues = trips.map(a => a[xLabel])
+    // for each y label
+    for (let j = 0; j < yLabel.length; j++) {
+      figure.data[j].y = trips.map(a => a[yLabel[j]])
+      figure.data[j].x = xValues
     }
     console.log(xLabel, figure)
     figures.push(figure)
@@ -125,13 +99,67 @@ function updateFigures (data, oldFigure, x, y) {
   return figures
 }
 
+function updateMap (data, oldFigure, x, y, lastPos) {
+  const trips = data.trips
+  const figures = []
+  let i = 0
+  y.forEach(function (yLabel) {
+    const xLabel = x[i]
+    const figure = Object.assign({}, oldFigure[i])
+    i++
+    figure.data[0].lat = []
+    figure.data[0].lon = []
+    figure.data[0].hovertext = []
+    let trip = null
+    for (trip of trips) {
+      const xPos = trip.positions[xLabel]
+      figure.data[0].lat.push(...xPos, null)
+      figure.data[0].lon.push(...trip.positions[yLabel[0]])
+      figure.data[0].hovertext.push(...Array(xPos.length).fill(trip[yLabel[1]]), null)
+    }
+    if (trip) {
+      figure.layout.mapbox.center.lat = lastPos.lat
+      figure.layout.mapbox.center.lon = lastPos.lon
+      figure.data[1].lat = [lastPos.lat]
+      figure.data[1].lon = [lastPos.lon]
+    }
+    console.log(xLabel, figure)
+    figures.push(figure)
+  })
+  return figures
+}
+
+function removeObjectFromTableRow (data) {
+  const rows = []
+  data.forEach(object => {
+    const row = {}
+    for (const key in object) {
+      if (typeof object[key] !== 'object') {
+        row[key] = object[key]
+      }
+    }
+    rows.push(row)
+  })
+  return rows
+}
+
 function updateTables (data, tables) {
   console.log('tables', tables)
   const figures = []
   tables.forEach(function (table) {
-    figures.push(data[table.src])
+    const tableData = removeObjectFromTableRow(data[table.src])
+    figures.push(tableData)
   })
   return figures
+}
+
+function nbFormat (nb) {
+  const nbStr = nb.toFixed(2)
+  const nbInt = nbStr.split('.')[0]
+  if (nbInt.length > 3) {
+    return nbInt
+  }
+  return nbStr
 }
 
 function updateCardsValue (data) {
@@ -166,7 +194,7 @@ function updateCardsValue (data) {
     res.avg_consum_price = avgPriceKw * res.avg_consum_kw
   }
   for (const [key, value] of Object.entries(res)) {
-    document.getElementById(key).innerHTML = value.toPrecision(3)
+    document.getElementById(key).innerHTML = nbFormat(value)
   }
 }
 
@@ -206,7 +234,20 @@ function sortMultipleTable (sortParams, data, tables) {
   }
 }
 
-function filterAndSort (data, range, figures, p, log, sort) { // eslint-disable-line no-unused-vars
+function getLastPosition (trips) {
+  const lastPos = {}
+  if(Array.isArray(trips) && trips.length > 0){
+    lastPos.lat = trips.at(-1).positions.lat[0]
+    lastPos.lon = trips.at(-1).positions.long[0]
+  }
+  else {
+     lastPos.lat = 40
+     lastPos.lon = 40
+  }
+  return lastPos
+}
+
+function filterAndSort (data, range, figures, p, log, sort, config) { // eslint-disable-line no-unused-vars
   if (log > 10) {
     logger.disableLogger()
   }
@@ -227,12 +268,11 @@ function filterAndSort (data, range, figures, p, log, sort) { // eslint-disable-
     dataFiltered = filterDataset(data, range)
     sortMultipleTable(sort, dataFiltered, p.table_src)
     outFigures.push(...updateTables(dataFiltered, p.table_src))
-    console.log(dataFiltered.trips.length)
-    const longTrips = filterShortTrip(dataFiltered)
-    console.log('trips', dataFiltered.trips.length)
+    const longTrips = filterShortTrip(dataFiltered, config.minimumLength)
+    console.log('trips', dataFiltered.trips)
     console.log('longTrips', longTrips.trips.length)
     outFigures.push(...updateFigures(longTrips, figures.graph, p.graph_x_label, p.graph_y_label))
-    outFigures.push(...updateFigures(dataFiltered, figures.maps, p.map_x_label, p.map_y_label))
+    outFigures.push(...updateMap(dataFiltered, figures.maps, p.map_x_label, p.map_y_label, getLastPosition(dataFiltered.trips)))
     updateCardsValue(longTrips)
   }
   return outFigures

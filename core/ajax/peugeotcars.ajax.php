@@ -338,12 +338,12 @@ function precond_set_programs($vin, $pp_to, $progs)
   else if ($pp_to == "car") {
     // Export to car
     // Test si deamon OK
-    $eq = eqLogic::byLogicalId($vin, "peugeotcars");
-    $deamon_info = $eq->deamon_info();
-    if ($deamon_info['state'] == 'nok') {
-      log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
-      return;
-    }
+    // $eq = eqLogic::byLogicalId($vin, "peugeotcars");
+    // $deamon_info = $eq->deamon_info();
+    // if ($deamon_info['state'] == 'nok') {
+      // log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
+      // return;
+    // }
     // Creation d'une liaison TCP/IP avec le serveur MQTT
     $socket = mqtt_start_socket ();
     // Construction du message
@@ -548,6 +548,26 @@ try {
     log::add('peugeotcars', 'info', 'Ajax:getCurrentPosition');
     $current_position = get_current_position($vin);
     $ret_json = json_encode ($current_position);
+    ajax::success($ret_json);
+    }
+
+  else if (init('action') == 'OTP_Prepare') {
+    log::add('peugeotcars', 'info', 'Ajax:OTP_Prepare');
+    $mail   = config::byKey('account', 'peugeotcars');
+    $passwd = config::byKey('password', 'peugeotcars');
+    $brandid= config::byKey('brandid', 'peugeotcars');
+    $country= config::byKey('country', 'peugeotcars');
+    log::add('peugeotcars', 'info', 'Ajax:Params:'.$mail."/".$passwd."/".$brandid."/".$country);
+    ajax::success($ret_json);
+    }
+
+  else if (init('action') == 'OTP_ReqSMS') {
+    log::add('peugeotcars', 'info', 'Ajax:OTP_ReqSMS');
+    ajax::success($ret_json);
+    }
+
+  else if (init('action') == 'OTP_Finalize') {
+    log::add('peugeotcars', 'info', 'Ajax:OTP_Finalize');
     ajax::success($ret_json);
     }
 

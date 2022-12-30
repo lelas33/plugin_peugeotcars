@@ -1,20 +1,21 @@
 from copy import deepcopy
 
 import dash_bootstrap_components as dbc
-import dash_table
-from dash_core_components import Graph
-from dash_table.Format import Format, Scheme, Symbol
+from dash import html
+from dash.dash_table import DataTable
 import plotly.express as px
 import plotly.graph_objects as go
-import dash_html_components as html
+from dash.dash_table.Format import Scheme, Symbol, Format
+from dash.dcc import Graph
 
-from libs.car import Car
-from libs.elec_price import ElecPrice
-from trip import Trip
-from web.db import Database
-from web.utils import card_value_div, dash_date_to_datetime
+from psa_car_controller.psacc.application.charging import Charging
+from psa_car_controller.psacc.model.car import Car
+from psa_car_controller.psacc.repository.trips import Trip
+from psa_car_controller.psacc.repository.db import Database
 
 # pylint: disable=invalid-name
+from psa_car_controller.web.tools.utils import card_value_div, dash_date_to_datetime
+
 ERROR_DIV = dbc.Alert("No data to show, there is probably no trips recorded yet", color="danger")
 PADDING_TOP = {"padding-top": "1em"}
 consumption_fig = ERROR_DIV
@@ -33,9 +34,10 @@ ELEC_CONSUM_KW = "elec_consum_kw"
 ELEC_CONSUM_PRICE = "elec_consum_price"
 AVG_CONSUM_KW = "avg_consum_kw"
 AVG_CONSUM_PRICE = "avg_consum_price"
+CURRENCY = "€"
 
 SUMMARY_CARDS = {"Average consumption": {"text": [card_value_div(AVG_CONSUM_KW, "kWh/100km"),
-                                                  card_value_div(AVG_CONSUM_PRICE, f"{ElecPrice.currency}/100km")],
+                                                  card_value_div(AVG_CONSUM_PRICE, f"{CURRENCY}/100km")],
                                          "src": "assets/images/consumption.svg"},
                  "Average emission": {"text": [card_value_div(AVG_EMISSION_KM, " g/km"),
                                                card_value_div(AVG_EMISSION_KW, "g/kWh")],
@@ -43,15 +45,13 @@ SUMMARY_CARDS = {"Average consumption": {"text": [card_value_div(AVG_CONSUM_KW, 
                  "Average charge speed": {"text": [card_value_div(AVG_CHARGE_SPEED, " kW")],
                                           "src": "assets/images/battery-charge-line.svg"},
                  "Electricity consumption": {"text": [card_value_div(ELEC_CONSUM_KW, "kWh"),
-                                                      card_value_div(ELEC_CONSUM_PRICE, ElecPrice.currency)],
+                                                      card_value_div(ELEC_CONSUM_PRICE, CURRENCY)],
                                              "src": "assets/images/electricity bill.svg"}
                  }
 
 
-# pylint: disable=too-many-locals
 def get_figures(car: Car):
-    global consumption_fig, consumption_df, trips_map, consumption_fig_by_speed, table_fig, info, \
-        battery_table, consumption_fig_by_temp
+    global consumption_fig, trips_map, consumption_fig_by_speed, table_fig, battery_table, consumption_fig_by_temp
     lats = [42, 41]
     lons = [1, 2]
     names = ["undefined", "undefined"]
@@ -68,7 +68,7 @@ def get_figures(car: Car):
         style_cell_conditional.append({'if': {'column_id': 'consumption_fuel_km', }, 'display': 'None', })
     if car.is_thermal():
         style_cell_conditional.append({'if': {'column_id': 'consumption_km', }, 'display': 'None', })
-    table_fig = dash_table.DataTable(
+    table_fig = DataTable(
         id='trips-table',
         sort_action='custom',
         sort_by=[{'column_id': 'id', 'direction': 'desc'}],
@@ -115,7 +115,7 @@ def get_figures(car: Car):
     consumption_fig_by_speed.update_layout(xaxis_title="average Speed km/h", yaxis_title="Consumption kWh/100Km")
 
     # battery_table
-    battery_table = dash_table.DataTable(
+    battery_table = DataTable(
         id='battery-table',
         sort_action='custom',
         sort_by=[{'column_id': 'start_at_str', 'direction': 'desc'}],
@@ -128,7 +128,7 @@ def get_figures(car: Car):
                  {'id': 'kw', 'name': 'consumption', 'type': 'numeric',
                   'format': deepcopy(nb_format).symbol_suffix(" kWh").precision(2)},
                  {'id': 'price', 'name': 'price', 'type': 'numeric',
-                  'format': deepcopy(nb_format).symbol_suffix(" " + ElecPrice.currency).precision(2), 'editable': True}
+                  'format': deepcopy(nb_format).symbol_suffix(" " + CURRENCY).precision(2), 'editable': True}
                  ],
         data=[],
         style_data_conditional=[
@@ -157,27 +157,11 @@ def get_figures(car: Car):
 
 def get_battery_curve_fig(row: dict, car: Car):
     start_date = dash_date_to_datetime(row["start_at"])
-    stop_at = dash_date_to_datetime(row["stop_at"])
     conn = Database.get_db()
-    res = Database.get_battery_curve(conn, start_date, car.vin)
-    conn.close()
-    res.insert(0, {"level": row["start_level"], "date": start_date})
-    if row["end_level"] is not None:
-        res.append({"level": row["end_level"], "date": stop_at})
-    battery_curves = []
-    speed = 0
-    start = 0
-    for end in range(1, len(res)):
-        start_level = res[start]["level"]
-        end_level = res[end]["level"]
-        diff_level = end_level-start_level
-        diff_sec = (res[end]["date"] - res[start]["date"]).total_seconds()
-        if diff_sec > 0 and diff_level > 3:
-            speed = car.get_charge_speed(diff_level, diff_sec)
-            battery_curves.append({"level": start_level, "speed": speed})
-            start = end
-    battery_curves.append({"level": row["end_level"], "speed": speed})
-    fig = px.line(battery_curves, x="level", y="speed")
+    charge = Database.get_charge(car.vin, start_date)
+    battery_curves = Charging.get_battery_curve(conn, charge, car)
+    battery_curves_dict = list(map(lambda bc: bc.__dict__, battery_curves))
+    fig = px.line(battery_curves_dict, x="level", y="speed")
     fig.update_layout(xaxis_title="Battery %", yaxis_title="Charging speed in kW")
     return html.Div(Graph(figure=fig))
 

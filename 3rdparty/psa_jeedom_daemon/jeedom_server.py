@@ -3,8 +3,7 @@
 import socket
 import json
 import time
-from psa_car_controller.mylogger import my_logger
-from psa_car_controller.mylogger import logger
+from psa_car_controller.common.mylogger import logger
 
 PORT = 65432
 # Port to listen on (non-privileged ports are > 1023)
@@ -23,8 +22,9 @@ CMD_GET_STATE_ALT = 0x0042   # Etat du vehicule a partir des infos issues du ser
 
 
 class my_jeedom_server:
-    def __init__(self, myp, vin):
+    def __init__(self, myp, rc, vin):
         self.myp = myp
+        self.rc  = rc
         self.vin = vin
         self.port = PORT
         self.cmd_hdr = []     # buffer reception entete message
@@ -115,32 +115,32 @@ class my_jeedom_server:
                 # arret préconditionnement
                 logger.info("Arrêt préconditionnement")
                 precond = False
-            self.myp.preconditioning(self.vin, precond)
+            self.rc.preconditioning(self.vin, precond)
 
         elif (mc_cmd == CMD_PRECOND_PROGS):  # Programmes de préconditionnement
             progs = self.cmd_params            
-            self.myp.preconditioning_progs(self.vin, progs)
+            self.rc.preconditioning_progs(self.vin, progs)
 
         elif (mc_cmd == CMD_CHARGING):  # Recharge de la batterie
             charge_type = "immediate" if (mc_param["param"][0] == 1) else "delayed"
             hour   = mc_param["param"][1] % 24
             minute = mc_param["param"][2] % 60
-            self.myp._veh_charge_request(self.vin, hour, minute, charge_type)
+            self.rc.veh_charge_request(self.vin, hour, minute, charge_type)
 
         elif (mc_cmd == CMD_WAKEUP):    # Reveil du vehicule
-            self.myp.wakeup(self.vin)
+            self.rc.wakeup(self.vin)
 
         elif (mc_cmd == CMD_GET_STATE): # Etat du vehicule
-            self.myp.fatal_error = 1
+            self.rc.fatal_error = 1
             
         elif (mc_cmd == CMD_GET_STATE_RD): # Etat du vehicule (retour donnees uniquement)
-            self.ack_params = self.myp.last_state
+            self.ack_params = self.rc.last_state
 
         elif (mc_cmd == CMD_GET_STATE_ALT): # Etat du vehicule Alternatif
-            self.ack_params["trip_in_progress"] = self.myp.trip_in_progress
-            self.ack_params["signal_quality"] = self.myp.mem_state["signal_quality"]
-            self.ack_params["reason"] = self.myp.mem_state["reason"]
-            self.ack_params["sev_state"] = self.myp.mem_state["sev_state"]
+            self.ack_params["trip_in_progress"] = self.rc.trip_in_progress
+            self.ack_params["signal_quality"] = self.rc.mem_state["signal_quality"]
+            self.ack_params["reason"] = self.rc.mem_state["reason"]
+            self.ack_params["sev_state"] = self.rc.mem_state["sev_state"]
             # logger.info("trip_in_progress: %d", self.ack_params["trip_in_progress"])
             # logger.info("signal_quality:   %s", self.ack_params["signal_quality"])
             # logger.info("reason:           %s", self.ack_params["reason"])

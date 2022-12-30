@@ -1,5 +1,6 @@
 from dash import Dash
 
+
 class DashCustom(Dash):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
