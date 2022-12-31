@@ -6,6 +6,8 @@ data/V*/
 *.bak
 *.zip
 *.db
+*.log
+*.ini
 3rdparty/sample_lau.php
 3rdparty/psa_jeedom_daemon/config.json
 3rdparty/psa_jeedom_daemon/cars.json

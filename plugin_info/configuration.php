@@ -68,24 +68,24 @@ if (!isConnect('admin')) {
 		<div class="form-group">
 			<label class="col-lg-4 control-label">{{Code OTP}}</label>
 			<div class="col-lg-1">
-				<a class="btn btn-warning" id="bt_sms0"><i class="fas fa-sync"></i> {{Préparation}}</a>
+				<a class="btn btn-warning" id="bt_sms1"><i class="fas fa-sync"></i> {{(1)-Préparation}}</a>
 			</div>
 			<div class="col-lg-1">
-				<a class="btn btn-warning" id="bt_sms1"><i class="fas fa-sync"></i> {{Requête SMS}}</a>
+				<a class="btn btn-warning" id="bt_sms2"><i class="fas fa-sync"></i> {{(2)-Requête SMS}}</a>
 			</div>
-      <label class="col-lg-2 control-label">{{==> Code reçu par SMS:}}</label>
+      <label class="col-lg-2 control-label">{{==> (3)-Code reçu par SMS:}}</label>
       <div class="col-lg-1">
           <input class="configKey form-control" data-l1key="code_sms"/>
       </div>
       <label class="col-lg-1 control-label">{{==>}}</label>
 			<div class="col-lg-1">
-				<a class="btn btn-warning" id="bt_sms2"><i class="fas fa-sync"></i> {{Finalisation code OTP}}</a>
+				<a class="btn btn-warning" id="bt_sms3"><i class="fas fa-sync"></i> {{(4)-Finalisation code OTP}}</a>
 			</div>
 		</div>
  </form>
 <?php include_file('desktop', 'peugeotcars', 'js', 'peugeotcars'); ?>
 <script>
-$('#bt_sms0').on('click', function () {
+$('#bt_sms1').on('click', function () {
 	$.ajax({
 		type: "POST",
 		url: "plugins/peugeotcars/core/ajax/peugeotcars.ajax.php",
@@ -101,11 +101,17 @@ $('#bt_sms0').on('click', function () {
 				$('#div_alert').showAlert({message: data.result, level: 'danger'});
 				return;
 			}
-			$('#div_alert').showAlert({message: '{{Préparation code OTP correcte}}', level: 'success'});
+      ret = JSON.parse(data.result);
+      if (ret == 1) {
+			  $('#div_alert').showAlert({message: '{{Préparation code OTP correcte}}', level: 'success'});
+      }
+      else {
+				$('#div_alert').showAlert({message: '{{Erreur de préparation du code OTP}}', level: 'danger'});
+      }
 		}
 	});
 });
-$('#bt_sms1').on('click', function () {
+$('#bt_sms2').on('click', function () {
 	$.ajax({
 		type: "POST",
 		url: "plugins/peugeotcars/core/ajax/peugeotcars.ajax.php",
@@ -121,11 +127,17 @@ $('#bt_sms1').on('click', function () {
 				$('#div_alert').showAlert({message: data.result, level: 'danger'});
 				return;
 			}
-			$('#div_alert').showAlert({message: '{{Requête pour le SMS envoyée}}', level: 'success'});
+      ret = JSON.parse(data.result);
+      if (ret == 1) {
+			  $('#div_alert').showAlert({message: '{{Requête pour le SMS envoyée}}', level: 'success'});
+      }
+      else {
+				$('#div_alert').showAlert({message: '{{Erreur envoi du SMS}}', level: 'danger'});
+      }
 		}
 	});
 });
-$('#bt_sms2').on('click', function () {
+$('#bt_sms3').on('click', function () {
 	$.ajax({
 		type: "POST",
 		url: "plugins/peugeotcars/core/ajax/peugeotcars.ajax.php",
@@ -141,7 +153,13 @@ $('#bt_sms2').on('click', function () {
 				$('#div_alert').showAlert({message: data.result, level: 'danger'});
 				return;
 			}
-			$('#div_alert').showAlert({message: '{{Génération du code OTP réussie}}', level: 'success'});
+      ret = JSON.parse(data.result);
+      if (ret == 1) {
+			  $('#div_alert').showAlert({message: '{{Génération du code OTP réussie}}', level: 'success'});
+      }
+      else {
+				$('#div_alert').showAlert({message: '{{Erreur de Génération du code OTP}}', level: 'danger'});
+      }
 		}
 	});
 });

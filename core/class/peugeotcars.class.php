@@ -72,7 +72,8 @@ class peugeotcars extends eqLogic {
     
     public static function dependancy_install() {
       log::remove(__CLASS__ . '_update');
-      $add_params = " " . config::byKey('account', 'peugeotcars') . " " . config::byKey('password', 'peugeotcars') . " " . config::byKey('brandid', 'peugeotcars');
+      // $add_params = " " . config::byKey('account', 'peugeotcars') . " " . config::byKey('password', 'peugeotcars') . " " . config::byKey('brandid', 'peugeotcars');
+      $add_params = "";
       log::add('peugeotcars', 'info', 'dependancy_install:'.$add_params);
       return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('peugeotcars') . '/dependance' . $add_params, 'log' => log::getPathToLog(__CLASS__ . '_update'));
     }
@@ -95,7 +96,7 @@ class peugeotcars extends eqLogic {
 				$cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon/jeedom_gateway.py';
         $cmd .= ' -m ' . config::byKey('account', 'peugeotcars');
         $cmd .= ' -P ' . config::byKey('password', 'peugeotcars');
-				$cmd .= ' >> ' . log::getPathToLog('peugeotcars') . ' 2>&1 &';
+				$cmd .= ' >> ' . log::getPathToLog('peugeotcars_remote') . ' 2>&1 &';
 
         log::add('peugeotcars', 'info', $cmd);
 				shell_exec($cmd);
@@ -764,10 +765,10 @@ class peugeotcars extends eqLogic {
 
     // Test si deamon OK
     $deamon_info = self::deamon_info();
-    // if ($deamon_info['state'] == 'nok') {
-      // log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
-      // return;
-    // }    
+    if ($deamon_info['state'] == 'nok') {
+      log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
+      return;
+    }    
     log::add('peugeotcars', 'debug', "mqtt_submit: Envoi de la commmande (".dechex($command).") vers le serveur local");
 
     // Creation d'une liaison TCP/IP avec le serveur MQTT

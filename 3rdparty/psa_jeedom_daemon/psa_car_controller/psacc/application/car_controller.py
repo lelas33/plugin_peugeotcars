@@ -38,6 +38,10 @@ def parse_args():
     parser.add_argument("--web-conf", help="ignore if config files not existing yet", action='store_true')
     parser.add_argument("-b", "--base-path", help="base path for web app", default="/")
     parser.add_argument('--version', action='version', version='PSACC {}'.format(psa_car_controller.__version__))
+    # Added for JEEDOM
+    parser.add_argument("-C", "--country",  default="FR", help="set the country code")
+    parser.add_argument("-B", "--brandid",  default="AP", help="set the car brand")
+    # End added for JEEDOM
 
     return parser.parse_args()
 

@@ -26,6 +26,12 @@ global $cars_dt;
 global $cars_dt_gps;
 global $report;
 
+// Constantes pour la COM avec l'appli de configuration OTP
+define('HOST_OTP_IP', '127.0.0.1');
+define('HOST_OTP_PO', 65433);
+define('MSG_SIZE',    64);       //Taille message = 64 bytes
+
+
 // =====================================================
 // Fonction de lecture de tous les trajets d'une voiture
 // =====================================================
@@ -338,12 +344,12 @@ function precond_set_programs($vin, $pp_to, $progs)
   else if ($pp_to == "car") {
     // Export to car
     // Test si deamon OK
-    // $eq = eqLogic::byLogicalId($vin, "peugeotcars");
-    // $deamon_info = $eq->deamon_info();
-    // if ($deamon_info['state'] == 'nok') {
-      // log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
-      // return;
-    // }
+    $eq = eqLogic::byLogicalId($vin, "peugeotcars");
+    $deamon_info = $eq->deamon_info();
+    if ($deamon_info['state'] == 'nok') {
+      log::add('peugeotcars', 'info', "Le démon de gestion des commandes vers le véhicule est arrêté: Commande annulée");
+      return;
+    }
     // Creation d'une liaison TCP/IP avec le serveur MQTT
     $socket = mqtt_start_socket ();
     // Construction du message
@@ -475,6 +481,156 @@ function get_car_maint($vin)
   return $maint;
 }
 
+// =======================================
+// Gestion COM avec l'appli de config OTP
+// =======================================
+// Open socket
+// -----------
+function otp_start_socket ()
+{
+  // Creation d'une liaison TCP/IP avec le serveur
+  //----------------------------------------------
+  // Creation d'un socket
+  $socket = socket_create(AF_INET, SOCK_STREAM, 0) ;
+  //echo "  Socket : $socket<br>" ;
+
+  // connect to socket
+  $host = HOST_OTP_IP;
+  $port = HOST_OTP_PO;
+
+  $err = socket_connect($socket, $host, $port) ;
+  //echo "  Connect erreur : $err<br>" ;
+  return $socket;
+}
+
+// Close socket
+// ------------
+function otp_end_socket ($socket)
+{
+  // Fermeture socket
+  socket_shutdown($socket, 2) ;
+  socket_close($socket) ;
+}
+
+// Send message using TCP/IP com
+// -----------------------------
+function otp_message_send($socket, $cmd, $param_json)
+{
+  // Longueur du Message a envoyer
+  $msg_len =  strlen($msg_json);
+
+  // Entete du message: taille fixe de MSG_SIZE octets
+  // ff, f0, 00, cmd, param_size, param[0], ...
+  $tab_param = str_repeat(chr(0x00), MSG_SIZE);
+  $tab_param[0] = chr(0xff);
+  $tab_param[1] = chr(0xf0);
+  $tab_param[2] = chr(0x00);
+  $tab_param[3] = chr($cmd & 0xff);
+  
+  // parametres
+  $param_len = strlen($param_json);
+  $tab_param[4] = chr($param_len);
+  if ($param_len != 0) {
+    for ($i=0; $i<$param_len; $i++)
+      $tab_param[5+$i] = $param_json[$i];
+  }
+  log::add('peugeotcars', 'debug', 'MSG envoyé: lg_param='.$param_len);
+
+  // Envoi de l'entete du message
+  socket_send ( $socket, $tab_param, MSG_SIZE, 0);
+
+  // Attente compte rendu
+  $tab_rec = "";
+  $lg = socket_recv ($socket, $tab_rec, MSG_SIZE, MSG_WAITALL);
+  log::add('peugeotcars', 'debug', 'MSG Recu:'.ord($tab_rec[0]).'-'.ord($tab_rec[1]).'-'.ord($tab_rec[2]).'-'.ord($tab_rec[3]));
+
+  if (($lg == MSG_SIZE) && (ord($tab_rec[0]) == 0xff) && (ord($tab_rec[1]) == 0x0f) 
+                        && (ord($tab_rec[2]) == 0x00) && (ord($tab_rec[3]) == 0x01)) {
+     return (1);  // message retour correct
+     }
+   else {
+     return (0);  // message retour incorrect
+     }
+}
+
+// ================================
+// Gestion du code OTP en 3 etapes
+// ================================
+// Step 1: preparation
+function otp_prepare ()
+{
+  // Parametre de configuration du compte
+  $mail   = config::byKey('account', 'peugeotcars');
+  $passwd = config::byKey('password', 'peugeotcars');
+  $brandid= config::byKey('brandid', 'peugeotcars');
+  $country= config::byKey('country', 'peugeotcars');
+  log::add('peugeotcars', 'debug', 'Ajax:Params:'.$mail."/".$passwd."/".$brandid."/".$country);
+
+  // Lancement de l'appli de configuration OTP
+  $cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon/jeedom_otp.py';
+  $cmd .= ' --web-conf ';
+  $cmd .= ' -m ' . $mail;
+  $cmd .= ' -P ' . $passwd;
+  $cmd .= ' -B ' . $brandid;
+  $cmd .= ' -C ' . $country;
+  $cmd .= ' >> ' . log::getPathToLog('peugeotcars_otp') . ' 2>&1 &';
+
+  log::add('peugeotcars', 'info', 'Starting OTP manager');
+  log::add('peugeotcars', 'debug', $cmd);
+  shell_exec($cmd);
+  
+  // Attente 15 s
+  log::add('peugeotcars', 'info', 'Attente 45 s');
+  sleep(45);
+
+  // Envoi de la commande vers l'appli de config OTP: Attente retour de lancement de l'appli de config OTP
+  log::add('peugeotcars', 'info', 'Envoi commande de synchro');
+  $command = 0x01;
+  $socket = otp_start_socket ();                  // Creation d'une liaison TCP/IP avec le serveur MQTT
+  $cr = otp_message_send($socket, $command, "");  // Envoi du message de commande
+  otp_end_socket ($socket);                       // Fermeture du socket TCP/IP
+  return($cr);
+}
+
+
+// Step 2: Requete du SMS de confirmation
+function otp_req_sms ()
+{
+  // Envoi de la commande vers l'appli de config OTP: Requete SMS
+  log::add('peugeotcars', 'info', 'Envoi message: Requete SMS');
+  $command = 0x02;
+  $socket = otp_start_socket ();                  // Creation d'une liaison TCP/IP avec le serveur MQTT
+  $cr = otp_message_send($socket, $command, "");  // Envoi du message de commande
+  otp_end_socket ($socket);                       // Fermeture du socket TCP/IP
+  return($cr);
+}
+
+
+// Step 3: Finalisation de la generation du code OTP
+function otp_finalize ()
+{
+  // Parametres: valeur du code sms et du code pin
+  $param = [];
+  $param["code_pin"] = config::byKey('code_pin', 'peugeotcars');
+  $param["code_sms"] = config::byKey('code_sms', 'peugeotcars');
+  $param_json = json_encode($param);
+
+  // Envoi de la commande vers l'appli de config OTP: finalise code OTP
+  log::add('peugeotcars', 'info', 'Envoi message: finalise code OTP');
+  $command = 0x03;
+  $socket = otp_start_socket ();                          // Creation d'une liaison TCP/IP avec le serveur MQTT
+  $cr = otp_message_send($socket, $command, $param_json); // Envoi du message de commande
+  otp_end_socket ($socket);                               // Fermeture du socket TCP/IP
+
+  // Arret de l'appli de config OTP
+  log::add('peugeotcars', 'info', 'Stopping OTP manager');
+  if (count(system::ps('3rdparty/psa_jeedom_daemon/jeedom_otp.py')) > 0) {
+    system::kill('3rdparty/psa_jeedom_daemon/jeedom_otp.py', false);
+  }
+  return($cr);
+
+}
+
 
 // =====================================
 // Gestion des commandes recues par AJAX
@@ -553,22 +709,20 @@ try {
 
   else if (init('action') == 'OTP_Prepare') {
     log::add('peugeotcars', 'info', 'Ajax:OTP_Prepare');
-    $mail   = config::byKey('account', 'peugeotcars');
-    $passwd = config::byKey('password', 'peugeotcars');
-    $brandid= config::byKey('brandid', 'peugeotcars');
-    $country= config::byKey('country', 'peugeotcars');
-    log::add('peugeotcars', 'info', 'Ajax:Params:'.$mail."/".$passwd."/".$brandid."/".$country);
-    ajax::success($ret_json);
+    $ret = otp_prepare();
+    ajax::success(json_encode ($ret));
     }
 
   else if (init('action') == 'OTP_ReqSMS') {
     log::add('peugeotcars', 'info', 'Ajax:OTP_ReqSMS');
-    ajax::success($ret_json);
+    $ret = otp_req_sms();
+    ajax::success(json_encode ($ret));
     }
 
   else if (init('action') == 'OTP_Finalize') {
     log::add('peugeotcars', 'info', 'Ajax:OTP_Finalize');
-    ajax::success($ret_json);
+    $ret = otp_finalize();
+    ajax::success(json_encode ($ret));
     }
 
     throw new Exception(__('Aucune methode correspondante à : ', __FILE__) . init('action'));
