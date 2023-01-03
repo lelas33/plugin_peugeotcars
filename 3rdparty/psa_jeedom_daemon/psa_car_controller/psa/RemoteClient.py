@@ -109,7 +109,7 @@ class RemoteClient:
         if charge_info is not None and (charge_info.get('remaining_time', 0) != 0 or charge_info.get('rate', 0) != 0):
             try:
                 car = self.vehicles_list.get_car_by_vin(vin=vin)
-                if car and car.status.get_energy('Electric').charging.status != INPROGRESS:
+                if car and (car.status != None) and car.status.get_energy('Electric').charging.status != INPROGRESS:
                     # fix a psa server bug where charge beginning without status api being properly updated
                     logger.warning("charge begin but API isn't updated")
                     time.sleep(60)

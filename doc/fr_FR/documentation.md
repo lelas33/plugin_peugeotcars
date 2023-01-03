@@ -43,13 +43,22 @@ Par source Github:
 
 Sur la page configuration du plugin, réaliser les opérations suivantes dans l'ordre indiqué:
 * Sélectionner la marque de votre véhicule PSA (Peugeot, Citroën, Citroën-DS, Opel, Vauxhall)
-* Saisir vos identifiants de compte MyPeugeot (Login + Password), puis Sauvegarder la section Configuration
+* Saisir vos identifiants de compte MyPeugeot (Login + Password)
+* Saisir le code du pays (France, ...)
+* Saisir le code PIN utilisé sur l'appli. PSA sur téléphone
+* Puis Sauvegarder la section Configuration
 * Dans la section Démon, désactiver la "Gestion automatique". (elle pourra être réactivée ultérieurement, après une activation fonctionnelle)
 * Lancer l'installation des dépendances du plugin. (Attention, cette opération peut être assez longue: ~15 mn sur un Raspberry PI)
-  * Il est possible de suivre cette phase dans le log dédié: "peugeotcars_update"
-* Lorsque cette installation des dépendances est terminée, une requête d'authentification est lancée sur le site PSA, et vous devrez recevoir un code par SMS de STELLANTIS
-  * Ce SMS est envoyé au téléphone associé au compte PSA identifié par le login.
-* Lorsque le SMS est reçu, saisissez ce code SMS, et le code PIN de l'application téléphone PSA dans les 2 champs correspondants, puis Sauvegarder à nouveau la section Configuration
+  * Remarque: Il est possible de suivre cette phase dans le log dédié: "peugeotcars_update"
+  * Remarque: La requète du SMS n'est plus fait dans l'installation des dépendances
+
+* Lorsque cette installation des dépendances est terminée, démarrer la phase d'obtention du code OTP.
+  * Lancer l'étape (1) - Préparation (durée entre 1 et 2 mn). On doit obtenir le message "Préparation code OTP correcte"
+  * Lancer l'étape (2) - Requête SMS (rapide). On doit obtenir le message "Requête pour le SMS envoyée", et on doit recevoir un code par SMS.
+  * Saisir le code reçu dans le champ suivant (3), et Sauvegarder la section Configuration
+  * Lancer l'étape (4) - FInalisation code OTP (rapide). On doit obtenir le message "Génération du code OTP réussie"
+  * Remarque: Il est possible de suivre cette phase dans le log dédié: "peugeotcars_otp"
+  
 * cochez la case :"Afficher le panneau desktop", puis Sauvegarder la section Panel. Cela donne accès à la page du "panel" de l'équipement.
 * Démarrez le "Démon" en cliquant sur la flèche verte de la section Démon, le statut doit passer à OK (en vert)
 

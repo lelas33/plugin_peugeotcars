@@ -9,10 +9,11 @@ data/V*/
 *.log
 *.ini
 3rdparty/sample_lau.php
-3rdparty/psa_jeedom_daemon/config.json
-3rdparty/psa_jeedom_daemon/cars.json
-3rdparty/psa_jeedom_daemon/otp.bin
+3rdparty/psa_jeedom_daemon/*.json
+3rdparty/psa_jeedom_daemon/*.bin
 3rdparty/psa_jeedom_daemon/*.log
+3rdparty/psa_jeedom_daemon/*.apk
+3rdparty/psa_jeedom_daemon/certs/
 3rdparty/psa_jeedom_daemon/pycharm_readme.txt
 
 

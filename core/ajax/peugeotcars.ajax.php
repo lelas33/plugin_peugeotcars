@@ -566,6 +566,13 @@ function otp_prepare ()
   $country= config::byKey('country', 'peugeotcars');
   log::add('peugeotcars', 'debug', 'Ajax:Params:'.$mail."/".$passwd."/".$brandid."/".$country);
 
+  // Arret de l'appli de config OTP (si jamais elle est active)
+  log::add('peugeotcars', 'info', 'Stopping OTP manager');
+  if (count(system::ps('3rdparty/psa_jeedom_daemon/jeedom_otp.py')) > 0) {
+    system::kill('3rdparty/psa_jeedom_daemon/jeedom_otp.py', false);
+  }
+  sleep(10);
+  
   // Lancement de l'appli de configuration OTP
   $cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon/jeedom_otp.py';
   $cmd .= ' --web-conf ';
@@ -579,9 +586,9 @@ function otp_prepare ()
   log::add('peugeotcars', 'debug', $cmd);
   shell_exec($cmd);
   
-  // Attente 15 s
-  log::add('peugeotcars', 'info', 'Attente 45 s');
-  sleep(45);
+  // Attente 60 s
+  log::add('peugeotcars', 'info', 'Attente 60 s');
+  sleep(60);
 
   // Envoi de la commande vers l'appli de config OTP: Attente retour de lancement de l'appli de config OTP
   log::add('peugeotcars', 'info', 'Envoi commande de synchro');

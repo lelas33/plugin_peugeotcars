@@ -1,5 +1,11 @@
 # Changelog plugin PeugeotCars
 
+## 04/01/2023: Tag pgc_v0.9
+
+- Mise à jour de la part "Remote" du plugin, avec nouvelle version de l'authentification
+- Ajout d'un log dédié "Obtention du code OTP"
+- Séparation du log "plugin" et de la fonction "remote"
+
 ## 15/09/2021: Tag pgc_v0.8
 
 - Ajout des autres véhicules du groupe PSA. (Citroën, Citroën-DS, Opel, Vauxhall)

@@ -686,7 +686,7 @@ function trips_stats(stat_data) {
           formatter: function () {
               return this.points.reduce(function (s, point) {
                   var hdr  = '<br/><span style="color:'+ point.series.color +';font-size:14px"><b>' + point.series.name + ': </b></span>';
-                  var data = '<span style="font-size:14px">'+point.y + ' km</span>';
+                  var data = '<span style="font-size:14px">'+Math.round(point.y * 10) / 10 + ' km</span>';
                   return (s + hdr + data);
               }, '<span style="font-size:16px"><b>'+this.x+'</b></span>');
           }
@@ -721,7 +721,7 @@ function trips_stats(stat_data) {
           formatter: function () {
               return this.points.reduce(function (s, point) {
                   var hdr  = '<br/><span style="color:'+ point.series.color +';font-size:14px"><b>' + point.series.name + ': </b></span>';
-                  var data = '<span style="font-size:14px">'+point.y + ' kWh/100 km</span>';
+                  var data = '<span style="font-size:14px">'+Math.round(point.y * 10) / 10 + ' kWh/100 km</span>';
                   return (s + hdr + data);
               }, '<span style="font-size:16px"><b>'+this.x+'</b></span>');
           }
@@ -757,7 +757,7 @@ function trips_stats(stat_data) {
           formatter: function () {
               return this.points.reduce(function (s, point) {
                   var hdr  = '<br/><span style="color:'+ point.series.color +';font-size:14px"><b>' + point.series.name + ': </b></span>';
-                  var data = '<span style="font-size:14px">'+point.y + ' kWh / ' + Math.round(10*point.y*kwh_to_cost)/10 + ' €</span>';
+                  var data = '<span style="font-size:14px">'+Math.round(point.y * 10) / 10 + ' kWh / ' + Math.round(10*point.y*kwh_to_cost)/10 + ' €</span>';
                   return (s + hdr + data);
               }, '<span style="font-size:16px"><b>'+this.x+'</b></span>');
           }
