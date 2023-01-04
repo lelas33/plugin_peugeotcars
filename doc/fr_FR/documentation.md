@@ -45,18 +45,18 @@ Sur la page configuration du plugin, réaliser les opérations suivantes dans l'
 * Sélectionner la marque de votre véhicule PSA (Peugeot, Citroën, Citroën-DS, Opel, Vauxhall)
 * Saisir vos identifiants de compte MyPeugeot (Login + Password)
 * Saisir le code du pays (France, ...)
-* Saisir le code PIN utilisé sur l'appli. PSA sur téléphone
+* Saisir le code PIN utilisé sur l'appli. PSA du téléphone
 * Puis Sauvegarder la section Configuration
 * Dans la section Démon, désactiver la "Gestion automatique". (elle pourra être réactivée ultérieurement, après une activation fonctionnelle)
 * Lancer l'installation des dépendances du plugin. (Attention, cette opération peut être assez longue: ~15 mn sur un Raspberry PI)
   * Remarque: Il est possible de suivre cette phase dans le log dédié: "peugeotcars_update"
-  * Remarque: La requète du SMS n'est plus fait dans l'installation des dépendances
+  * Remarque: La requète du SMS n'est plus faite pendant l'installation des dépendances
 
 * Lorsque cette installation des dépendances est terminée, démarrer la phase d'obtention du code OTP.
   * Lancer l'étape (1) - Préparation (durée entre 1 et 2 mn). On doit obtenir le message "Préparation code OTP correcte"
   * Lancer l'étape (2) - Requête SMS (rapide). On doit obtenir le message "Requête pour le SMS envoyée", et on doit recevoir un code par SMS.
   * Saisir le code reçu dans le champ suivant (3), et Sauvegarder la section Configuration
-  * Lancer l'étape (4) - FInalisation code OTP (rapide). On doit obtenir le message "Génération du code OTP réussie"
+  * Lancer l'étape (4) - Finalisation code OTP (rapide). On doit obtenir le message "Génération du code OTP réussie"
   * Remarque: Il est possible de suivre cette phase dans le log dédié: "peugeotcars_otp"
   
 * cochez la case :"Afficher le panneau desktop", puis Sauvegarder la section Panel. Cela donne accès à la page du "panel" de l'équipement.
