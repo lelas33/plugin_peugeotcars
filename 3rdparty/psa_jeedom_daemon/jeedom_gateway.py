@@ -12,7 +12,7 @@ import json
 
 path2 = os.path.dirname(os.path.abspath(__file__))
 if path2 not in sys.path:
-    sys.path.append(dossier)
+    sys.path.append(path2)
 
 # pylint: disable=wrong-import-position
 from psa_car_controller.psacc.application.car_controller import PSACarController
