@@ -31,10 +31,10 @@ echo 40 > ${PROGRESS_FILE}
 echo "============================================="
 echo "STEP3:Installation des librairies necessaires"
 echo "============================================="
-#PYTHON_REQ=$BASEDIR/../3rdparty/psa_jeedom_daemon/requirements.txt
-#echo "python_req: $PYTHON_REQ"
-#sudo python3 -m pip install -r $PYTHON_REQ
-sudo apt-get install python3-typing-extensions python3-pandas python3-plotly python3-paho-mqtt python3-six python3-dateutil python3-brotli libblas-dev  liblapack-dev gfortran python3-pycryptodome libatlas3-base python3-cryptography python3-pip
+PYTHON_REQ=$BASEDIR/../3rdparty/psa_jeedom_daemon/requirements.txt
+echo "python_req: $PYTHON_REQ"
+sudo apt-get -y install python3-typing-extensions python3-pandas python3-plotly python3-paho-mqtt python3-six python3-dateutil python3-brotli libblas-dev  liblapack-dev gfortran python3-pycryptodome libatlas3-base python3-cryptography python3-pip
+sudo python3 -m pip install -r $PYTHON_REQ
 echo 100 > ${PROGRESS_FILE}
 echo "======================================="
 echo "Installation des dépendances terminée !"
