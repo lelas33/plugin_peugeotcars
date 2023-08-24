@@ -138,7 +138,7 @@ function mqtt_message_send2($socket, $cmd, $msg_json, &$cmd_ack)
   // corps du message de retour
   $tab_param = "";
   $lg = socket_recv ($socket, $tab_param, $ack_len, MSG_WAITALL);
-  log::add('peugeotcars','debug',"Retour mqtt:".$tab_param);
+  // log::add('peugeotcars','debug',"Retour mqtt:".$tab_param);
   $cmd_ack = json_decode($tab_param);
   if ($lg == $ack_len)
     return (1);

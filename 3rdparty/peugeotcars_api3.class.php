@@ -351,9 +351,9 @@ class peugeotcars_api3 {
       'minutes' => $minutes ? $minutes[0] : 0,
       'seconds' => $seconds ? $seconds[0] : 0,
     ];
-    $hours   = substr($duration['hours'], 0, -1);
-    $minutes = substr($duration['minutes'], 0, -1);
-    $seconds = substr($duration['seconds'], 0, -1);
+    $hours   = intval(substr($duration['hours'], 0, -1));
+    $minutes = intval(substr($duration['minutes'], 0, -1));
+    $seconds = intval(substr($duration['seconds'], 0, -1));
     $totalSeconds = ($hours * 60 * 60) + ($minutes * 60) + $seconds;
     return $totalSeconds;
   }
@@ -406,12 +406,16 @@ class peugeotcars_api3 {
     if (isset($ret["result"]->lastPosition->properties->signalQuality))
       $retf["conn_level"]   = $ret["result"]->lastPosition->properties->signalQuality;
     $retf["batt_voltage"] = intval($ret["result"]->battery->voltage);
-    $retf["batt_current"] = intval($ret["result"]->battery->current);
+    $retf["batt_current"] = 0; // intval($ret["result"]->battery->current);  // current no more available
     $retf["precond_status"] = $ret["result"]->preconditionning->airConditioning->status;
     $veh_type = strtolower ($ret["result"]->service->type);
     $retf["service_type"]  = $veh_type;
     $retf["kinetic_moving"]= $ret["result"]->kinetic->moving;
-    $retf["gen_mileage"]   = $ret["result"]->{"timed.odometer"}->mileage;
+    // $retf["gen_mileage"]   = $ret["result"]->{"timed.odometer"}->mileage;
+    $retf["gen_mileage"]   = $ret["result"]->odometer->mileage;
+    $retf["envir_day"]     = $ret["result"]->environment->luminosity->day;
+    $retf["envir_tempe"]   = $ret["result"]->environment->air->temp;
+    $retf["ignition"]      = $ret["result"]->ignition->type;
     // Retours energie electrique & fuel si hybride
     if (count($ret["result"]->energy) == 1) {
       $elec_id = 0;
