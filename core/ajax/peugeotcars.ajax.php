@@ -577,7 +577,7 @@ function otp_prepare ()
   $cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon/jeedom_otp.py';
   $cmd .= ' --web-conf ';
   $cmd .= ' -m ' . $mail;
-  $cmd .= ' -P ' . $passwd;
+  $cmd .= ' -P \'' . $passwd . '\'';
   $cmd .= ' -B ' . $brandid;
   $cmd .= ' -C ' . $country;
   $cmd .= ' >> ' . log::getPathToLog('peugeotcars_otp') . ' 2>&1 &';
