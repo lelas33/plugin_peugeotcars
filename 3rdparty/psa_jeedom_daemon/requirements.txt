@@ -15,7 +15,7 @@ dash_bootstrap_components
 ConfigUpdater>=3.0
 geojson>=2.5.0
 reverse-geocode>=1.4.1
-androguard>=3.3.5
+androguard==3.3.5
 pycryptodomex>=3.9.0
 ruamel.yaml>=0.15.0
 pydantic>=1.9.0
