@@ -95,7 +95,7 @@ class peugeotcars extends eqLogic {
 
 				$cmd  = 'sudo /usr/bin/python3 ' . dirname(__FILE__) . '/../../3rdparty/psa_jeedom_daemon/jeedom_gateway.py';
         $cmd .= ' -m ' . config::byKey('account', 'peugeotcars');
-        $cmd .= ' -P ' . config::byKey('password', 'peugeotcars');
+        $cmd .= ' -P \'' . config::byKey('password', 'peugeotcars') . '\'';
 				$cmd .= ' >> ' . log::getPathToLog('peugeotcars_remote') . ' 2>&1 &';
 
         log::add('peugeotcars', 'info', $cmd);
